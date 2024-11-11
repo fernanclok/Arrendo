@@ -11,20 +11,20 @@ class Contract extends Model
 
     protected $fillable = [
         'property_id',
-        'tenant_id',
+        'tenant_user_id',
         'start_date',
         'end_date',
         'rental_amount',
-        'status',
+        'status', //Active, Pending Renewal, Terminated
     ];
 
     public function property()
     {
-        return $this->belongsTo(Property::class);
+        return $this->belongsTo(Property::class, 'id');
     }
 
-    public function tenant()
+    public function tenantUser()
     {
-        return $this->belongsTo(Tenant::class);
+        return $this->belongsTo(User::class, 'id');
     }
 }

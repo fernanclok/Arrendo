@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Rental_Document extends Model
+class Rental_document extends Model
 {
     use HasFactory;
 
@@ -17,8 +17,8 @@ class Rental_Document extends Model
         'document_status',
     ];
 
-    public function rental_application()
+    public function application()
     {
-        return $this->belongsTo(Rental_Application::class);
+        return $this->belongsTo(Rental_application::class, 'id');
     }
 }
