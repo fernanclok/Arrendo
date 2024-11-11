@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Validator;
 
 class User extends Authenticatable
 {
@@ -21,10 +22,12 @@ class User extends Authenticatable
         'first_name',
         'last_name',
         'email',
+        'password',
         'phone',
         'role',
+        'emergency_contact_name',
+        'emergency_contact_phone',
         'registration_date',
-        'password',
     ];
 
     /**
@@ -45,4 +48,18 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public static function validateRole(array $attributes)
+    {
+        $validator = Validator::make($attributes, [
+            'role' => [
+                'required',
+                Rule::in(['Owner', 'Tenant']),
+            ],
+        ]);
+
+        if ($validator->fails()) {
+            throw new \Illuminate\Validation\ValidationException($validator);
+        }
+    }
 }
