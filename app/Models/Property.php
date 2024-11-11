@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Validator;
 
 class Property extends Model
 {
@@ -13,18 +15,39 @@ class Property extends Model
         'name',
         'address',
         'rental_rate',
-        'availability',
-        'owner_id',
+        'availability', //Available, Not Available
+        'total_bathrooms',
+        'total_rooms',
+        'total_m2',
+        'have_parking', // 1 = Yes, 0 = No
+        'property_price',
+        'owner_user_id',
         'zone_id',
     ];
 
-    public function owner()
+    public function ownerUser()
     {
-        return $this->belongsTo(Owner::class);
+        return $this->belongsTo(User::class, 'id');
     }
 
     public function zone()
     {
-        return $this->belongsTo(Zone::class);
+        return $this->belongsTo(Zone::class, 'id');
+    }
+
+    public function validateAvailability(array $attributes)
+    {
+        $validator = Validator::make($attributes, [
+            'availability' => [
+                'required',
+                Rule::in(['Available', 'Not Available']),
+            ],
+        ]);
+
+        if ($validator->fails()) {
+            throw new \Illuminate\Validation\ValidationException($validator);
+        }
     }
 }
+
+

@@ -10,15 +10,15 @@ class Notification extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
-        'notification_type',
-        'message',
-        'sent_date',
-        'read_status',
+       'user_id',
+       'notification_type',
+       'message',
+       'send_date',
+       'read_status',
     ];
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'id');
     }
 }
