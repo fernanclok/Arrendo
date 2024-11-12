@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('comments', function (Blueprint $table) {
             $table->id();
             $table->text('comment');
-            $table->decimal('comment_calification', 8, 2);
+            $table->decimal('comment_rate', 8, 2);
             $table->foreignId('property_id')->constrained('properties');
             $table->timestamps();
         });
