@@ -18,7 +18,7 @@ import TextInput from '@/Components/TextInput.vue';
                     <span class="text-xl font-bold">Arrendo</span>
                     </Link>
                     <nav class="hidden md:flex space-x-4">
-                        <Link v-for="item in navItems" :key="item.href" :to="item.href"
+                        <Link v-for="item in navItems" :key="item.href" :href="item.href"
                             class="text-sm font-medium hover:underline">
                         {{ item.label }}
                         </Link>
