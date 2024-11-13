@@ -18,10 +18,6 @@ use Inertia\Inertia;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
     ]);
 });
 
@@ -35,6 +31,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+//properties
+Route::get('/properties', function () {
+    return Inertia::render('Properties');
+})->name('properties');
+
 Route::get('/contracts', function () {
     return Inertia::render('Contracts/showContract');
 });
@@ -43,6 +44,4 @@ Route::get('/manage/contracts', function () {
     return Inertia::render('Contracts/manageContracts');
 });
 
-
-
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';
