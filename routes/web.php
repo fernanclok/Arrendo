@@ -36,4 +36,12 @@ Route::get('/properties', function () {
     return Inertia::render('Properties');
 })->name('properties');
 
+Route::get('/contracts', function () {
+    return Inertia::render('Contracts/showContract');
+});
+
+Route::get('/manage/contracts', function () {
+    return Inertia::render('Contracts/manageContracts');
+});
+
 require __DIR__.'/auth.php';
