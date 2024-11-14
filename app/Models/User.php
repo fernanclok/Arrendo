@@ -49,6 +49,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public $timestamps = false;
+
     public static function validateRole(array $attributes)
     {
         $validator = Validator::make($attributes, [
