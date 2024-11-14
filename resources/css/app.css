@@ -1,14 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import "~font-awesome/css/font-awesome.min.css";
 
 #logo-sidebar {
     transition: transform 0.3s ease-in-out;
-  }
+}
 #contenido {
     transition: transform 0.3s ease-in-out;
-  }  
+}
 
 .section-background {
     background-color: #fc3b3b;

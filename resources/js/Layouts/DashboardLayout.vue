@@ -1,8 +1,5 @@
 <script setup>
-import Dropdown from "@/Components/Dropdown.vue";
-import { Head } from "@inertiajs/vue3";
 import { ref } from 'vue'
-import CustomButton from '@/Components/CustomButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 const Items = [
   { href: '/', label: 'Dashboard', icon: 'home' },
@@ -85,7 +82,7 @@ const toggleSidebar = () => {
             </aside>
             
             <nav :class="{
-                    'transition-all duration-300 p-8 ': true,
+                    'transition-all duration-300 p-2 sm:p-8 ': true,
                     'sm:ml-44': !isSidebarOpen,  // Cuando el sidebar está cerrado, mover el contenido
                     'sm:ml-0': isSidebarOpen }">
                     <div :class="{

@@ -17,8 +17,7 @@ use Inertia\Inertia;
 */
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-    ]);
+    return Inertia::render('Welcome', []);
 });
 
 Route::get('/dashboard', function () {
@@ -44,4 +43,4 @@ Route::get('/manage/contracts', function () {
     return Inertia::render('Contracts/manageContracts');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
