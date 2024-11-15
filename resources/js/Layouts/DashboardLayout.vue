@@ -40,19 +40,10 @@ const toggleSidebar = () => {
                         <ul class="space-y-2 pb-2">
                                 <li v-for="item in Items" :key="item.href" class="flex items-center p-2 text-gray-300 rounded-md hover:bg-secondary focus:ring-white group">
                                     <!-- Mostrar solo los items que no sean 'Contracts' -->
-                                    <a v-if="item.label !== 'Contracts'" :href="item.href" class="text-sm font-thin group-hover:text-gray-900 flex items-center">
+                                    <a v-if="item.label" :href="item.href" class="text-sm font-thin group-hover:text-gray-900 flex items-center">
                                     <i :class="`fa fa-${item.icon} mr-2`"></i>
                                     {{ item.label }}
                                     </a>
-                                    <nav v-else>
-                                        <button id="dropdownNavbarLink" data-dropdown-toggle="dropdownNavbar" class="flex justify-center items-center text-sm font-thin group-hover:text-gray-900">
-                                            <i :class="`fa fa-${item.icon} mr-2`"></i>
-                                            {{ item.label }} 
-                                            <svg class="w-2.5 h-2.5 ms-2.5 transform focus:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
-                                            </svg>
-                                        </button>
-                                    </nav>
                                 </li>
                             </ul>
                                 <div class="border border-gray-500 my-2"></div>
@@ -74,7 +65,7 @@ const toggleSidebar = () => {
                                 <svg :class="{
                                     'text-white font-bold w-full h-6': isSidebarOpen,
                                     'transform rotate-180': !isSidebarOpen,
-                                }" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                }"   aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m7 16 4-4-4-4m6 8 4-4-4-4"/>
                                 </svg>
                         </button>
@@ -82,7 +73,7 @@ const toggleSidebar = () => {
             </aside>
             
             <nav :class="{
-                    'transition-all duration-300 p-2 sm:p-8 ': true,
+                    'transition-all duration-300 p-2 sm:p-6 ': true,
                     'sm:ml-44': !isSidebarOpen,  // Cuando el sidebar está cerrado, mover el contenido
                     'sm:ml-0': isSidebarOpen }">
                     <div :class="{
