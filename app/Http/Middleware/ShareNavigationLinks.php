@@ -13,8 +13,14 @@ class ShareNavigationLinks
     {
         Inertia::share('navLinks', function () {
             $allowedRoutes = [
-                'Owner' => ['dashboard', 'houses'],
-                'Tenant' => ['dashboard'],
+                'Owner' => [
+                    ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'home'],
+                    ['route' => 'manageContracts', 'label' => 'contracts', 'icon' => 'building'],
+                ],
+                'Tenant' => [
+                    ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'view-dashboard'],
+                    ['route' => 'appoinments', 'label' => 'Appoinments', 'icon' => 'calendar']
+                ],
             ];
 
             $userRole = Auth::user() ? Auth::user()->role : null;
