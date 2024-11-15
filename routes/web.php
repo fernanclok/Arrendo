@@ -17,13 +17,21 @@ use Inertia\Inertia;
 */
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-    ]);
+    return Inertia::render('Welcome', []);
 });
 
+// Dashboard
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified', 'role:admin,Owner,Tenant'])->name('dashboard');
+    return Inertia::render('Dashboard', ['childComponent' => 'Charts']);
+})->name('dashboard');
+
+Route::get('/dashboard/tables', function () {
+    return Inertia::render('Dashboard', ['childComponent' => 'Tables']);
+})->name('dashboard.tables');
+
+Route::get('/dashboard/settings', function () {
+    return Inertia::render('Dashboard', ['childComponent' => 'Settings']); // Cambiado para mantener consistencia
+})->name('dashboard.settings');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
