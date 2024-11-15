@@ -1,5 +1,7 @@
 <script setup>
 import CustomButton from '@/Components/CustomButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+import FilterPanel from '@/Components/FilterPanel.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
@@ -67,14 +69,6 @@ const properties = ref([
     },
 ]);
 
-const precioMaximo = ref(null);
-
-const filtrarPropiedades = () => {
-    // Lógica para filtrar propiedades por precio máximo
-    if (precioMaximo.value) {
-        properties.value = properties.value.filter(property => property.price <= precioMaximo.value);
-    }
-};
 </script>
 
 <template>
@@ -102,37 +96,38 @@ const filtrarPropiedades = () => {
         </header>
 
       <!-- Main Content -->
-      <main :class="{ 'flex': showDetails, 'block': !showDetails }" class="flex-grow relative overflow-hidden">
+        <main  :class="{ 'flex': showDetails, 'block': !showDetails }" class="flex-grow relative overflow-hidden p-6">
             <!-- Sección izquierda con el filtro y las propiedades -->
             <div :class="{ 'w-full': !showDetails, 'w-full md:w-3/4': showDetails }" class="p-4 h-full overflow-y-auto">
                 <h1 class="text-3xl font-bold mb-6">Properties in Rent</h1>
 
-                <div class="mb-6">
-                    <label for="precioMaximo" class="block text-sm font-medium text-gray-400">Filter by maximum price:</label>
-                    <div class="flex gap-2 mt-1">
-                        <input id="precioMaximo" v-model="precioMaximo" type="number" placeholder="Precio máximo"
-                            class="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
-                        <CustomButton @click="filtrarPropiedades" type="primary" class="py-2 ml-2">
-                            Filtrar
-                        </CustomButton>
-                    </div>
-                </div>
+                <FilterPanel />
 
                 <!-- Sección de tarjetas de propiedades con scroll interno en móviles -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 h-full overflow-y-auto md:h-auto md:overflow-visible">
-                    <div v-for="property in properties" :key="property.id" class="bg-white shadow-md rounded-lg overflow-hidden h-full md:h-auto">
+                    <div
+                        v-if="properties && properties.length > 0"
+                        v-for="property in properties"
+                        :key="property.id"
+                        :class="[
+                            'bg-white shadow-md rounded-lg overflow-hidden h-full md:h-auto transform transition duration-300',
+                            { 'scale-105 shadow-xl': activePropertyId === property.id }
+                        ]"
+                    >
                         <img :src="property.image" alt="Property" class="w-full h-48 object-cover" />
                         <div class="p-4">
                             <h2 class="text-xl font-semibold mb-2">{{ property.title }}</h2>
                             <p class="text-gray-600 mb-2">{{ property.address }}</p>
                             <div class="flex justify-between items-center mb-2">
                                 <span class="flex items-center">
+                                    <!-- SVG Icon for rooms -->
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16h6M4 6h16M4 6a2 2 0 012-2h12a2 2 0 012 2M4 6v12a2 2 0 002 2h12a2 2 0 002-2V6"></path>
                                     </svg>
                                     {{ property.rooms }} rooms
                                 </span>
                                 <span class="flex items-center">
+                                    <!-- SVG Icon for bathrooms -->
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 1.343-3 3v4h6v-4c0-1.657-1.343-3-3-3zM5 20h14a2 2 0 002-2v-5a2 2 0 00-2-2H5a2 2 0 00-2 2v5a2 2 0 002 2z"></path>
                                     </svg>
@@ -147,12 +142,19 @@ const filtrarPropiedades = () => {
                                 </svg>
                                 ${{ property.price }}
                             </span>
-                            <CustomButton type="primary" @click="toggleModalDetails">
+                            <CustomButton v-if="property.id != activePropertyId" type="primary" @click="toggleDetails(property.id)">
                                 View Details
+                            </CustomButton>
+                            <CustomButton v-else type="primary" @click="showDetails = false">
+                                Hide Details
                             </CustomButton>
                         </div>
                     </div>
+                    <div v-else class="text-center text-gray-500 col-span-3">
+                        <p>No properties found with the selected filters.</p>
+                    </div>
                 </div>
+
             </div>
 
             <!-- Sección derecha del modal -->
@@ -213,12 +215,38 @@ export default {
     data() {
         return {
             showDetails: false,
+            activePropertyId: null,
         };
     },
     methods: {
-        toggleModalDetails() {
-            this.showDetails = true;
+        toggleDetails(propertyId) {
+            this.showDetails = !this.showDetails;
+            if (this.activePropertyId === propertyId) {
+                this.showDetails = false;
+                this.activePropertyId = null;
+            } else {
+                this.activePropertyId = propertyId;
+                this.showDetails = true;
+            }
+        },
+        filtrarPropiedades() {
+            const filters = {
+                selectedZone: this.selectedZone,
+                maxPrice: this.maxPrice,
+                bedrooms: this.bedrooms,
+                bathrooms: this.bathrooms,
+                allowPets: this.allowPets,
+            };
+            
+            console.log("Applying filters:", filters);
         },
     },
+    watch: {
+        showDetails(newVal) {
+            if (!newVal) {
+                this.activePropertyId = null;
+            }
+        }
+    }
 };
 </script>
