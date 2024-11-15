@@ -4,6 +4,7 @@ import { ref, onMounted, watch } from 'vue';
 import NavLink from "@/Components/NavLink.vue";
 import DropdownLink from "@/Components/DropdownLink.vue";
 
+
 const { props } = usePage();
 const navLinks = ref(props.navLinks);
 console.log(navLinks)

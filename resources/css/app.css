@@ -4,10 +4,10 @@
 
 #logo-sidebar {
     transition: transform 0.3s ease-in-out;
-  }
+}
 #contenido {
     transition: transform 0.3s ease-in-out;
-  }  
+}
 
 .section-background {
     background-color: #fc3b3b;
