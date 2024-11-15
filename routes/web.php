@@ -33,8 +33,6 @@ Route::get('/dashboard/settings', function () {
     return Inertia::render('Dashboard', ['childComponent' => 'Settings']); // Cambiado para mantener consistencia
 })->name('dashboard.settings');
 
-
-
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -46,4 +44,17 @@ Route::get('/properties', function () {
     return Inertia::render('Properties');
 })->name('properties');
 
-require __DIR__ . '/auth.php';
+Route::get('/contracts', function () {
+    return Inertia::render('Contracts/showContract');
+});
+
+Route::get('/manage/contracts', function () {
+    return Inertia::render('Contracts/manageContracts');
+})->middleware(['auth','verified','role:admin,Owner'])->name('manageContracts');
+
+//appoinments
+Route::get('/appoinments', function () {
+    return Inertia::render('Appoinments');
+})->middleware(['auth','verified','role:admin,Tenant,Owner'])->name('appoinments');
+
+require __DIR__.'/auth.php';
