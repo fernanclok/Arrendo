@@ -32,7 +32,7 @@
           case 'danger':
             return 'bg-red-500 text-white hover:bg-red-700 focus:bg-red-700 active:bg-red-900 focus:ring-red-500';
           case 'primary':
-          return 'bg-primary-black text-white hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:ring-green-500';
+          return 'bg-primary text-white hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:ring-green-500';
           case'success':
           return 'bg-green-500 text-white hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:ring-green-500';
           case 'warning':

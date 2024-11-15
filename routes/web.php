@@ -17,13 +17,12 @@ use Inertia\Inertia;
 */
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-    ]);
+    return Inertia::render('Welcome', []);
 });
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('dashboard');
+})->middleware(['auth', 'verified', 'role:admin,Owner,Tenant'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -42,6 +41,11 @@ Route::get('/contracts', function () {
 
 Route::get('/manage/contracts', function () {
     return Inertia::render('Contracts/manageContracts');
-});
+})->middleware(['auth','verified','role:admin,Owner'])->name('manageContracts');
 
-require __DIR__.'/auth.php';
+//appoinments
+Route::get('/appoinments', function () {
+    return Inertia::render('Appoinments');
+})->middleware(['auth','verified','role:admin,Tenant,Owner'])->name('appoinments');
+
+require __DIR__ . '/auth.php';
