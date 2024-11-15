@@ -57,4 +57,4 @@ Route::get('/appoinments', function () {
     return Inertia::render('Appoinments');
 })->middleware(['auth','verified','role:admin,Tenant,Owner'])->name('appoinments');
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
