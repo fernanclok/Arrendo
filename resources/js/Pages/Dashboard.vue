@@ -1,22 +1,39 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
+import AdminNavbar from "@/Components/Navbars/AdminNavbar.vue";
+import HeaderStats from "@/Components/Headers/HeaderStats.vue";
+import { computed } from 'vue';
+import Charts from './Dashboard/Charts.vue';
+import Settings from './Dashboard/Settings.vue';
+import FooterDashboard from '@/Components/Footers/FooterDashboard.vue';
+
+const { props } = usePage();
+
+const component = computed(() => {
+
+    switch (props.childComponent) {
+        case 'Settings':
+            return Settings;
+        case 'Charts':
+            return Charts;
+        default:
+            return Charts;
+    }
+});
 </script>
 
 <template>
+
     <Head title="Dashboard" />
-
-    <AuthenticatedLayout>
-        <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Dashboard</h2>
-        </template>
-
-        <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 text-gray-900">You're logged in!</div>
-                </div>
+    <div class="">
+        <div class="relative md:ml- bg-blueGray-100">
+            <admin-navbar />
+            <header-stats />
+            <div class="px-4 md:px-10 mx-auto w-full -m-24">
+                <component :is="component" />
+                <FooterDashboard />
             </div>
         </div>
-    </AuthenticatedLayout>
+    </div>
 </template>
