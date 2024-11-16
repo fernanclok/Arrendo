@@ -40,39 +40,51 @@ watch(isSidebarOpen, (newValue) => {
         <aside
             id="logo-sidebar"
             :class="{
-                'fixed top-0 left-0 z-40 h-screen p-2 transition-transform bg-gray-100 border-r': true,
+                'fixed top-0 left-0 z-40 h-screen p-2 transition-all duration-300 bg-gray-100 border-r': true,
                 'w-fit': isSidebarOpen,   // Ancho normal cuando está abierto
                 'w-fit': !isSidebarOpen,  // Ancho reducido cuando está colapsado
             }"
             aria-label="Sidebar"
         >
-            <ul class="pt-6">
+            <ul class="pt-6 h-[90%]">
+                
                 <li
                     v-for="link in navLinks"
                     :key="link.route"
-                    class="flex items-center p-2"
+                    class="flex items-center p-2 transition-all duration-300"
                 >
                     <NavLink
                         :href="route(link.route)"
-                        :active="route().current(link.route)"
-                    >
+                        :active="route().current(link.route)">
                         <i :class="`mdi mdi-${link.icon} text-md`"></i>
                         <span v-if="isSidebarOpen" class="ml-2">{{ link.label }}</span>
                     </NavLink>
+                    
                 </li>
+                
             </ul>
 
             <!-- Contenedor de tres puntos en la parte inferior -->
-            <div class="mt-auto flex justify-center mb-4">
+            <div :class="{
+                'justify-center items-center text-center w-full align-bottom mb-4':true,
+                'block': !isSidebarOpen,
+                'flex': isSidebarOpen
+            }">
                 <button
                     @click="toggleDropdown"
-                    class="p-2 rounded-full hover:bg-gray-200 transition-colors flex items-center space-x-1"
+                    class="p-2 rounded-full hover:bg-gray-200 transition-colors flex items-center space-x-4"
                 >
                     <span class="flex space-x-1">
                         <span class="h-1 w-1 rounded-full bg-gray-500"></span>
                         <span class="h-1 w-1 rounded-full bg-gray-500"></span>
                         <span class="h-1 w-1 rounded-full bg-gray-500"></span>
                     </span>
+                </button>
+                <button @click="toggleSidebar" class="p-2 rounded-full hover:bg-gray-200 transition-colors flex items-center space-x-1">
+                    <i :class="{
+                        'mdi mdi-arrow-collapse-left text-lg ':true,
+                        'mdi mdi-arrow-collapse-right': !isSidebarOpen
+                        }"></i>
                 </button>
             </div>
 
@@ -91,7 +103,7 @@ watch(isSidebarOpen, (newValue) => {
         <nav
             :class="{
                 'transition-all duration-300 p-8': true,
-                'sm:ml-44': isSidebarOpen,  // Margen cuando el sidebar está abierto
+                'sm:ml-40': isSidebarOpen,  // Margen cuando el sidebar está abierto
                 'sm:ml-16': !isSidebarOpen  // Margen ajustado cuando el sidebar está colapsado
             }"
         >

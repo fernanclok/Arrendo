@@ -4,12 +4,11 @@ import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { ref, computed  } from 'vue';
 
-
 const Contracts = [
     {id:'1', status: 'Active', beingDate: '19-01-2023',endDate: '10-10-2025', tenant: 'Juan Manuel Lopez Uribe', owner: 'Derian Tarango', mount: '$5,000', type: 'Departamento', address: 'Calle 123 # 123-123', city: 'Tijuana', state: 'Baja California', country: 'Mexico'},
-    {id:'2', status: 'Renewal', beingDate: '19-01-2023',endDate: '10-10-2025', tenant: 'Juan Manuel Lopez Uribe', owner: 'Derian Tarango', mount: '$5,000', type: 'Departamento', address: 'Calle 123 # 123-123', city: 'Tijuana', state: 'Baja California', country: 'Mexico'},
-    {id:'3', status: 'Renewal', beingDate: '19-01-2023',endDate: '10-10-2025', tenant: 'Juan Manuel Lopez Uribe', owner: 'Derian Tarango', mount: '$5,000', type: 'Departamento', address: 'Calle 123 # 123-123', city: 'Tijuana', state: 'Baja California', country: 'Mexico'},
-    {id:'4', status: 'Finished', beingDate: '19-01-2023',endDate: '10-10-2025', tenant: 'Juan Manuel Lopez Uribe', owner: 'Derian Tarango', mount: '$5,000', type: 'Departamento', address: 'Calle 123 # 123-123', city: 'Tijuana', state: 'Baja California', country: 'Mexico'}
+    {id:'2', status: 'Pending Renewal', beingDate: '19-01-2023',endDate: '10-10-2025', tenant: 'Juan Manuel Lopez Uribe', owner: 'Derian Tarango', mount: '$5,000', type: 'Departamento', address: 'Calle 123 # 123-123', city: 'Tijuana', state: 'Baja California', country: 'Mexico'},
+    {id:'3', status: 'Pending Renewal', beingDate: '19-01-2023',endDate: '10-10-2025', tenant: 'Juan Manuel Lopez Uribe', owner: 'Derian Tarango', mount: '$5,000', type: 'Departamento', address: 'Calle 123 # 123-123', city: 'Tijuana', state: 'Baja California', country: 'Mexico'},
+    {id:'4', status: 'Terminated', beingDate: '19-01-2023',endDate: '10-10-2025', tenant: 'Juan Manuel Lopez Uribe', owner: 'Derian Tarango', mount: '$5,000', type: 'Departamento', address: 'Calle 123 # 123-123', city: 'Tijuana', state: 'Baja California', country: 'Mexico'}
 ];
 //Filtrar contratos
 const filterStatus = ref('all');// valor por defecto
@@ -40,7 +39,6 @@ const showContract = (key) => {
                 </div>
                 <div id="content" class="grid grid-cols-1 sm:grid-cols-2">
                     <nav  class="w-full">
-                        :key="Contract.id"
                     </nav>
                     <nav id="forms" class="w-full">
 
@@ -52,20 +50,20 @@ const showContract = (key) => {
                     <h1 class="text-lg font-bold w-full flex">Contracts</h1>
                     <nav class="flex justify-center text-sm w-full text-gray-500">
                         <button @click="filter('all')" class="p-2 flex justify-center text-center items-center group rounded-lg">
-                            <i class="fa fa-circle pr-2 text-blue-700 group-hover:text-blue-500"></i>
+                            <i class="mdi mdi-circle pr-2 text-blue-700 group-hover:text-blue-500"></i>
                             <p class="text-xs font-bold text-blue-700 group-hover:text-black hover:underline underline-offset-2">All</p>
                         </button>
                         <button @click="filter('Active')" class="p-1 flex justify-center text-center items-center group rounded-lg">
-                            <i class="fa fa-circle pr-2 text-green-700 group-hover:text-green-500"></i>
+                            <i class="mdi mdi-circle pr-2 text-green-700 group-hover:text-green-500"></i>
                             <p class="text-xs font-bold text-green-700 group-hover:text-black hover:underline underline-offset-2">Active</p>
                         </button>
-                        <button @click="filter('Renewal')" class="p-1 flex justify-center text-center items-center group rounded-lg">
-                            <i class="fa fa-circle px-2 text-orange-800"></i>
-                            <p class="text-xs font-bold text-yellow-700 group-hover:text-black hover:underline underline-offset-2">Renewal</p>
+                        <button @click="filter('Pending Renewal')" class="p-1 flex justify-center text-center items-center group rounded-lg">
+                            <i class="mdi mdi-circle px-2 text-orange-800"></i>
+                            <p class="text-xs font-bold text-yellow-700 group-hover:text-black hover:underline underline-offset-2">Pending Renewal</p>
                         </button>
-                        <button @click="filter('Finished')" class="p-2 flex justify-center text-center items-center group rounded-lg">
-                            <i class="fa fa-circle p-2 text-red-500"></i>
-                            <p class="text-xs font-bold text-red-500 group-hover:text-black hover:underline underline-offset-2">Finished</p>
+                        <button @click="filter('Terminated')" class="p-2 flex justify-center text-center items-center group rounded-lg">
+                            <i class="mdi mdi-circle p-2 text-red-500"></i>
+                            <p class="text-xs font-bold text-red-500 group-hover:text-black hover:underline underline-offset-2">Terminated</p>
                         </button>
                     </nav>
 
@@ -78,8 +76,8 @@ const showContract = (key) => {
                                 <p :class="{
                                     'text-sm justify-end text-end items-end font-bold w-full px-4 rounded-md':true,
                                     'bg-gradient-to-l from-green-500 to-white from-10%': Contract.status == 'Active',
-                                    'bg-gradient-to-l from-yellow-500 to-white from-10%': Contract.status == 'Renewal',
-                                    'bg-gradient-to-l from-red-500 to-white from-10%': Contract.status == 'Finished'
+                                    'bg-gradient-to-l from-yellow-500 to-white from-10%': Contract.status == 'Pending Renewal',
+                                    'bg-gradient-to-l from-red-500 to-white from-10%': Contract.status == 'Terminated'
 
 
                                     }"> {{ Contract.status }}</p>
@@ -88,7 +86,7 @@ const showContract = (key) => {
                         </nav>
                        <div class="block sm:flex justify-start w-full items-center text-center"> <span class="text-sm font-bold text-start  px-2">Tenant:</span><p class="text-xs"> {{ Contract.tenant }}</p></div>
 
-                        <div class="grid grid-cols-3 gap-2 justify-center items-center text-center py-2">
+                        <div class="grid grid-cols-3 md:grid-cols-3 gap-2 justify-center items-center text-center py-2">
                             <div class="items-center">
                                 <CustomButton @click="showContract(Contract.id)" :key="Contract.id" class="">Details</CustomButton>
                             </div>
@@ -99,6 +97,12 @@ const showContract = (key) => {
                                 <span class="text-sm font-bold text-start ">End Date:</span><p class="text-xs"> {{ Contract.endDate }}</p>
                             </div>
                         </div>
+                    </div>
+                    <div :class="{
+                        'w-full flex justify-center':true,
+                        'hidden': filteredContracts.length > 0
+                        }">
+                        <i class="mdi mdi-loading text-4xl text-primary animate-spin"></i>
                     </div>
                 </div>
               </nav>
