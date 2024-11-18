@@ -50,6 +50,7 @@ Route::get('/contracts', function () {
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('contracts');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/contracts/all', [ContractController::class, 'index'])->name('contracts.index');
     Route::post('/contract', [ContractController::class, 'store'])->name('contracts.store');
 });
 

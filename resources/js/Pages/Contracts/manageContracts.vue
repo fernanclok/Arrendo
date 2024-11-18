@@ -40,6 +40,7 @@ export default {
       { id: 6, name: 'Pedro Sánchez' },
     ];
 
+    
     const submitForm = () => {
       form.post(route('contracts.store'), {
         onSuccess: () => {
@@ -65,6 +66,19 @@ export default {
 <template>
   <div id="content" class="">
     <form @submit.prevent="form.post(route('contracts.store'))" class="mt-6 space-y-6">
+      <nav class="flex justify-center space-x-2 w-full">
+        <div class="w-full">
+          <InputLabel for="contract_file"  class="flex flex-col items-center justify-center w-full h-44 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 ">
+            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+              <i class="mdi mdi-cloud-arrow-up-outline text-4xl text-gray-400"></i>
+              <p class="text-sm text-gray-500 font-semibold">Click to upload</p>
+              <p class="text-sm text-gray-500 font-semibold">PDF, PNG, JPG</p>
+            </div>
+            <input type="file" id="contract_file" class="hidden" accept=".png, .jpg, .jpeg, .pdf" />
+          </InputLabel>
+          <InputError class="mt-2" :message="form.errors.contract_file" />
+        </div>
+      </nav>
       <nav class="flex justify-center space-x-2 w-full">
         <div class="w-full">
           <InputLabel for="property_id" value="Select property" />

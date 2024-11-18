@@ -2,32 +2,43 @@
 import CustomButton from '@/Components/CustomButton.vue';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import { ref, computed  } from 'vue';
+import { ref, computed, onMounted  } from 'vue';
 import manageContracts from './manageContracts.vue';
 
-const Contracts = [
-    {id:'1', status: 'Active', beingDate: '19-01-2023',endDate: '10-10-2025', tenant: 'Juan Manuel Lopez Uribe', owner: 'Derian Tarango', mount: '$5,000', type: 'Departamento', address: 'Calle 123 # 123-123', city: 'Tijuana', state: 'Baja California', country: 'Mexico'},
-    {id:'2', status: 'Pending Renewal', beingDate: '19-01-2023',endDate: '10-10-2025', tenant: 'Juan Manuel Lopez Uribe', owner: 'Derian Tarango', mount: '$5,000', type: 'Departamento', address: 'Calle 123 # 123-123', city: 'Tijuana', state: 'Baja California', country: 'Mexico'},
-    {id:'3', status: 'Pending Renewal', beingDate: '19-01-2023',endDate: '10-10-2025', tenant: 'Juan Manuel Lopez Uribe', owner: 'Derian Tarango', mount: '$5,000', type: 'Departamento', address: 'Calle 123 # 123-123', city: 'Tijuana', state: 'Baja California', country: 'Mexico'},
-    {id:'4', status: 'Terminated', beingDate: '19-01-2023',endDate: '10-10-2025', tenant: 'Juan Manuel Lopez Uribe', owner: 'Derian Tarango', mount: '$5,000', type: 'Departamento', address: 'Calle 123 # 123-123', city: 'Tijuana', state: 'Baja California', country: 'Mexico'}
-];
-//Filtrar contratos
-const filterStatus = ref('all');// valor por defecto
+
+const contracts = ref([]);
+
+const getContracts = async () => {
+    try {
+        const response = await axios.get('/contracts/all');
+        contracts.value = response.data.contracts;
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+// Llamar a getContracts cuando el componente se monte
+onMounted(() => {
+    getContracts();
+});
+
+// Filtrar contratos
+const filterStatus = ref('all'); // valor por defecto
 const filteredContracts = computed(() => {
     if (filterStatus.value === 'all') {
-        return Contracts; //retornar todos los contratos
+        return contracts.value; // retornar todos los contratos
     }
-    return Contracts.filter(contract => contract.status === filterStatus.value); //retornar contratos filtrados
+    return contracts.value.filter(contract => contract.status === filterStatus.value); // retornar contratos filtrados
 });
-//Actualizar filtro
+
+// Actualizar filtro
 const filter = (status) => {
     filterStatus.value = status;
 };
 
 const showContract = (key) => {
-    console.log(key);
+    console.log(contracts.value[key]);
 };
-
 </script>
 
 <template>
@@ -64,32 +75,30 @@ const showContract = (key) => {
 
                 </div>
                 <div class="block justify-center text-start p-2  overflow-y-auto h-[480px] ">
-                    <div v-for="Contract in filteredContracts" :key="Contract.id" class="bg-white rounded-lg shadow-lg p-2 m-2">
+                    <div v-for="(contract, index) in filteredContracts" :key="contract.id" class="bg-white rounded-lg shadow-lg p-2 m-2">
                         <nav class="block sm:flex justify-between py-2">
-                            <h1 class="text-sm text-wrap text-black font-black"> {{ Contract.type }}</h1>
+                            <h1 class="text-sm text-wrap text-black font-black"> {{ contract.property_id }}</h1>
                             <div class="block">
                                 <p :class="{
                                     'text-sm justify-end text-end items-end font-bold w-full px-4 rounded-md':true,
-                                    'bg-gradient-to-l from-green-500 to-white from-10%': Contract.status == 'Active',
-                                    'bg-gradient-to-l from-yellow-500 to-white from-10%': Contract.status == 'Pending Renewal',
-                                    'bg-gradient-to-l from-red-500 to-white from-10%': Contract.status == 'Terminated'
-
-
-                                    }"> {{ Contract.status }}</p>
-                                <h1 class="text-sm text-pretty text-primary-black font-black"> {{ Contract.mount }}</h1>
+                                    'bg-gradient-to-l from-green-500 to-white from-10%': contract.status == 'Active',
+                                    'bg-gradient-to-l from-yellow-500 to-white from-10%': contract.status == 'Pending Renewal',
+                                    'bg-gradient-to-l from-red-500 to-white from-10%': contract.status == 'Terminated'
+                                    }"> {{ contract.status }}</p>
+                                <h1 class="text-sm text-pretty text-primary-black font-black"> {{ contract.rental_amount }}</h1>
                             </div>
                         </nav>
-                       <div class="block sm:flex justify-start w-full items-center text-center"> <span class="text-sm font-bold text-start  px-2">Tenant:</span><p class="text-xs"> {{ Contract.tenant }}</p></div>
+                       <div class="block sm:flex justify-start w-full items-center text-center"> <span class="text-sm font-bold text-start  px-2">Tenant:</span><p class="text-xs"> {{ contract.tenant_user_id }}</p></div>
 
                         <div class="grid grid-cols-3 md:grid-cols-3 gap-2 justify-center items-center text-center py-2">
                             <div class="items-center">
-                                <CustomButton @click="showContract(Contract.id)" :key="Contract.id" class="">Details</CustomButton>
+                                <CustomButton @click="showContract(contract.id)" :key="contract.id" class="">Details</CustomButton>
                             </div>
                             <div class="items-center">
-                                <span class="text-sm font-bold text-start ">Being Date:</span><p class="text-xs"> {{ Contract.beingDate }}</p>
+                                <span class="text-sm font-bold text-start ">Being Date:</span><p class="text-xs"> {{ contract.start_date }}</p>
                             </div>
                             <div class="items-center">
-                                <span class="text-sm font-bold text-start ">End Date:</span><p class="text-xs"> {{ Contract.endDate }}</p>
+                                <span class="text-sm font-bold text-start ">End Date:</span><p class="text-xs"> {{ contract.end_date }}</p>
                             </div>
                         </div>
                     </div>

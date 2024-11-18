@@ -8,6 +8,18 @@ use GuzzleHttp\Psr7\Response;
 
 class ContractController extends Controller
 {
+    // Get all contracts
+    public function index()
+    {
+        // Obtener todos los contratos
+        $contracts = Contract::all();
+        // obtener todos los contratos con sus propiedades y usuarios
+        // $contracts = Contract::with('property', 'tenant')->get();
+
+
+        // Devolver una respuesta JSON de éxito
+        return response()->json(['contracts' => $contracts]);
+    }
     // Insert contract information
     public function store(Request $request)
     {
