@@ -3,6 +3,7 @@ import CustomButton from '@/Components/CustomButton.vue';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { ref, computed  } from 'vue';
+import manageContracts from './manageContracts.vue';
 
 const Contracts = [
     {id:'1', status: 'Active', beingDate: '19-01-2023',endDate: '10-10-2025', tenant: 'Juan Manuel Lopez Uribe', owner: 'Derian Tarango', mount: '$5,000', type: 'Departamento', address: 'Calle 123 # 123-123', city: 'Tijuana', state: 'Baja California', country: 'Mexico'},
@@ -33,17 +34,11 @@ const showContract = (key) => {
     <Head title="Contracts" />
         <DashboardLayout>
             <section class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-8 w-full justify-center items-center text-center pt-8">
-              <nav class="col-span-2 block bg-gray-100 rounded-lg shadow-lg p-2 h-[600px]">
+              <nav class="col-span-2 block  rounded-lg p-2 h-[600px]">
                 <div class="flex justify-between items-center p-2 text-grayt-200">
-                    <h1 class="text-lg font-bold w-full flex">Contract Details</h1>
+                    <h1 class="text-lg font-bold w-full flex">Contract</h1>
                 </div>
-                <div id="content" class="grid grid-cols-1 sm:grid-cols-2">
-                    <nav  class="w-full">
-                    </nav>
-                    <nav id="forms" class="w-full">
-
-                    </nav>
-                </div>
+                <manageContracts />
               </nav>
               <nav class="block bg-gray-100 rounded-lg shadow-lg p-2 h-[600px]">
                 <div class="block justify-between items-center p-2">

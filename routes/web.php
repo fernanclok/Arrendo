@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -47,6 +48,10 @@ Route::get('/properties', function () {
 Route::get('/contracts', function () {
     return Inertia::render('Contracts/showContract');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('contracts');
+
+Route::middleware('auth')->group(function () {
+    Route::post('/contract', [ContractController::class, 'store'])->name('contracts.store');
+});
 
 Route::get('/manage/contracts', function () {
     return Inertia::render('Contracts/manageContracts');
