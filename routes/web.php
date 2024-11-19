@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,17 +23,20 @@ Route::get('/', function () {
 });
 
 // Dashboard
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard', ['childComponent' => 'Charts']);
-})->name('dashboard');
+Route::middleware(['auth', 'role:Owner'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-Route::get('/dashboard/tables', function () {
-    return Inertia::render('Dashboard', ['childComponent' => 'Tables']);
-})->name('dashboard.tables');
+    Route::get('/dashboard/settings', function () {
+        return Inertia::render('Dashboard', [
+            'auth' => Auth::user(), // Pasa los datos de autenticación
+            'childComponent' => 'Settings',
+        ]);
+    })->name('dashboard.settings');
+});
 
-Route::get('/dashboard/settings', function () {
-    return Inertia::render('Dashboard', ['childComponent' => 'Settings']); // Cambiado para mantener consistencia
-})->name('dashboard.settings');
+
+
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -50,11 +55,11 @@ Route::get('/contracts', function () {
 
 Route::get('/manage/contracts', function () {
     return Inertia::render('Contracts/manageContracts');
-})->middleware(['auth','verified','role:admin,Owner'])->name('manageContracts');
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('manageContracts');
 
 //appoinments
 Route::get('/appoinments', function () {
     return Inertia::render('Appoinments');
-})->middleware(['auth','verified','role:admin,Tenant,Owner'])->name('appoinments');
+})->middleware(['auth', 'verified', 'role:admin,Tenant,Owner'])->name('appoinments');
 
 require __DIR__ . '/auth.php';
