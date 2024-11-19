@@ -8,6 +8,8 @@ use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ZoneController;
 use App\Http\Controllers\PropertyController;
 
+use App\Http\Controllers\PropertyController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -30,4 +32,5 @@ Route::get('/zones', [ZoneController::class, 'getZones']);
 Route::prefix('properties')->group(function () {
     Route::get('/', [PropertyController::class, 'get']);
     Route::post('/create', [PropertyController::class, 'create']);
+    Route::get('/filter', [PropertyController::class, 'getFilteredProperties']);
 });

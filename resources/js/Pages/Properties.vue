@@ -1,8 +1,8 @@
 <script setup>
 import CustomButton from '@/Components/CustomButton.vue';
 import TextInput from '@/Components/TextInput.vue';
-import FilterPanel from '@/Components/FilterPanel.vue';
 import { Head, Link } from '@inertiajs/vue3';
+import axios from 'axios';
 import { ref } from 'vue';
 
 // Datos falsos para las propiedades
@@ -88,7 +88,7 @@ const properties = ref([
                         </Link>
                     </nav>
                     <Link href="/login"
-                        class="inline-flex items-center px-3 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-primary text-white hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:ring-green-500">
+                        class="inline-flex items-center px-3 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-primary text-white hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:ring-blue-500">
                         Log In
                     </Link>
                 </div>
@@ -97,11 +97,112 @@ const properties = ref([
 
       <!-- Main Content -->
         <main  :class="{ 'flex': showDetails, 'block': !showDetails }" class="flex-grow relative overflow-hidden p-6">
-            <!-- Sección izquierda con el filtro y las propiedades -->
             <div :class="{ 'w-full': !showDetails, 'w-full md:w-3/4': showDetails }" class="p-4 h-full overflow-y-auto">
                 <h1 class="text-3xl font-bold mb-6">Properties in Rent</h1>
+                <div class="mb-6">
+                    <div class="flex gap-2 mt-1">
+                        <select
+                            id="zoneSelect"
+                            v-model="propertiesSpecifications.selectedZone"
+                            class="flex-[3] px-3 py-2 border-gray-300 focus:border-green-700 focus:ring-green-700 rounded-md shadow-sm"
+                        >
+                            <option value="" disabled>Select a Location</option>
+                            <option v-for="zone in zones" :key="zone.id" :value="zone.id">{{ zone.name }}</option>
+                        </select>
 
-                <FilterPanel />
+                        <div class="flex-[2] flex flex-col space-y-1">
+                            <div class="text-sm font-medium text-gray-600">
+                                <b>Maximum Price:</b> {{ displayPrice }}
+                            </div>
+                            <input
+                                type="range"
+                                v-model="selectedPrice"
+                                :min="0"
+                                :max="priceOptions.length - 1"
+                                step="1"
+                                class="w-full focus:ring-green-500"
+                            />
+                            <div class="flex justify-between text-sm text-gray-500">
+                                <span v-for="(price, index) in priceOptions" :key="index">
+                                    {{ price }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <CustomButton v-if="!showFilters" @click="toggleFilters" type="primary" class="py-2 ml-2">
+                            More Filters
+                        </CustomButton>
+                        <CustomButton v-else @click="toggleFilters" type="primary" class="py-2 ml-2">
+                            Hide Filters
+                        </CustomButton>
+                    </div>
+
+                    <transition
+                        enter-active-class="transition-all duration-300 ease-out"
+                        enter-from-class="max-h-0 opacity-0"
+                        enter-to-class="max-h-[300px] opacity-100"
+                        leave-active-class="transition-all duration-300 ease-in"
+                        leave-from-class="max-h-[300px] opacity-100"
+                        leave-to-class="max-h-0 opacity-0"
+                    >
+                        <div v-if="showFilters" class="overflow-hidden">
+                            <div class="bg-gray-50 p-2 rounded-lg shadow-md mt-4">
+                                <h3 class="text-lg font-semibold text-gray-700 mb-4">Additional Filters</h3>
+
+                                <div class="grid grid-cols-12 gap-4 mb-4">
+                                    <div class="col-span-11 grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <TextInput
+                                            type="number"
+                                            v-model="propertiesSpecifications.bedrooms"
+                                            placeholder="Bedrooms Number"
+                                        />
+                                        <TextInput
+                                            type="number"
+                                            v-model="propertiesSpecifications.bathrooms"
+                                            placeholder="Bathrooms Number"
+                                            step="0.5"
+                                        />
+                                        <TextInput
+                                            type="number"
+                                            v-model="propertiesSpecifications.m2"
+                                            placeholder="Max M²"
+                                        />
+
+                                        <div class="col-span-3 grid grid-cols-2 gap-4">
+                                            <div class="flex items-center px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm">
+                                                <input
+                                                    type="checkbox"
+                                                    id="allowPets"
+                                                    v-model="propertiesSpecifications.allowPets"
+                                                    class="mr-2 text-green-500 focus:ring-green-500"
+                                                />
+                                                <label for="allowPets" class="text-sm font-medium text-gray-600">Pets Allowed</label>
+                                            </div>
+                                            <div class="flex items-center px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm">
+                                                <input
+                                                    type="checkbox"
+                                                    id="parking"
+                                                    v-model="propertiesSpecifications.parking"
+                                                    class="mr-2 text-green-500 focus:ring-green-500"
+                                                />
+                                                <label for="parking" class="text-sm font-medium text-gray-600">Parking Lot</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-span-1 flex flex-col items-center justify-center space-y-4">
+                                        <CustomButton @click="refreshFilters" type="primary" class="py-2 w-32">
+                                            <i class="mdi mdi-refresh mr-2"></i> REFRESH
+                                        </CustomButton>
+                                        <CustomButton @click="filterProperties" type="primary" class="py-2 w-32">
+                                            <i class="mdi mdi-magnify mr-2"></i> SEARCH
+                                        </CustomButton>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </transition>
+                </div>
 
                 <!-- Sección de tarjetas de propiedades con scroll interno en móviles -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 h-full overflow-y-auto md:h-auto md:overflow-visible">
@@ -151,10 +252,9 @@ const properties = ref([
                         </div>
                     </div>
                     <div v-else class="text-center text-gray-500 col-span-3">
-                        <p>No properties found with the selected filters.</p>
+                        <p>No properties found with the applied filters.</p>
                     </div>
                 </div>
-
             </div>
 
             <!-- Sección derecha del modal -->
@@ -215,7 +315,32 @@ export default {
     data() {
         return {
             showDetails: false,
+            showFilters: false,
             activePropertyId: null,
+            priceOptions: ["5000", "7000", "10000", "+10000"],
+            selectedPrice: 0,
+            properties: [],
+            zones: [
+                { id: 1, name: 'Centro' },
+                { id: 2, name: 'Otay' },
+                { id: 3, name: 'Playas de Tijuana' },
+                { id: 4, name: 'Cerro Colorado' },
+                { id: 5, name: 'La Presa' },
+                { id: 6, name: 'La Mesa' },
+                { id: 7, name: 'San Antonio de las Buenas' },
+                { id: 8, name: 'Sanchéz Taboada' },
+                { id: 9, name: 'La Presa Rural' },
+                { id: 10, name: 'Sierra Tijuanense' },
+            ],
+            propertiesSpecifications: {
+                selectedZone: '',
+                maxPrice: '',
+                m2: '',
+                bedrooms: '',
+                bathrooms: '',
+                allowPets: false,
+                parking: false
+            }
         };
     },
     methods: {
@@ -229,24 +354,123 @@ export default {
                 this.showDetails = true;
             }
         },
-        filtrarPropiedades() {
-            const filters = {
-                selectedZone: this.selectedZone,
-                maxPrice: this.maxPrice,
-                bedrooms: this.bedrooms,
-                bathrooms: this.bathrooms,
-                allowPets: this.allowPets,
-            };
-            
-            console.log("Applying filters:", filters);
+        toggleFilters() {
+            this.showFilters = !this.showFilters;
         },
+        getProperties() {
+            axios.get('/api/properties')
+                .then(response => {
+                    this.properties = response.data;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        },
+        filterProperties() {
+            var selectedZoneName = this.zones.find(zone => zone.id == this.propertiesSpecifications.selectedZone);
+
+            var filters = {
+                selectedZone: selectedZoneName ? selectedZoneName.name : '',
+                maxPrice: this.displayPrice,
+                m2: this.propertiesSpecifications.m2,
+                bedrooms: this.propertiesSpecifications.bedrooms,
+                bathrooms: this.propertiesSpecifications.bathrooms,
+                allowPets: this.propertiesSpecifications.allowPets,
+                parking: this.propertiesSpecifications.parking
+            };
+            axios.get('/api/properties/filter/', { params: filters })
+                .then(response => {
+                    // this.properties = response.data;
+                    this.properties = this.properties;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        },
+        refreshFilters() {
+            this.propertiesSpecifications = {
+                selectedZone: '',
+                maxPrice: '',
+                m2: '',
+                bedrooms: '',
+                // bathrooms: '',
+                allowPets: false,
+                parking: false
+            };
+            this.selectedPrice = 0;
+
+            this.getProperties();
+        }
     },
     watch: {
         showDetails(newVal) {
             if (!newVal) {
                 this.activePropertyId = null;
             }
+        },
+        selectedPrice(newVal) {
+            this.filterProperties();
+        },
+        'propertiesSpecifications.selectedZone': function() {
+            this.filterProperties();
+        },
+        'propertiesSpecifications.maxPrice': function() {
+            this.filterProperties();
         }
+    },
+    computed: {
+        displayPrice() {
+            return this.priceOptions[this.selectedPrice];
+        }
+    },
+    mounted() {
+        this.getProperties();
     }
 };
 </script>
+
+<style>
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background-color: #10b981; 
+    border: 2px solid #10b981;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+}
+
+input[type="range"]::-moz-range-thumb {
+    height: 10px;
+    width: 10px;
+    border-radius: 50%;
+    background-color: #10b981;
+    border: 2px solid #10b981;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+    transform: scale(1.1);
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px; 
+    background: #e5e7eb; 
+    border-radius: 3px;
+    outline: none;
+}
+
+input[type="range"]:focus {
+    outline: none;
+}
+</style>
