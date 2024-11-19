@@ -15,7 +15,9 @@ class ShareNavigationLinks
             $allowedRoutes = [
                 'Owner' => [
                     ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'home'],
-                    ['route' => 'manageContracts', 'label' => 'contracts', 'icon' => 'building'],
+                    ['route' => 'contracts', 'label' => 'contracts', 'icon' => 'file'],
+                    ['route' => 'appoinments', 'label' => 'Appoinments', 'icon' => 'calendar'],
+                    ['route' => 'myProperties', 'label' => 'My Properties', 'icon' => 'home'],
                 ],
                 'Tenant' => [
                     ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'view-dashboard'],

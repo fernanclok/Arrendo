@@ -12,15 +12,21 @@ class Property extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',
-        'address',
+        'street',
+        'number',
+        'city',
+        'state',
+        'postal_code',
         'rental_rate',
         'availability', //Available, Not Available
         'total_bathrooms',
         'total_rooms',
         'total_m2',
         'have_parking', // 1 = Yes, 0 = No
+        'accept_mascots',
         'property_price',
+        'property_details',
+        'property_photos_path',
         'owner_user_id',
         'zone_id',
     ];

@@ -8,13 +8,6 @@
                         Properties Status
                     </h3>
                 </div>
-                <div class="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
-                    <button
-                        class="bg-indigo-500 text-white active:bg-indigo-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                        type="button">
-                        See all
-                    </button>
-                </div>
             </div>
         </div>
 
@@ -26,10 +19,6 @@
                         <th
                             class="px-6 bg-gray-50 text-gray-500 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
                             Property
-                        </th>
-                        <th
-                            class="px-6 bg-gray-50 text-gray-500 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                            Address
                         </th>
                         <th
                             class="px-6 bg-gray-50 text-gray-500 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
@@ -54,41 +43,34 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="property in properties" :key="property.id">
+                    <tr v-for="property in paginatedProperties" :key="property.property_id">
                         <th
                             class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left">
-                            {{ property.name }}
+                            {{ property.property_name }}
                         </th>
-                        <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                            {{ property.address }}
-                        </td>
                         <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                             <div class="flex items-center">
                                 <i class="fas fa-user mr-2 text-gray-400"></i>
-                                {{ property.tenant || 'No tenant' }}
+                                {{ property.tenant_name || 'No tenant' }}
                             </div>
                         </td>
                         <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                            ${{ property.monthlyRent.toFixed(2) }}
+                            ${{ (property.rental_amount && !isNaN(property.rental_amount)) ?
+                                parseFloat(property.rental_amount).toFixed(2) : 'N/A' }}
                         </td>
                         <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                             <div class="flex items-center">
-                                <i class="far fa-calendar mr-2" :class="getContractDateColor(property.contractEnd)"></i>
-                                {{ property.contractEnd || 'N/A' }}
+                                <i class="far fa-calendar mr-2"
+                                    :class="getContractDateColor(property.contract_end)"></i>
+                                {{ property.contract_end || 'N/A' }}
                             </div>
                         </td>
                         <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                             <div class="flex flex-col gap-2">
-                                <!-- Property Status -->
-                                <span :class="getStatusClasses(property.status)">
-                                    <i class="fas" :class="getStatusIcon(property.status)"></i>
-                                    {{ property.status }}
+                                <span :class="getStatusClasses(property.contract_status)">
+                                    <i class="fas" :class="getStatusIcon(property.contract_status)"></i>
+                                    {{ property.contract_status }}
                                 </span>
-                                <!-- Payment Status (if applicable)
-                  <span v-if="property.paymentStatus" :class="getPaymentStatusClasses(property.paymentStatus)">
-                    <i class="fas" :class="getPaymentIcon(property.paymentStatus)"></i>
-                    {{ property.paymentStatus }}
-                  </span> -->
                             </div>
                         </td>
                         <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
@@ -105,96 +87,40 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Pagination Controls -->
+        <div class="px-4 py-3 flex justify-between items-center">
+            <button @click="previousPage" :disabled="currentPage <= 1"
+                class="bg-indigo-500 text-white px-3 py-1 rounded">Previous</button>
+            <span>Page {{ currentPage }} of {{ totalPages }}</span>
+            <button @click="nextPage" :disabled="currentPage >= totalPages"
+                class="bg-indigo-500 text-white px-3 py-1 rounded">Next</button>
+        </div>
     </div>
 </template>
 
 <script>
 export default {
     name: 'PropertiesDashboard',
+    props: {
+        propertiesData: Array
+    },
     data() {
         return {
-            properties: [
-                {
-                    id: 1,
-                    name: "Seaside Apartment",
-                    address: "123 Ocean Ave, Beach District",
-                    tenant: "John Smith",
-                    monthlyRent: 1200.00,
-                    contractEnd: "2024-12-31",
-                    status: "Active",
-                    paymentStatus: "Paid"
-                },
-                {
-                    id: 2,
-                    name: "Downtown Studio",
-                    address: "456 Main St, City Center",
-                    tenant: "Mary Johnson",
-                    monthlyRent: 800.00,
-                    contractEnd: "2024-08-15",
-                    status: "Pending Renewal",
-                    paymentStatus: "Pending"
-                },
-                {
-                    id: 3,
-                    name: "Executive Suite",
-                    address: "789 Business Blvd",
-                    tenant: null,
-                    monthlyRent: 1500.00,
-                    contractEnd: null,
-                    status: "Available",
-                    paymentStatus: null
-                },
-                {
-                    id: 4,
-                    name: "Urban Loft",
-                    address: "101 Downtown St, City Center",
-                    tenant: "David Brown",
-                    monthlyRent: 950.00,
-                    contractEnd: "2025-01-10",
-                    status: "Active",
-                    paymentStatus: "Paid"
-                },
-                {
-                    id: 5,
-                    name: "Suburban House",
-                    address: "204 Maple Ln, Suburbia",
-                    tenant: "Emily White",
-                    monthlyRent: 1100.00,
-                    contractEnd: "2024-07-20",
-                    status: "Pending Renewal",
-                    paymentStatus: "Pending"
-                },
-                {
-                    id: 6,
-                    name: "Luxury Villa",
-                    address: "9 Palm Ave, Ocean Side",
-                    tenant: "Michael Green",
-                    monthlyRent: 2000.00,
-                    contractEnd: "2025-02-15",
-                    status: "Active",
-                    paymentStatus: "Paid"
-                },
-                {
-                    id: 7,
-                    name: "Penthouse Suite",
-                    address: "12 Skyline Dr, Uptown",
-                    tenant: "Sophia Black",
-                    monthlyRent: 2200.00,
-                    contractEnd: "2024-09-05",
-                    status: "Pending Renewal",
-                    paymentStatus: "Pending"
-                },
-                {
-                    id: 8,
-                    name: "Garden Cottage",
-                    address: "305 Country Rd, Outskirts",
-                    tenant: null,
-                    monthlyRent: 750.00,
-                    contractEnd: null,
-                    status: "Available",
-                    paymentStatus: null
-                }
-            ]
+            currentPage: 1,       // Página actual
+            rowsPerPage: 10       // Número de filas por página
+        };
+    },
+    computed: {
+        // Filtrar las propiedades que se mostrarán en la página actual
+        paginatedProperties() {
+            const startIndex = (this.currentPage - 1) * this.rowsPerPage;
+            const endIndex = startIndex + this.rowsPerPage;
+            return this.propertiesData.slice(startIndex, endIndex);
+        },
+        // Calcular el número total de páginas
+        totalPages() {
+            return Math.ceil(this.propertiesData.length / this.rowsPerPage);
         }
     },
     methods: {
@@ -203,8 +129,8 @@ export default {
             switch (status) {
                 case "Active":
                     return baseClasses + "bg-green-100 text-green-800";
-                case "Available":
-                    return baseClasses + "bg-blue-100 text-blue-800";
+                case "Terminated":
+                    return baseClasses + "bg-red-100 text-red-800";
                 case "Pending Renewal":
                     return baseClasses + "bg-yellow-100 text-yellow-800";
                 default:
@@ -215,7 +141,7 @@ export default {
             switch (status) {
                 case "Active":
                     return "fa-check-circle";
-                case "Available":
+                case "Terminated":
                     return "fa-home";
                 case "Pending Renewal":
                     return "fa-clock";
@@ -229,6 +155,18 @@ export default {
             if (daysUntilEnd < 30) return "text-red-500";
             if (daysUntilEnd < 90) return "text-yellow-500";
             return "text-green-500";
+        },
+        // Cambiar a la siguiente página
+        nextPage() {
+            if (this.currentPage < this.totalPages) {
+                this.currentPage++;
+            }
+        },
+        // Cambiar a la página anterior
+        previousPage() {
+            if (this.currentPage > 1) {
+                this.currentPage--;
+            }
         }
     }
 }
