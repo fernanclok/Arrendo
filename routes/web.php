@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Foundation\Application;
@@ -49,8 +50,20 @@ Route::get('/properties', function () {
     return Inertia::render('Properties');
 })->name('properties');
 
+//my properties
+Route::get('/my-properties', function() {
+    return Inertia::render('MyProperties', [
+        'user' => auth()->user()
+    ]);
+})->middleware(['auth','verified','role:admin,Owner'])->name('myProperties');
+
 Route::get('/contracts', function () {
     return Inertia::render('Contracts/showContract');
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('contracts');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/contracts/all', [ContractController::class, 'index'])->name('contracts.index');
+    Route::post('/contract', [ContractController::class, 'store'])->name('contracts.store');
 });
 
 Route::get('/manage/contracts', function () {
