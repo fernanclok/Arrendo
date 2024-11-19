@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -53,15 +54,20 @@ Route::get('/my-properties', function() {
 
 Route::get('/contracts', function () {
     return Inertia::render('Contracts/showContract');
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('contracts');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/contracts/all', [ContractController::class, 'index'])->name('contracts.index');
+    Route::post('/contract', [ContractController::class, 'store'])->name('contracts.store');
 });
 
 Route::get('/manage/contracts', function () {
     return Inertia::render('Contracts/manageContracts');
-})->middleware(['auth','verified','role:admin,Owner'])->name('manageContracts');
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('manageContracts');
 
 //appoinments
 Route::get('/appoinments', function () {
     return Inertia::render('Appoinments');
-})->middleware(['auth','verified','role:admin,Tenant,Owner'])->name('appoinments');
+})->middleware(['auth', 'verified', 'role:admin,Tenant,Owner'])->name('appoinments');
 
 require __DIR__ . '/auth.php';
