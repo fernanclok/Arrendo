@@ -41,18 +41,16 @@ export default {
   props: {
     statSubtitle: {
       type: String,
-      default: "Traffic",
+      required: true
     },
     statTitle: {
-      type: String,
-      default: "350,897",
+      type: [String, Number],
+      required: true
     },
     statArrow: {
-      default: "up",
-      validator: function (value) {
-        // The value must match one of these strings
-        return ["up", "down"].indexOf(value) !== -1;
-      },
+      type: String,
+      validator: (value) => {
+        return ["up", "down",""].includes(value)},
     },
     statPercent: {
       type: String,
