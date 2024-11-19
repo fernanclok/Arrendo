@@ -13,15 +13,21 @@ return new class extends Migration
     {
         Schema::create('properties', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 100);
-            $table->string('address', 100);
-            $table->decimal('rental_rate', 8, 2);
+            $table->string('street', 100);
+            $table->string('number', 10);
+            $table->string('city', 100);
+            $table->string('state', 100);
+            $table->string('postal_code', 20);
+            $table->decimal('rental_rate', 8, 2)->nullable();
             $table->enum('availability', ['Available', 'Not Available']);
-            $table->integer('total_bathrooms');
+            $table->decimal('total_bathrooms', 8, 2);
             $table->integer('total_rooms');
             $table->integer('total_m2');
-            $table->boolean('have_parking');
+            $table->boolean('have_parking')->nullable();
+            $table->boolean('accept_mascots')->nullable();
             $table->decimal('property_price', 10, 2);
+            $table->text('property_details');
+            $table->json('property_photos_path');
             $table->foreignId('owner_user_id')->constrained('users');
             $table->foreignId('zone_id')->constrained('zones');
             $table->timestamps();
