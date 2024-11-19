@@ -42,10 +42,10 @@
                     <tr v-for="request in maintenanceRequests" :key="request.property">
                         <th
                             class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left">
-                            {{ request.property }}
+                            {{ request.id }}
                         </th>
                         <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                            {{ request.date }}
+                            {{ request.report_date }}
                         </td>
                         <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                             {{ request.priority }}
@@ -67,47 +67,15 @@
 
 <script>
 export default {
-    data() {
-        return {
-            maintenanceRequests: [
-                {
-                    property: "Seaside Apartment",
-                    date: "2024-03-10",
-                    priority: "High",
-                    status: "In Progress"
-                },
-                {
-                    property: "City Center Condo",
-                    date: "2024-03-12",
-                    priority: "Medium",
-                    status: "Completed"
-                },
-                {
-                    property: "Mountain Retreat",
-                    date: "2024-03-14",
-                    priority: "Low",
-                    status: "Pending"
-                },
-                {
-                    property: "Downtown Loft",
-                    date: "2024-03-16",
-                    priority: "High",
-                    status: "In Progress"
-                },
-                {
-                    property: "Suburban House",
-                    date: "2024-03-18",
-                    priority: "Medium",
-                    status: "Pending"
-                }
-            ]
-        };
-    },
+        props: {
+            maintenanceRequests: Array,
+        },
+
     methods: {
         getPaymentStatusClasses(status) {
             const baseClasses = "px-2 py-1 text-xs rounded-full flex items-center gap-1 ";
             switch (status) {
-                case "Completed":
+                case "Resolved":
                     return baseClasses + "bg-green-100 text-green-800";
                 case "In Progress":
                     return baseClasses + "bg-yellow-100 text-yellow-800";
@@ -120,7 +88,7 @@ export default {
 
         getPaymentIcon(status) {
             switch (status) {
-                case "Completed":
+                case "Resolved":
                     return "fa-check-circle";
                 case "In Progress":
                     return "fa-spinner fa-spin";

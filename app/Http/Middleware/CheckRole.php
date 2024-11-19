@@ -10,7 +10,7 @@ class CheckRole
     public function handle(Request $request, Closure $next, ...$roles)
     {
         $user = $request->user();
-        
+
         if (!$user) {
             return redirect('/');
         }
@@ -21,7 +21,7 @@ class CheckRole
         }
 
         $allowedRoutes = [
-            'Owner' => ['dashboard', 'my-properties', 'manage/contracts'],
+            'Owner' => ['dashboard', 'my-properties', 'contracts', 'dashboard/settings'],
             'Tenant' => ['dashboard', 'appoinments'],
         ];
 
@@ -32,7 +32,7 @@ class CheckRole
                 foreach ($allowedRoutes[$role] as $allowedRoute) {
                     if (strpos($allowedRoute, '{employee}') !== false) {
                         $pattern = str_replace('{employee}', '[0-9]+', $allowedRoute);
-                        
+
                         if (preg_match("#^$pattern$#", $currentPath)) {
                             return $next($request);
                         }
