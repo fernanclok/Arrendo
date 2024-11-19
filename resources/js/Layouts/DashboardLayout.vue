@@ -7,7 +7,6 @@ import DropdownLink from "@/Components/DropdownLink.vue";
 
 const { props } = usePage();
 const navLinks = ref(props.navLinks);
-console.log(navLinks)
 
 const isSidebarOpen = ref(false);
 const isDropdownOpen = ref(false);

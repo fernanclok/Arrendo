@@ -17,6 +17,7 @@ class ShareNavigationLinks
                     ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'home'],
                     ['route' => 'contracts', 'label' => 'contracts', 'icon' => 'file'],
                     ['route' => 'appoinments', 'label' => 'Appoinments', 'icon' => 'calendar'],
+                    ['route' => 'myProperties', 'label' => 'My Properties', 'icon' => 'home'],
                 ],
                 'Tenant' => [
                     ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'view-dashboard'],

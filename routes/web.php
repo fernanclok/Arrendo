@@ -45,6 +45,13 @@ Route::get('/properties', function () {
     return Inertia::render('Properties');
 })->name('properties');
 
+//my properties
+Route::get('/my-properties', function() {
+    return Inertia::render('MyProperties', [
+        'user' => auth()->user()
+    ]);
+})->middleware(['auth','verified','role:admin,Owner'])->name('myProperties');
+
 Route::get('/contracts', function () {
     return Inertia::render('Contracts/showContract');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('contracts');

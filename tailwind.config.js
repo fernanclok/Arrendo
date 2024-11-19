@@ -20,7 +20,6 @@ export default {
       colors: {
         primary: "#2A3C32",
         secondary: "#F7F7F7",
-        ...colors,
       },
       height: {
         "95-px": "95px",
