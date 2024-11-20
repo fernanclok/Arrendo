@@ -18,10 +18,11 @@
         "vue": "^3.4.0"
     },
     "dependencies": {
-        "@popperjs/core": "^2.11.8",
-        "chart.js": "^4.4.6"
+        "18": "^0.0.0",
         "@mdi/font": "^7.4.47",
         "@mdi/js": "^7.4.47",
+        "@popperjs/core": "^2.11.8",
+        "chart.js": "^4.4.6",
         "mdi-vue": "^3.0.13"
     }
 }

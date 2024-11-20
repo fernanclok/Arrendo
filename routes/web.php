@@ -58,3 +58,9 @@ Route::get('/appoinments', function () {
 })->middleware(['auth','verified','role:admin,Tenant,Owner'])->name('appoinments');
 
 require __DIR__ . '/auth.php';
+
+
+//Registro propiedades
+Route::get('/registro-propiedad', function () {
+    return Inertia::render('RegistroPropiedad'); // Nombre del componente Vue 
+})->name('registro.propiedad');
