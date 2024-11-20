@@ -7,7 +7,6 @@ import DropdownLink from "@/Components/DropdownLink.vue";
 
 const { props } = usePage();
 const navLinks = ref(props.navLinks);
-console.log(navLinks)
 
 const isSidebarOpen = ref(false);
 const isDropdownOpen = ref(false);
@@ -40,44 +39,53 @@ watch(isSidebarOpen, (newValue) => {
         <aside
             id="logo-sidebar"
             :class="{
-                'fixed top-0 left-0 z-40 h-screen p-2 transition-transform bg-gray-100 border-r': true,
+                'fixed top-0 left-0 z-40 h-screen p-2 transition-all duration-300 bg-gray-100 border-r': true,
                 'w-fit': isSidebarOpen,   // Ancho normal cuando está abierto
                 'w-fit': !isSidebarOpen,  // Ancho reducido cuando está colapsado
             }"
             aria-label="Sidebar"
         >
-            <ul class="pt-6">
+            <ul class="pt-6 h-[90%]">
+                
                 <li
                     v-for="link in navLinks"
                     :key="link.route"
-                    class="flex items-center p-2"
+                    class="flex items-center p-2 transition-all duration-300"
                 >
                     <NavLink
                         :href="route(link.route)"
-                        :active="route().current(link.route)"
-                    >
+                        :active="route().current(link.route)">
                         <i :class="`mdi mdi-${link.icon} text-md`"></i>
                         <span v-if="isSidebarOpen" class="ml-2">{{ link.label }}</span>
                     </NavLink>
+                    
                 </li>
+                
             </ul>
 
             <!-- Contenedor de tres puntos en la parte inferior -->
-            <div class="mt-auto flex justify-center mb-4">
+            <div :class="{
+                'justify-center items-center text-center w-full align-bottom mb-4':true,
+                'block': !isSidebarOpen,
+                'flex': isSidebarOpen
+            }">
+            <button @click="toggleSidebar" class="p-2 rounded-full hover:bg-gray-200 transition-colors flex items-center space-x-1">
+                    <i :class="{
+                        'mdi mdi-arrow-collapse-left text-lg flex sm:hidden':true,
+                        'mdi mdi-arrow-collapse-right': !isSidebarOpen
+                        }"></i>
+                </button>
                 <button
                     @click="toggleDropdown"
-                    class="p-2 rounded-full hover:bg-gray-200 transition-colors flex items-center space-x-1"
+                    class="p-2 rounded-full hover:bg-gray-200 transition-colors flex items-center space-x-4"
                 >
-                    <span class="flex space-x-1">
-                        <span class="h-1 w-1 rounded-full bg-gray-500"></span>
-                        <span class="h-1 w-1 rounded-full bg-gray-500"></span>
-                        <span class="h-1 w-1 rounded-full bg-gray-500"></span>
-                    </span>
+                    <i class="mdi mdi-dots-horizontal text-2xl text-gray-600"></i>
                 </button>
+                
             </div>
 
             <!-- Menú desplegable al hacer clic en los tres puntos -->
-            <div v-if="isDropdownOpen" class="absolute bottom-12 left-2 w-full bg-white rounded-md shadow-lg">
+            <div v-if="isDropdownOpen" class="absolute bottom-12 left-12 w-36 bg-white rounded-md shadow-xl">
                 <div class="py-2">
                     <DropdownLink :href="route('profile.edit')">Profile</DropdownLink>
                     <DropdownLink :href="route('logout')" method="post" as="button">
@@ -91,8 +99,8 @@ watch(isSidebarOpen, (newValue) => {
         <nav
             :class="{
                 'transition-all duration-300 p-8': true,
-                'sm:ml-44': isSidebarOpen,  // Margen cuando el sidebar está abierto
-                'sm:ml-16': !isSidebarOpen  // Margen ajustado cuando el sidebar está colapsado
+                'ml-20 sm:ml-40': isSidebarOpen,  // Margen cuando el sidebar está abierto
+                'ml-20 sm:ml-16': !isSidebarOpen  // Margen ajustado cuando el sidebar está colapsado
             }"
         >
             <div class="flex items-center transition-all duration-300 justify-between rtl:justify-end">
@@ -101,7 +109,7 @@ watch(isSidebarOpen, (newValue) => {
                     :aria-controls="'logo-sidebar'"
                     :aria-expanded="isSidebarOpen"
                     type="button"
-                    class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200"
+                    class="hidden sm:inline-flex items-center p-2 text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 "
                 >
                     <span class="sr-only">
                         {{ isSidebarOpen ? 'Cerrar sidebar' : 'Abrir sidebar' }}

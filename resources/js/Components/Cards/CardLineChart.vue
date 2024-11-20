@@ -24,34 +24,69 @@
 import { Chart } from "chart.js/auto";
 
 export default {
-    mounted: function () {
-        this.$nextTick(function () {
-            var config = {
+    props: {
+        monthlyIncome: {
+            type: Array,
+            required: true,
+        },
+    },
+    mounted() {
+        this.$nextTick(() => {
+            // Etiquetas de los meses (siempre estarán en este orden)
+            const monthNames = [
+                "January", "February", "March", "April",
+                "May", "June", "July", "August",
+                "September", "October", "November", "December",
+            ];
+
+            // Crear una estructura base de datos para asegurarnos de que todos los meses estén presentes
+            const currentYear = new Date().getFullYear();
+            const previousYear = currentYear - 1;
+
+            const baseData = (year) => monthNames.map((_, index) => ({
+                year: year,
+                month: index + 1, // 1 = January, 2 = February...
+                total_income: 0, // Valor por defecto
+            }));
+
+            // Combinar los datos base con los datos del backend
+            const completeData = [...baseData(previousYear), ...baseData(currentYear)];
+
+            this.monthlyIncome.forEach(item => {
+                const match = completeData.find(data => data.year === item.year && data.month === item.month);
+                if (match) {
+                    match.total_income = item.total_income; // Actualizar con el dato real
+                }
+            });
+
+            // Separar datos por año
+            const previousYearData = completeData
+                .filter(item => item.year === previousYear)
+                .map(item => item.total_income);
+
+            const currentYearData = completeData
+                .filter(item => item.year === currentYear)
+                .map(item => item.total_income);
+
+            // Configurar el gráfico
+            const config = {
                 type: "line",
                 data: {
-                    labels: [
-                        "January",
-                        "February",
-                        "March",
-                        "April",
-                        "May",
-                        "June",
-                        "July",
-                    ],
+                    labels: monthNames, // Siempre de enero a diciembre
                     datasets: [
                         {
-                            label: new Date().getFullYear(),
-                            backgroundColor: "#4c51bf",
-                            borderColor: "#4c51bf",
-                            data: [65, 78, 66, 44, 56, 67, 75],
+                            label: previousYear,
+                            backgroundColor: "#fff",
+                            borderColor: "#fff",
+                            data: previousYearData,
                             fill: false,
                         },
                         {
-                            label: new Date().getFullYear() - 1,
+                            label: currentYear,
+                            backgroundColor: "#4c51bf",
+                            borderColor: "#4c51bf",
+                            data: currentYearData,
                             fill: false,
-                            backgroundColor: "#fff",
-                            borderColor: "#fff",
-                            data: [40, 68, 86, 74, 56, 60, 87],
                         },
                     ],
                 },
@@ -59,11 +94,6 @@ export default {
                     maintainAspectRatio: false,
                     responsive: true,
                     plugins: {
-                        title: {
-                            display: false,
-                            text: "Sales Charts",
-                            color: "white",
-                        },
                         legend: {
                             labels: {
                                 color: "white",
@@ -71,66 +101,30 @@ export default {
                             align: "end",
                             position: "bottom",
                         },
-                        tooltip: {
-                            mode: "index",
-                            intersect: false,
-                        },
-                    },
-                    hover: {
-                        mode: "nearest",
-                        intersect: true,
                     },
                     scales: {
-                        x:
-                        {
+                        x: {
                             ticks: {
                                 color: "rgba(255,255,255,.7)",
-                            },
-                            display: true,
-                            title: {
-                                display: false,
-                                labelString: "Month",
-                                color: "white",
-                            },
-                            gridLines: {
-                                display: false,
-                                borderDash: [2],
-                                borderDashOffset: [2],
-                                color: "rgba(33, 37, 41, 0.3)",
-                                zeroLineColor: "rgba(0, 0, 0, 0)",
-                                zeroLineBorderDash: [2],
-                                zeroLineBorderDashOffset: [2],
                             },
                         },
-
-                        y:
-                        {
+                        y: {
                             ticks: {
                                 color: "rgba(255,255,255,.7)",
                             },
-                            display: true,
-                            title: {
-                                display: false,
-                                labelString: "Value",
-                                color: "white",
-                            },
-                            gridLines: {
-                                borderDash: [3],
-                                borderDashOffset: [3],
-                                drawBorder: false,
+                            grid: {
                                 color: "rgba(255, 255, 255, 0.15)",
-                                zeroLineColor: "rgba(33, 37, 41, 0)",
-                                zeroLineBorderDash: [2],
-                                zeroLineBorderDashOffset: [2],
                             },
                         },
-
                     },
                 },
             };
-            var ctx = document.getElementById("line-chart").getContext("2d");
+
+            // Crear el gráfico
+            const ctx = document.getElementById("line-chart").getContext("2d");
             window.myLine = new Chart(ctx, config);
         });
     },
 };
+
 </script>

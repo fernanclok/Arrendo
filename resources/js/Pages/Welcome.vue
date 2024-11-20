@@ -45,7 +45,7 @@ import TextInput from '@/Components/TextInput.vue';
       <section class="bg-gradient-to-r bg-primary text-white py-20">
         <div class="container mx-auto px-4 text-center">
           <h1 class="text-4xl md:text-6xl font-bold mb-4">Find your ideal home</h1>
-          <p class="text-xl md:text-2xl mb-8">Thousands of houses and apartments for rent awaiting you!</p>
+          <p class="text-xl md:text-2xl mb-8">Thousands of houses for rent awaiting you!</p>
           <div class="max-w-4xl mx-auto bg-secondary rounded-lg p-4 shadow-lg">
             <div class="flex flex-col md:flex-row gap-4">
               <select class="w-full md:w-[180px] text-black">
@@ -53,7 +53,7 @@ import TextInput from '@/Components/TextInput.vue';
                   {{ type.label }}
                 </option>
               </select>
-              <TextInput v-model="location" placeholder="Ubicación" class="flex-grow text-black" />
+              <TextInput v-model="location" placeholder="Location" class="flex-grow text-black" />
               <CustomButton type="primary" class="w-full md:w-auto" @click="searchProperties">
                 Buscar
               </CustomButton>
