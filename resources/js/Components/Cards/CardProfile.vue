@@ -21,7 +21,7 @@
               >
                 22
               </span>
-              <span class="text-sm text-blueGray-400">Friends</span>
+              <span class="text-sm text-blueGray-400">Properties</span>
             </div>
             <div class="mr-4 p-3 text-center">
               <span
@@ -29,7 +29,7 @@
               >
                 10
               </span>
-              <span class="text-sm text-blueGray-400">Photos</span>
+              <span class="text-sm text-blueGray-400">Clients</span>
             </div>
             <div class="lg:mr-4 p-3 text-center">
               <span
@@ -37,7 +37,7 @@
               >
                 89
               </span>
-              <span class="text-sm text-blueGray-400">Comments</span>
+              <span class="text-sm text-blueGray-400">Contrats</span>
             </div>
           </div>
         </div>
@@ -46,7 +46,7 @@
         <h3
           class="text-xl font-semibold leading-normal mb-2 text-blueGray-700 mb-2"
         >
-          Jenna Stones
+          {{}}
         </h3>
         <div
           class="text-sm leading-normal mt-0 mb-2 text-blueGray-400 font-bold uppercase"
