@@ -22,6 +22,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// contracts
+Route::middleware('auth')->group(function () {
+    Route::get('/contracts/all', [ContractController::class, 'index'])->name('contracts.index');
+    Route::post('/contract', [ContractController::class, 'store'])->name('contracts.store');
+});
+
 // zones
 Route::get('/zones', [ZoneController::class, 'getZones']);
 

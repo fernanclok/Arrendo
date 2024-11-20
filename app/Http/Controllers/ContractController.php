@@ -8,18 +8,7 @@ use GuzzleHttp\Psr7\Response;
 
 class ContractController extends Controller
 {
-    // Get all contracts
-    public function index()
-    {
-        // Obtener todos los contratos
-        $contracts = Contract::all();
-        // obtener todos los contratos con sus propiedades y usuarios
-        // $contracts = Contract::with('property', 'tenant')->get();
 
-
-        // Devolver una respuesta JSON de éxito
-        return response()->json(['contracts' => $contracts]);
-    }
     // Insert contract information
     public function store(Request $request)
     {
@@ -32,16 +21,53 @@ class ContractController extends Controller
                 'end_date' => 'required|date|after:start_date',
                 'rental_amount' => 'required|numeric',
                 'status' => 'required',
+                'contract_path.*' => 'required|file|mimes:pdf|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             ]);
 
             // Crear un nuevo contrato
-            $contrato = Contract::create($validatedData);
+            $contract = new Contract();
+            $contract->property_id = $validatedData['property_id'];
+            $contract->tenant_user_id = $validatedData['tenant_user_id'];
+            $contract->start_date = $validatedData['start_date'];
+            $contract->end_date = $validatedData['end_date'];
+            $contract->rental_amount = $validatedData['rental_amount'];
+            $contract->status = $validatedData['status'];
+
+            // Guardar los documentos del contrato
+            if ($request->hasFile('contract_path')) {
+                $contract_path = [];
+                foreach ($request->file('contract_path') as $file) {
+                    $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                    $extension = $file->getClientOriginalExtension();
+                    $timestamp = now()->format('YmdHis');
+                    $newName = "{$originalName}_{$timestamp}.{$extension}";
+                    $destinationPath = public_path('contracts_files');
+                    $file->move($destinationPath, $newName);
+                    $contract_path[] = "contracts/{$newName}";
+                }
+                $contract->contract_path = json_encode($contract_path);
+            }
+
+            $contract->owner_user_id = $request->user_id;
+            $contract->save();
 
             // Devolver una respuesta JSON de éxito
-            return response()->json(['success' => 'Contract created successfully.']);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Contract created successfully'
+            ]);
         } catch (\Exception $e) {
-            // Capturar cualquier excepción y mostrar el mensaje de error
-            return back()->withErrors(['error' => $e->getMessage()], 500);
+            // Devolver una respuesta JSON de error
+            return response()->json(['success' => false, 'message' => $e,], 500);
         }
+    }
+    // Get all contracts
+    public function index()
+    {
+        //obtener todos los contratos y sus relaciones
+        $contracts = Contract::with('property', 'tenantUser')->get();
+        // Devolver una respuesta JSON de éxito
+        return response()->json(['contracts' => $contracts]);
     }
 }

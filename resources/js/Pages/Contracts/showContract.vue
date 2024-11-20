@@ -7,7 +7,6 @@ import manageContracts from './manageContracts.vue';
 
 
 const contracts = ref([]);
-
 const getContracts = async () => {
     try {
         const response = await axios.get('/contracts/all');
@@ -75,38 +74,39 @@ const showContract = (key) => {
 
                 </div>
                 <div class="block justify-center text-start p-2  overflow-y-auto h-[480px] ">
-                    <div v-for="(contract, index) in filteredContracts" :key="contract.id" class="bg-white rounded-lg shadow-lg p-2 m-2">
-                        <nav class="block sm:flex justify-between py-2">
-                            <h1 class="text-sm text-wrap text-black font-black"> {{ contract.property_id }}</h1>
-                            <div class="block">
-                                <p :class="{
-                                    'text-sm justify-end text-end items-end font-bold w-full px-4 rounded-md':true,
-                                    'bg-gradient-to-l from-green-500 to-white from-10%': contract.status == 'Active',
-                                    'bg-gradient-to-l from-yellow-500 to-white from-10%': contract.status == 'Pending Renewal',
-                                    'bg-gradient-to-l from-red-500 to-white from-10%': contract.status == 'Terminated'
-                                    }"> {{ contract.status }}</p>
-                                <h1 class="text-sm text-pretty text-primary-black font-black"> {{ contract.rental_amount }}</h1>
-                            </div>
-                        </nav>
-                       <div class="block sm:flex justify-start w-full items-center text-center"> <span class="text-sm font-bold text-start  px-2">Tenant:</span><p class="text-xs"> {{ contract.tenant_user_id }}</p></div>
+                    <div v-if="(contracts & filteredContracts.length > 0)">
+                        <div v-for="(contract, index) in filteredContracts" :key="contract.id" class="bg-white rounded-lg shadow-lg p-2 m-2">
+                            <nav class="block sm:flex justify-between py-2">
+                                <h1 class="text-sm text-wrap text-black font-black"> {{ contract.property_id }}</h1>
+                                <div class="block">
+                                    <p :class="{
+                                        'text-sm justify-end text-end items-end font-bold w-full px-4 rounded-md':true,
+                                        'bg-gradient-to-l from-green-500 to-white from-10%': contract.status == 'Active',
+                                        'bg-gradient-to-l from-yellow-500 to-white from-10%': contract.status == 'Pending Renewal',
+                                        'bg-gradient-to-l from-red-500 to-white from-10%': contract.status == 'Terminated'
+                                        }"> {{ contract.status }}</p>
+                                    <h1 class="text-sm text-pretty text-primary-black font-black"> {{ contract.rental_amount }}</h1>
+                                </div>
+                            </nav>
+                        <div class="block sm:flex justify-start w-full items-center text-center"> <span class="text-sm font-bold text-start  px-2">Tenant:</span><p class="text-xs"> {{ contract.tenant_user_id }}</p></div>
 
-                        <div class="grid grid-cols-3 md:grid-cols-3 gap-2 justify-center items-center text-center py-2">
-                            <div class="items-center">
-                                <CustomButton @click="showContract(contract.id)" :key="contract.id" class="">Details</CustomButton>
-                            </div>
-                            <div class="items-center">
-                                <span class="text-sm font-bold text-start ">Being Date:</span><p class="text-xs"> {{ contract.start_date }}</p>
-                            </div>
-                            <div class="items-center">
-                                <span class="text-sm font-bold text-start ">End Date:</span><p class="text-xs"> {{ contract.end_date }}</p>
+                            <div class="grid grid-cols-3 md:grid-cols-3 gap-2 justify-center items-center text-center py-2">
+                                <div class="items-center">
+                                    <CustomButton @click="showContract(contract.id)" :key="contract.id" class="">Details</CustomButton>
+                                </div>
+                                <div class="items-center">
+                                    <span class="text-sm font-bold text-start ">Being Date:</span><p class="text-xs"> {{ contract.start_date }}</p>
+                                </div>
+                                <div class="items-center">
+                                    <span class="text-sm font-bold text-start ">End Date:</span><p class="text-xs"> {{ contract.end_date }}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div :class="{
+                    <div v-else :class="{
                         'w-full flex justify-center':true,
-                        'hidden': filteredContracts.length > 0
                         }">
-                        <i class="mdi mdi-loading text-4xl text-primary animate-spin"></i>
+                        <p class="text-sm text-gray-500 font-bold">No contracts found</p>
                     </div>
                 </div>
               </nav>

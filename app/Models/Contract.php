@@ -15,6 +15,7 @@ class Contract extends Model
         'start_date',
         'end_date',
         'rental_amount',
+        'owner_user_id',
         'status', //Active, Pending Renewal, Terminated
     ];
 
@@ -27,5 +28,8 @@ class Contract extends Model
     {
         return $this->belongsTo(User::class, 'id');
     }
+    public function ownerUser()
+    {
+        return $this->belongsTo(User::class, 'id');
+    }
 }
-
