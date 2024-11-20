@@ -6,68 +6,68 @@ import axios from 'axios';
 import { ref } from 'vue';
 
 // Datos falsos para las propiedades
-const properties = ref([
-    {
-        id: 1,
-        title: 'Beautiful Family House',
-        description: 'A beautiful house located in a serene environment.',
-        price: 1200,
-        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-        address: '123 Main St',
-        rooms: 3,
-        bathrooms: 2,
-    },
-    {
-        id: 2,
-        title: 'Modern Apartment',
-        description: 'A modern apartment with all the amenities you need.',
-        price: 900,
-        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-        address: '456 Elm St',
-        rooms: 2,
-        bathrooms: 1,
-    },
-    {
-        id: 3,
-        title: 'Cozy Cottage',
-        description: 'A cozy cottage perfect for a small family.',
-        price: 700,
-        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-        address: '789 Oak St',
-        rooms: 2,
-        bathrooms: 1,
-    },
-    {
-        id: 4,
-        title: 'Cozy Cottage',
-        description: 'A cozy cottage perfect for a small family.',
-        price: 700,
-        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-        address: '789 Oak St',
-        rooms: 2,
-        bathrooms: 1,
-    },
-    {
-        id: 5,
-        title: 'Cozy Cottage',
-        description: 'A cozy cottage perfect for a small family.',
-        price: 700,
-        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-        address: '789 Oak St',
-        rooms: 2,
-        bathrooms: 1,
-    },
-    {
-        id: 6,
-        title: 'Cozy Cottage',
-        description: 'A cozy cottage perfect for a small family.',
-        price: 700,
-        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-        address: '789 Oak St',
-        rooms: 2,
-        bathrooms: 1,
-    },
-]);
+// const properties = ref([
+//     {
+//         id: 1,
+//         title: 'Beautiful Family House',
+//         description: 'A beautiful house located in a serene environment.',
+//         price: 1200,
+//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
+//         address: '123 Main St',
+//         rooms: 3,
+//         bathrooms: 2,
+//     },
+//     {
+//         id: 2,
+//         title: 'Modern Apartment',
+//         description: 'A modern apartment with all the amenities you need.',
+//         price: 900,
+//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
+//         address: '456 Elm St',
+//         rooms: 2,
+//         bathrooms: 1,
+//     },
+//     {
+//         id: 3,
+//         title: 'Cozy Cottage',
+//         description: 'A cozy cottage perfect for a small family.',
+//         price: 700,
+//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
+//         address: '789 Oak St',
+//         rooms: 2,
+//         bathrooms: 1,
+//     },
+//     {
+//         id: 4,
+//         title: 'Cozy Cottage',
+//         description: 'A cozy cottage perfect for a small family.',
+//         price: 700,
+//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
+//         address: '789 Oak St',
+//         rooms: 2,
+//         bathrooms: 1,
+//     },
+//     {
+//         id: 5,
+//         title: 'Cozy Cottage',
+//         description: 'A cozy cottage perfect for a small family.',
+//         price: 700,
+//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
+//         address: '789 Oak St',
+//         rooms: 2,
+//         bathrooms: 1,
+//     },
+//     {
+//         id: 6,
+//         title: 'Cozy Cottage',
+//         description: 'A cozy cottage perfect for a small family.',
+//         price: 700,
+//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
+//         address: '789 Oak St',
+//         rooms: 2,
+//         bathrooms: 1,
+//     },
+// ]);
 
 </script>
 
@@ -215,24 +215,25 @@ const properties = ref([
                             { 'scale-105 shadow-xl': activePropertyId === property.id }
                         ]"
                     >
-                        <img :src="property.image" alt="Property" class="w-full h-48 object-cover" />
+                        <img :src="property.property_photos_path[0]" alt="Property Photo"
+                            class="w-full h-48 object-cover" v-if="property.property_photos_path.length" />
                         <div class="p-4">
-                            <h2 class="text-xl font-semibold mb-2">{{ property.title }}</h2>
-                            <p class="text-gray-600 mb-2">{{ property.address }}</p>
+                            <h2 class="text-xl font-bold mb-2">{{ property.zone_name }}</h2>
+                            <p class="text-gray-600 mb-2">{{ property.city }} {{ property.state }} , {{ property.street }}, {{ property.number }}</p>
                             <div class="flex justify-between items-center mb-2">
                                 <span class="flex items-center">
                                     <!-- SVG Icon for rooms -->
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16h6M4 6h16M4 6a2 2 0 012-2h12a2 2 0 012 2M4 6v12a2 2 0 002 2h12a2 2 0 002-2V6"></path>
                                     </svg>
-                                    {{ property.rooms }} rooms
+                                    {{ property.total_rooms }} rooms
                                 </span>
                                 <span class="flex items-center">
                                     <!-- SVG Icon for bathrooms -->
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 1.343-3 3v4h6v-4c0-1.657-1.343-3-3-3zM5 20h14a2 2 0 002-2v-5a2 2 0 00-2-2H5a2 2 0 00-2 2v5a2 2 0 002 2z"></path>
                                     </svg>
-                                    {{ property.bathrooms }} bathrooms
+                                    {{ property.total_bathrooms }} bathrooms
                                 </span>
                             </div>
                         </div>
@@ -241,7 +242,7 @@ const properties = ref([
                                 <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 1.343-3 3v4h6v-4c0-1.657-1.343-3-3-3zM5 20h14a2 2 0 002-2v-5a2 2 0 00-2-2H5a2 2 0 00-2 2v5a2 2 0 002 2z"></path>
                                 </svg>
-                                ${{ property.price }}
+                                ${{ property.property_price }}
                             </span>
                             <CustomButton v-if="property.id != activePropertyId" type="primary" @click="toggleDetails(property.id)">
                                 View Details
@@ -271,8 +272,8 @@ const properties = ref([
             <div class="container mx-auto px-4">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                     <div>
-                        <h3 class="text-lg font-semibold mb-4">RentaFácil</h3>
-                        <p class="text-sm text-gray-400">Simplificando el proceso de renta de propiedades desde 2010.</p>
+                        <h3 class="text-lg font-semibold mb-4">Arrendo</h3>
+                        <p class="text-sm text-gray-400">A New Way to Rent Houses</p>
                     </div>
                     <div v-for="(column, index) in footerColumns" :key="index">
                         <h4 class="text-lg font-semibold mb-4">{{ column.title }}</h4>
@@ -285,7 +286,7 @@ const properties = ref([
                         </ul>
                     </div>
                     <div>
-                        <h4 class="text-lg font-semibold mb-4">Síguenos</h4>
+                        <h4 class="text-lg font-semibold mb-4">Follow Us</h4>
                         <div class="flex space-x-4">
                             <a v-for="social in socialLinks" :key="social.name" :href="social.href"
                                 class="text-gray-400 hover:text-white">
@@ -296,7 +297,7 @@ const properties = ref([
                     </div>
                 </div>
                 <div class="border-t border-primary pt-8 text-center">
-                    <p class="text-sm text-gray-400">&copy; {{ new Date().getFullYear() }} RentaFácil. Todos los derechos reservados.</p>
+                    <p class="text-sm text-gray-400">&copy; {{ new Date().getFullYear() }} Arrendo. All Rights Reserved</p>
                 </div>
             </div>
         </footer>
@@ -319,6 +320,7 @@ export default {
             activePropertyId: null,
             priceOptions: ["5000", "7000", "10000", "+10000"],
             selectedPrice: 0,
+            isRefreshing: false,
             properties: [],
             zones: [
                 { id: 1, name: 'Centro' },
@@ -358,7 +360,7 @@ export default {
             this.showFilters = !this.showFilters;
         },
         getProperties() {
-            axios.get('/api/properties')
+            axios.get('/api/properties/getProperties')
                 .then(response => {
                     this.properties = response.data;
                 })
@@ -380,27 +382,31 @@ export default {
             };
             axios.get('/api/properties/filter/', { params: filters })
                 .then(response => {
-                    // this.properties = response.data;
-                    this.properties = this.properties;
+                    this.properties = response.data;
                 })
                 .catch(error => {
                     console.error(error);
                 });
         },
         refreshFilters() {
+            this.isRefreshing = true; 
             this.propertiesSpecifications = {
                 selectedZone: '',
                 maxPrice: '',
                 m2: '',
                 bedrooms: '',
-                // bathrooms: '',
+                bathrooms: '',
                 allowPets: false,
-                parking: false
+                parking: false,
             };
             this.selectedPrice = 0;
 
             this.getProperties();
-        }
+
+            setTimeout(() => {
+                this.isRefreshing = false;
+            }, 0); 
+        },
     },
     watch: {
         showDetails(newVal) {
@@ -409,13 +415,19 @@ export default {
             }
         },
         selectedPrice(newVal) {
-            this.filterProperties();
+            if (!this.isRefreshing) {
+                this.filterProperties();
+            }
         },
         'propertiesSpecifications.selectedZone': function() {
-            this.filterProperties();
+            if (!this.isRefreshing) {
+                this.filterProperties();
+            }
         },
         'propertiesSpecifications.maxPrice': function() {
-            this.filterProperties();
+            if (!this.isRefreshing) {
+                this.filterProperties();
+            }
         }
     },
     computed: {
