@@ -99,15 +99,20 @@ class DashboardController extends Controller
         ];
 
         // Consultar propiedades con relaciones
+        // Consultar propiedades con relaciones
         $properties = DB::table('properties as p')
             ->select(
                 'p.id as property_id',
-                'CONCAT(p.street,',
-                ',p.number,',
-                ',p.city,',
-                ',p.state,.',
-                ',p.postal_code) as property_address',
-                DB::raw("CONCAT(u.first_name,' ', u.last_name) as tenant_name"),
+                DB::raw("
+        CONCAT(
+            p.street, ', ',
+            p.number, ', ',
+            p.city, ', ',
+            p.state, ', ',
+            p.postal_code
+        ) as property_address
+    "),
+                DB::raw("CONCAT(u.first_name, ' ', u.last_name) as tenant_name"),
                 'c.rental_amount as rental_amount',
                 'c.end_date as contract_end',
                 'c.status as contract_status'
@@ -116,6 +121,7 @@ class DashboardController extends Controller
             ->leftJoin('users as u', 'c.tenant_user_id', '=', 'u.id')
             ->whereIn('c.status', ['Active', 'Pending Renewal', 'Terminated'])
             ->get();
+
 
 
 
