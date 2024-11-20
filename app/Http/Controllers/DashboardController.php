@@ -102,8 +102,11 @@ class DashboardController extends Controller
         $properties = DB::table('properties as p')
             ->select(
                 'p.id as property_id',
-                'p.name as property_name',
-                'p.address as property_address',
+                'CONCAT(p.street,',
+                ',p.number,',
+                ',p.city,',
+                ',p.state,.',
+                ',p.postal_code) as property_address',
                 DB::raw("CONCAT(u.first_name,' ', u.last_name) as tenant_name"),
                 'c.rental_amount as rental_amount',
                 'c.end_date as contract_end',
