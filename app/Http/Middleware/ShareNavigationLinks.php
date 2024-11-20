@@ -21,11 +21,15 @@ class ShareNavigationLinks
                 ],
                 'Tenant' => [
                     ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'view-dashboard'],
-                    ['route' => 'appoinments', 'label' => 'Appoinments', 'icon' => 'calendar']
+                    ['route' => 'appoinments', 'label' => 'Appoinments', 'icon' => 'calendar'],
+                    ['route' => 'maintenance','label' => 'Maintenance','icon'=> 'hammer-wrench'],
+                  
+
                 ],
             ];
 
             $userRole = Auth::user() ? Auth::user()->role : null;
+           
 
             // Si el usuario es un administrador o superadministrador, devolver todas las rutas
             if (in_array($userRole, ['admin', 'superadmin'])) {

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 class Property extends Model
 {
     use HasFactory;
-
+    protected $table = 'properties';
     protected $fillable = [
         'street',
         'number',
@@ -33,12 +33,17 @@ class Property extends Model
 
     public function ownerUser()
     {
-        return $this->belongsTo(User::class, 'id');
+        return $this->belongsTo(User::class, 'owner_user_id');
+    }
+      // Relación: una propiedad tiene muchos contratos
+    public function contracts()
+    {
+        return $this->hasMany(Contract::class, 'property_id'); // 'property_id' es la clave foránea
     }
 
     public function zone()
     {
-        return $this->belongsTo(Zone::class, 'id');
+        return $this->belongsTo(Zone::class, 'zone_id');
     }
 
     public function validateAvailability(array $attributes)
