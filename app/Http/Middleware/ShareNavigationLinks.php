@@ -20,11 +20,10 @@ class ShareNavigationLinks
                     ['route' => 'myProperties', 'label' => 'My Properties', 'icon' => 'home'],
                 ],
                 'Tenant' => [
-                    ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'view-dashboard'],
+                    ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'home'],
+                    ['route' => 'searchProperties', 'label' => 'Properties', 'icon' => 'home'],
                     ['route' => 'appoinments', 'label' => 'Appoinments', 'icon' => 'calendar'],
                     ['route' => 'maintenance','label' => 'Maintenance','icon'=> 'hammer-wrench'],
-                  
-
                 ],
             ];
 
