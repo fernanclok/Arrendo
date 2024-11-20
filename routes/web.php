@@ -25,7 +25,7 @@ Route::get('/', function () {
 });
 
 // Dashboard
-Route::middleware(['auth', 'role:Owner'])->group(function () {
+Route::middleware(['auth', 'verified','role:Owner'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/dashboard/settings', function () {
@@ -53,6 +53,11 @@ Route::get('/my-properties', function() {
         'user' => auth()->user()
     ]);
 })->middleware(['auth','verified','role:admin,Owner'])->name('myProperties');
+
+//search properties
+Route::get('/search-properties', function () {
+    return Inertia::render('SearchProperties');
+})->middleware(['auth','verified','role:Tenant'])->name('searchProperties');
 
 Route::get('/contracts', function () {
     return Inertia::render('Contracts/showContract');
