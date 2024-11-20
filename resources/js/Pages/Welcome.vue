@@ -14,7 +14,7 @@ import TextInput from '@/Components/TextInput.vue';
     <header class="border-b">
       <div class="container mx-auto px-4 py-4">
         <div class="flex items-center justify-between">
-          <Link to="/" class="flex items-center space-x-2">
+          <Link href="/" class="flex items-center space-x-2">
           <span class="text-xl font-bold">Arrendo</span>
           </Link>
           <nav class="hidden md:flex space-x-4">
@@ -23,10 +23,19 @@ import TextInput from '@/Components/TextInput.vue';
             {{ item.label }}
             </Link>
           </nav>
+
+          <div class="flex items-center space-x-2">
+          <Link href="registro-propiedad"
+            class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-white text-gray-800 hover:bg-gray-100 focus:bg-gray-100 active:bg-gray-200 focus:ring-gray-300">
+          Publicar
+          </Link>
           <Link href="/login"
             class="inline-flex items-center px-3 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-primary text-white hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:ring-green-500">
           Log In
           </Link>
+          </div>
+
+
         </div>
       </div>
     </header>
@@ -109,7 +118,7 @@ import TextInput from '@/Components/TextInput.vue';
         <div class="container mx-auto px-4 text-center">
           <h2 class="text-3xl font-bold mb-4">¿Tienes una propiedad para rentar?</h2>
           <p class="text-xl mb-8">Únete a miles de propietarios que confían en nosotros</p>
-          <a href="" class="hover:underline">
+          <a href="registro-propiedad" class="hover:underline">
             Publicar mi propiedad
             <ArrowRight class="ml-2 h-5 w-5" />
           </a>

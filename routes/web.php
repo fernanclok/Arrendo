@@ -74,7 +74,6 @@ Route::get('/appoinments', function () {
 
 require __DIR__ . '/auth.php';
 
-
 //Maintenance
 Route::get('/maintenance', function () {
     return Inertia::render('Maintenance/ShowMaintenance');
@@ -88,3 +87,9 @@ Route::post('/maintenance/store', [MaintenanceController::class, 'store'])
 
 Route::get('/maintenance/{id}', [MaintenanceController::class, 'show'])
 ->name('maintenance.show');
+
+//Registro propiedades
+Route::get('/registro-propiedad', function () {
+    return Inertia::render('RegistroPropiedad'); // Nombre del componente Vue 
+})->name('registro.propiedad');
+
