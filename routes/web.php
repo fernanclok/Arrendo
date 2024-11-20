@@ -4,6 +4,7 @@ use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Foundation\Application;
+use App\Http\Controllers\MaintenanceController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
@@ -73,8 +74,22 @@ Route::get('/appoinments', function () {
 
 require __DIR__ . '/auth.php';
 
+//Maintenance
+Route::get('/maintenance', function () {
+    return Inertia::render('Maintenance/ShowMaintenance');
+})->middleware([])->name('maintenance');
+
+Route::get('/maintenance/create', [MaintenanceController::class, 'create'])
+->name('maintenance.create');
+
+Route::post('/maintenance/store', [MaintenanceController::class, 'store'])
+->name('maintenance.store');
+
+Route::get('/maintenance/{id}', [MaintenanceController::class, 'show'])
+->name('maintenance.show');
 
 //Registro propiedades
 Route::get('/registro-propiedad', function () {
     return Inertia::render('RegistroPropiedad'); // Nombre del componente Vue 
 })->name('registro.propiedad');
+
