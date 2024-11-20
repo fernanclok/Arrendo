@@ -73,7 +73,7 @@ public function show($id)
     /**
      * 
      */
-    public function edit($id): Response
+    public function edit($id)
     {
         // Lógica pendiente
     }
