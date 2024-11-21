@@ -47,6 +47,10 @@ Route::get('/properties', function () {
     return Inertia::render('Properties');
 })->name('properties');
 
+Route::get('/detailprop', function () {
+    return Inertia::render('DetailPropertie');
+})->name('detailproperties');
+
 //my properties
 Route::get('/my-properties', function() {
     return Inertia::render('MyProperties', [
