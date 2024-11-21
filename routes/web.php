@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
-use Illuminate\Foundation\Application;
+use App\Http\Controllers\ContractController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
@@ -57,11 +57,10 @@ Route::get('/contracts', function () {
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('contracts');
 
 
-
+// contracts
 Route::get('/manage/contracts', function () {
-    return Inertia::render('Contracts/manageContracts');
+    return Inertia::render('ManageContracts');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('manageContracts');
-
 //appoinments
 Route::get('/appoinments', function () {
     return Inertia::render('Appoinments');

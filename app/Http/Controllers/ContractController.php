@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Contract;
-use GuzzleHttp\Psr7\Response;
+use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 class ContractController extends Controller
 {
@@ -20,8 +21,9 @@ class ContractController extends Controller
                 'start_date' => 'required|date',
                 'end_date' => 'required|date|after:start_date',
                 'rental_amount' => 'required|numeric',
+                'contract_files.*' => 'required|file|mimes:pdf,png,jpg,jpeg',
+                'owner_user_id' => 'required|exists:users,id',
                 'status' => 'required',
-                'contract_path.*' => 'required|file|mimes:pdf|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             ]);
 
             // Crear un nuevo contrato
@@ -31,43 +33,59 @@ class ContractController extends Controller
             $contract->start_date = $validatedData['start_date'];
             $contract->end_date = $validatedData['end_date'];
             $contract->rental_amount = $validatedData['rental_amount'];
-            $contract->status = $validatedData['status'];
 
-            // Guardar los documentos del contrato
-            if ($request->hasFile('contract_path')) {
-                $contract_path = [];
-                foreach ($request->file('contract_path') as $file) {
+
+            if ($request->hasFile('contract_files')) {
+                $files = [];
+                foreach ($request->file('contract_files') as $file) {
                     $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                     $extension = $file->getClientOriginalExtension();
                     $timestamp = now()->format('YmdHis');
                     $newName = "{$originalName}_{$timestamp}.{$extension}";
                     $destinationPath = public_path('contracts_files');
+
+                    // Crear la carpeta si no existe
+                    if (!file_exists($destinationPath)) {
+                        mkdir($destinationPath, 0777, true);
+                    }
+
                     $file->move($destinationPath, $newName);
-                    $contract_path[] = "contracts/{$newName}";
+                    $files[] = "contracts/{$newName}";
                 }
-                $contract->contract_path = json_encode($contract_path);
+                $contract->contract_path = json_encode($files);
             }
 
-            $contract->owner_user_id = $request->user_id;
+
+            $contract->owner_user_id = $validatedData['owner_user_id'];
+            $contract->status = $validatedData['status'];
             $contract->save();
 
             // Devolver una respuesta JSON de éxito
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Contract created successfully'
-            ]);
+            return redirect()->route('/contracts')->with('success', 'Contract created successfully');
         } catch (\Exception $e) {
             // Devolver una respuesta JSON de error
             return response()->json(['success' => false, 'message' => $e,], 500);
         }
     }
     // Get all contracts
-    public function index()
+    public function index(Request $request)
     {
-        //obtener todos los contratos y sus relaciones
-        $contracts = Contract::with('property', 'tenantUser')->get();
+        $request->validate([
+            'user_id' => 'required|integer|exists:users,id',
+        ]);
+        //obtener todos los contratos del usuario autenticado con sus relaciones
+        $contracts = Contract::where('owner_user_id', $request->user_id)
+            ->with('property', 'tenantUser')
+            ->get();
         // Devolver una respuesta JSON de éxito
-        return response()->json(['contracts' => $contracts]);
+        return response()->json($contracts);
+    }
+    public function getTenantUsers()
+    {
+        // Obtener todos los usuarios con el rol de 'Tenant'
+        $tenantUsers = User::where('role', 'Tenant')->get();
+        // Devolver una respuesta JSON de éxito
+        return response()->json($tenantUsers);
     }
 }
