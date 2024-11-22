@@ -3,7 +3,6 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ContractController;
-
 use App\Http\Controllers\ZoneController;
 use App\Http\Controllers\PropertyController;
 
@@ -21,6 +20,14 @@ use App\Http\Controllers\PropertyController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+//Contracts
+Route::prefix('contracts')->group(function () {
+    Route::get('/', [ContractController::class, 'index']);
+    Route::post('/create', [ContractController::class, 'store']);
+    Route::get('/user_tenant', [ContractController::class, 'getTenantUsers']);
+});
+
 
 // zones
 Route::get('/zones', [ZoneController::class, 'getZones']);
