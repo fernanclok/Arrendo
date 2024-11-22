@@ -39,7 +39,8 @@ const filter = (status) => {
 };
 
 const showContract = (key) => {
-    console.log(contracts.value[key]);
+    // Redirigir a la página de detalles del contrato
+    return window.location.href = `/contracts/details/${key}`;
 };
 
 // Llamar a getContracts cuando el componente se monte
