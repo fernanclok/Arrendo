@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Contract extends Model
 {
     use HasFactory;
+    protected $table = 'contracts';
 
     protected $fillable = [
         'property_id',
@@ -22,7 +23,7 @@ class Contract extends Model
 
     public function property()
     {
-        return $this->belongsTo(Property::class);
+        return $this->belongsTo(Property::class,'property_id');
     }
 
     public function tenantUser()
