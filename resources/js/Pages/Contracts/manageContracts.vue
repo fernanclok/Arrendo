@@ -8,6 +8,23 @@ import Checkbox from '@/Components/Checkbox.vue';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
+
+// Crear dos paginas mas  una de detalles de contratos donde reciba el id del contrato y puedas mostrar las siguientes cosas
+
+// Detalles de contrato
+
+// Fecha de inicio y fin de contrato y nombre del tenant de contrato
+// Informacion de la propiedad     ||    Informacion del Tenant
+// Imagenes y Documentos subidos
+
+// Contratos generales filtrados por tenant ya que tendra varios contratos
+// En esta pagina sera una tarjeta con los contratos por usuario (tenant) y la propiedad que esta rentando actualmente [Pendiente de revision]
+// Se le dara la opcion al owner de seleccionar el boton "Actions" si es que el contrato esta Pending Renewal 
+// donde podra decidir si Terminar el contrato o renovarlo
+// Si renueva arrojar un formulario de  update|insert a contract y contract_renewal
+// Si selecciona terminar contrato simplemente cambiar el status del contrato  y agregar opacidad en esta vista.
+// Poder segun el usuario revisar los recibos que tiene (ligas a la seccion de lupita y ramses)
+
 export default {
   components: {
     InputError,
@@ -115,7 +132,11 @@ export default {
 <template>
   <div id="content" class="">
     <form @submit.prevent="submitForm" class="mt-2 space-y-4 bg-gray-100 p-8 rounded-lg">
-      <nav class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+      <nav :class="{
+        'grid gap-4 w-full':true,
+        'grid-cols-1': form.contract_files.length == 0,
+        'grid-cols-1 sm:grid-cols-2': form.contract_files.length > 0,
+      }">
         <div class="w-full">
           <InputLabel for="contract_file"  class="flex flex-col items-center justify-center w-full h-[200px] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 ">
             <div class="flex flex-col items-center justify-center pt-5 pb-6">
@@ -128,8 +149,12 @@ export default {
           <InputError class="mt-2" :message="form.errors.contract_file" />         
         </div>
          <!-- Mostrar archivos cargados con vista previa -->
-         <div class="flex flex-wrap justify-center items center gap-2 h-[200px] p-4 overflow-y-scroll">
-              <div v-for="(file, index) in form.contract_files" :key="index" class="flex items-center justify-between w-full mt-2 p-2 bg-primary rounded-lg">
+         <div :class="{
+          'flex-wrap justify-center items center gap-2 h-[200px] w-full p-4 overflow-y-scroll':true,
+          'hidden': form.contract_files.length == 0,
+          'flex': form.contract_files.length > 0,
+         }">
+              <div v-for="(file, index) in form.contract_files" :key="index" class="flex items-center justify-between w-full mt-2 p-2 bg-primary rounded-lg overflow-hidden">
                 <button @click="removeFile(index)" type="button" class=" text-white mr-2 font-semibold h-full text-sm"><i class="mdi mdi-close p-2"></i></button>
                 <!-- Vista previa -->
                 <div v-if="file.preview" class="mt-2 w-full h-16">
@@ -137,9 +162,9 @@ export default {
                     <i  class="mdi mdi-image text-6xl text-white "></i>
                     <p class="text-sm text-white font-semibold ml-2">{{ file.file.name }}</p>
                   </div>
-                  <div v-else class="flex items-center  w-full h-full rounded-md">
+                  <div v-else class="flex items-center  w-full h-full rounded-md  text-wrap ">
                     <i  class="mdi mdi-file-pdf-box text-6xl text-white "></i>
-                    <p class="text-sm text-white font-semibold ml-2">{{ file.file.name }}</p>
+                    <p class="text-sm text-white font-semibold ml-2 ">{{ file.file.name }}</p>
                   </div>
                 </div>
               </div>

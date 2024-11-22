@@ -17,7 +17,7 @@ class Contract extends Model
         'rental_amount',
         'contract_file',
         'owner_user_id',
-        'status', //Active, Pending Renewal, Terminated
+        'status', //Active, Pending Renewal, Terminated 
     ];
 
     public function property()

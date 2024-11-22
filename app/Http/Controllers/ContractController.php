@@ -90,19 +90,6 @@ class ContractController extends Controller
         // Devolver una respuesta JSON de éxito
         return response()->json($tenantUsers);
     }
-    // crear una funcion para actualizar  el status del contrato a Pending Renewal cuando la fecha de termino del contrato sea igual a la fecha actual
-    public function updateStatus()
-    {
-        // Obtener todos los contratos que tengan la fecha de termino igual a la fecha actual
-        $contracts = Contract::where('end_date', now()->format('Y-m-d'))
-            ->where('status', 'Active')
-            ->get();
-        // Actualizar el status de los contratos a 'Pending Renewal'
-        foreach ($contracts as $contract) {
-            $contract->status = 'Pending Renewal';
-            $contract->save();
-        }
-        // Devolver una respuesta JSON de éxito
-        return response()->json(['success' => true]);
-    }
+    // crear una funcion para actualizar  el status del contrato a Pending Renewal cuando la fecha de termino del contrato sea igual a la fecha actual automaticamente
+
 }
