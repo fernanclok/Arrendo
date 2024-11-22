@@ -16,14 +16,14 @@ class Contract extends Model
         'start_date',
         'end_date',
         'rental_amount',
-        'contract_file',
+        'contract_path',
         'owner_user_id',
         'status', //Active, Pending Renewal, Terminated 
     ];
 
     public function property()
     {
-        return $this->belongsTo(Property::class,'property_id');
+        return $this->belongsTo(Property::class);
     }
 
     public function tenantUser()
