@@ -8,39 +8,58 @@ use Illuminate\Support\Facades\Log;
 
 class PropertyController extends Controller
 {
-    public function getProperties() {
-    $properties = Property::join('zones', 'zones.id', '=', 'properties.zone_id')
-        ->select('properties.*', 'zones.name as zone_name')
-        ->get()
-        ->map(function ($property) {
-            $photos = $property->property_photos_path ? json_decode($property->property_photos_path, true) : [];
-            $property->property_photos_path = is_array($photos) 
-                ? array_map(fn($photo) => asset($photo), $photos) 
-                : [];
-            return $property;
-        });
+    public function getProperties()
+    {
+        $properties = Property::join('zones', 'zones.id', '=', 'properties.zone_id')
+            ->select('properties.*', 'zones.name as zone_name')
+            ->get()
+            ->map(function ($property) {
+                $photos = $property->property_photos_path ? json_decode($property->property_photos_path, true) : [];
+                $property->property_photos_path = is_array($photos)
+                    ? array_map(fn($photo) => asset($photo), $photos)
+                    : [];
+                return $property;
+            });
 
-    return response()->json($properties);
-}
+        return response()->json($properties);
+    }
 
-    public function getFilteredProperties(Request $request) {
-        $params = $request->all();
+    public function getPropertyDetails($id)
+    {
+        // Validar que el ID de la propiedad sea un entero y exista en la base de datos
+        $property = Property::join('zones', 'zones.id', '=', 'properties.zone_id')
+            ->select('properties.*', 'zones.name as zone_name')
+            ->where('properties.id', $id)
+            ->firstOrFail();
     
+        $photos = $property->property_photos_path ? json_decode($property->property_photos_path, true) : [];
+        $property->property_photos_path = is_array($photos)
+            ? array_map(fn($photo) => asset($photo), $photos)
+            : [];
+    
+        return response()->json($property);
+    }
+
+    public function getFilteredProperties(Request $request)
+    {
+        $params = $request->all();
+
         $params['allowPets'] = $params['allowPets'] === 'true';
         $params['parking'] = $params['parking'] === 'true';
-    
-        $filteredParams = array_filter($params, function($param) {
+
+        $filteredParams = array_filter($params, function ($param) {
             return $param !== null && $param !== false && $param !== '';
         });
-    
+
         $properties = $this->formatQuery($filteredParams);
 
         return response()->json($properties);
     }
-    
-    public function formatQuery($params) {
+
+    public function formatQuery($params)
+    {
         $query = Property::query();
-    
+
         if (isset($params['maxPrice'])) {
             if ($params['maxPrice'] === '+10000') {
                 $query->where('property_price', '>', 0);
@@ -48,30 +67,30 @@ class PropertyController extends Controller
                 $query->where('property_price', '<=', $params['maxPrice']);
             }
         }
-    
+
         $query->join('zones', 'zones.id', '=', 'properties.zone_id')
-              ->select('properties.*', 'zones.name as zone_name');
-    
+            ->select('properties.*', 'zones.name as zone_name');
+
         if (isset($params['selectedZone'])) {
             $query->where('zones.name', 'like', '%' . $params['selectedZone'] . '%');
         }
-    
+
         if (isset($params['allowPets'])) {
             $query->where('allow_pets', $params['allowPets']);
         }
-    
+
         if (isset($params['parking'])) {
             $query->where('have_parking', $params['parking']);
         }
-    
+
         if (isset($params['rooms'])) {
             $query->where('total_rooms', '>=', $params['rooms']);
         }
-    
+
         if (isset($params['bathrooms'])) {
             $query->where('total_bathrooms', '>=', $params['bathrooms']);
         }
-    
+
         if (isset($params['m2'])) {
             $query->where('total_m2', '>=', $params['m2']);
         }
@@ -79,16 +98,16 @@ class PropertyController extends Controller
         $properties = $query->get()
             ->map(function ($property) {
                 $photos = $property->property_photos_path ? json_decode($property->property_photos_path, true) : [];
-                $property->property_photos_path = is_array($photos) 
-                    ? array_map(fn($photo) => asset($photo), $photos) 
+                $property->property_photos_path = is_array($photos)
+                    ? array_map(fn($photo) => asset($photo), $photos)
                     : [];
                 return $property;
             });
-    
+
         return $properties;
     }
-    
-   
+
+
     public function get(Request $request)
     {
         $request->validate([
@@ -97,8 +116,8 @@ class PropertyController extends Controller
 
         $properties = Property::where('owner_user_id', $request->user_id)->get()->map(function ($property) {
             $photos = $property->property_photos_path ? json_decode($property->property_photos_path, true) : [];
-            $property->property_photos_path = is_array($photos) 
-                ? array_map(fn($photo) => asset($photo), $photos) 
+            $property->property_photos_path = is_array($photos)
+                ? array_map(fn($photo) => asset($photo), $photos)
                 : [];
             return $property;
         });

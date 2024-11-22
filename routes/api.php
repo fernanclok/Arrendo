@@ -38,4 +38,5 @@ Route::prefix('properties')->group(function () {
     Route::post('/create', [PropertyController::class, 'create']);
     Route::get('/filter', [PropertyController::class, 'getFilteredProperties']);
     Route::get('/getProperties', [PropertyController::class, 'getProperties']);
+    Route::get('/getPropertyDetails/{id}', [PropertyController::class, 'getPropertyDetails']);
 });
