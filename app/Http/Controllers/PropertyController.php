@@ -4,16 +4,24 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Property;
-use App\Models\Zone;
 use Illuminate\Support\Facades\Log;
 
 class PropertyController extends Controller
 {
     public function getProperties() {
-        $properties = Property::all();
+    $properties = Property::join('zones', 'zones.id', '=', 'properties.zone_id')
+        ->select('properties.*', 'zones.name as zone_name')
+        ->get()
+        ->map(function ($property) {
+            $photos = $property->property_photos_path ? json_decode($property->property_photos_path, true) : [];
+            $property->property_photos_path = is_array($photos) 
+                ? array_map(fn($photo) => asset($photo), $photos) 
+                : [];
+            return $property;
+        });
 
-        return response()->json($properties);
-    }
+    return response()->json($properties);
+}
 
     public function getFilteredProperties(Request $request) {
         $params = $request->all();
@@ -26,8 +34,7 @@ class PropertyController extends Controller
         });
     
         $properties = $this->formatQuery($filteredParams);
-        
-        Log::debug($properties);
+
         return response()->json($properties);
     }
     
@@ -36,17 +43,17 @@ class PropertyController extends Controller
     
         if (isset($params['maxPrice'])) {
             if ($params['maxPrice'] === '+10000') {
-                $query->where('property_price', '>', 10000);
+                $query->where('property_price', '>', 0);
             } else {
                 $query->where('property_price', '<=', $params['maxPrice']);
             }
         }
     
+        $query->join('zones', 'zones.id', '=', 'properties.zone_id')
+              ->select('properties.*', 'zones.name as zone_name');
+    
         if (isset($params['selectedZone'])) {
-            $zone = Zone::where('name', $params['selectedZone'])->first();
-            if ($zone) {
-                $query->where('zone_id', $zone->id);
-            }
+            $query->where('zones.name', 'like', '%' . $params['selectedZone'] . '%');
         }
     
         if (isset($params['allowPets'])) {
@@ -68,13 +75,22 @@ class PropertyController extends Controller
         if (isset($params['m2'])) {
             $query->where('total_m2', '>=', $params['m2']);
         }
+
+        $properties = $query->get()
+            ->map(function ($property) {
+                $photos = $property->property_photos_path ? json_decode($property->property_photos_path, true) : [];
+                $property->property_photos_path = is_array($photos) 
+                    ? array_map(fn($photo) => asset($photo), $photos) 
+                    : [];
+                return $property;
+            });
     
-        return $query->get();
+        return $properties;
     }
+    
    
     public function get(Request $request)
     {
-        // Validar que el user_id exista
         $request->validate([
             'user_id' => 'required|integer|exists:users,id'
         ]);

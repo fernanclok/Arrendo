@@ -14,7 +14,7 @@ import TextInput from '@/Components/TextInput.vue';
     <header class="border-b">
       <div class="container mx-auto px-4 py-4">
         <div class="flex items-center justify-between">
-          <Link to="/" class="flex items-center space-x-2">
+          <Link href="/" class="flex items-center space-x-2">
           <span class="text-xl font-bold">Arrendo</span>
           </Link>
           <nav class="hidden md:flex space-x-4">
@@ -23,10 +23,19 @@ import TextInput from '@/Components/TextInput.vue';
             {{ item.label }}
             </Link>
           </nav>
+
+          <div class="flex items-center space-x-2">
+          <Link href="registro-propiedad"
+            class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-white text-gray-800 hover:bg-gray-100 focus:bg-gray-100 active:bg-gray-200 focus:ring-gray-300">
+          Publicar
+          </Link>
           <Link href="/login"
             class="inline-flex items-center px-3 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-primary text-white hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:ring-green-500">
           Log In
           </Link>
+          </div>
+
+
         </div>
       </div>
     </header>
@@ -56,7 +65,7 @@ import TextInput from '@/Components/TextInput.vue';
 
       <section class="py-20">
         <div class="container mx-auto px-4">
-          <h2 class="text-3xl font-bold text-center mb-12">Propiedades destacadas</h2>
+          <h2 class="text-3xl font-bold text-center mb-12">Featured Properties</h2>
           <!-- propiedades destacadas -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div v-for="property in featuredProperties" :key="property.title" class="bg-white rounded-lg shadow-lg">
@@ -72,7 +81,7 @@ import TextInput from '@/Components/TextInput.vue';
           </div>
           <div class="text-center mt-8">
             <a href="/" class="hover:underline">
-              Ver todas las propiedades
+              See all properties
               <ArrowRight class="ml-2 h-4 w-4" />
             </a>
           </div>
@@ -81,7 +90,7 @@ import TextInput from '@/Components/TextInput.vue';
 
       <section class="bg-gray-100 py-20">
         <div class="container mx-auto px-4">
-          <h2 class="text-3xl font-bold text-center mb-12">Por qué elegir Arrendo</h2>
+          <h2 class="text-3xl font-bold text-center mb-12">Why choose Arrendo?</h2>
           <!-- features -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div v-for="feature in features" :key="feature.title" class="bg-white rounded-lg shadow-lg p-4">
@@ -94,7 +103,7 @@ import TextInput from '@/Components/TextInput.vue';
 
       <section class="py-20">
         <div class="container mx-auto px-4">
-          <h2 class="text-3xl font-bold text-center mb-12">Lo que dicen nuestros inquilinos</h2>
+          <h2 class="text-3xl font-bold text-center mb-12">What the tenants say about us</h2>
           <!-- testimonios -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div v-for="testimonial in testimonials" :key="testimonial.name" class="bg-white rounded-lg shadow-lg p-4">
@@ -107,10 +116,10 @@ import TextInput from '@/Components/TextInput.vue';
 
       <section class="bg-primary text-white py-20">
         <div class="container mx-auto px-4 text-center">
-          <h2 class="text-3xl font-bold mb-4">¿Tienes una propiedad para rentar?</h2>
-          <p class="text-xl mb-8">Únete a miles de propietarios que confían en nosotros</p>
+          <h2 class="text-3xl font-bold mb-4">Do You Have a Property to Rent?</h2>
+          <p class="text-xl mb-8">Join Thousands of Owners Who Trust in Us</p>
           <a href="" class="hover:underline">
-            Publicar mi propiedad
+            Share my Property
             <ArrowRight class="ml-2 h-5 w-5" />
           </a>
         </div>
@@ -122,8 +131,8 @@ import TextInput from '@/Components/TextInput.vue';
     <div class="container mx-auto px-4">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
         <div>
-          <h3 class="text-lg font-semibold mb-4">RentaFácil</h3>
-          <p class="text-sm text-gray-400">Simplificando el proceso de renta de propiedades desde 2010.</p>
+          <h3 class="text-lg font-semibold mb-4">Arrendo</h3>
+          <p class="text-sm text-gray-400">A New Way to Rent Houses</p>
         </div>
         <div v-for="(column, index) in footerColumns" :key="index">
           <h4 class="text-lg font-semibold mb-4">{{ column.title }}</h4>
@@ -134,7 +143,7 @@ import TextInput from '@/Components/TextInput.vue';
           </ul>
         </div>
         <div>
-          <h4 class="text-lg font-semibold mb-4">Síguenos</h4>
+          <h4 class="text-lg font-semibold mb-4">Follow Us</h4>
           <div class="flex space-x-4">
             <a v-for="social in socialLinks" :key="social.name" :href="social.href"
               class="text-gray-400 hover:text-white">
@@ -145,8 +154,7 @@ import TextInput from '@/Components/TextInput.vue';
         </div>
       </div>
       <div class="mt-8 border-t border-gray-800 pt-8 text-center">
-        <p class="text-sm text-gray-400">&copy; {{ new Date().getFullYear() }} RentaFácil. Todos los derechos
-          reservados.</p>
+        <p class="text-sm text-gray-400">&copy; {{ new Date().getFullYear() }} Arrendo. All Rights Reserved</p>
       </div>
     </div>
   </footer>
