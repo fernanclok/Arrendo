@@ -24,6 +24,12 @@ Route::get('/', function () {
     return Inertia::render('Welcome', []);
 });
 
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
 // Dashboard
 Route::middleware(['auth', 'verified','role:Owner'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -34,12 +40,6 @@ Route::middleware(['auth', 'verified','role:Owner'])->group(function () {
             'childComponent' => 'Settings',
         ]);
     })->name('dashboard.settings');
-});
-
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 //properties
@@ -63,21 +63,19 @@ Route::get('/search-properties', function () {
     return Inertia::render('SearchProperties');
 })->middleware(['auth','verified','role:Tenant'])->name('searchProperties');
 
+// contracts
 Route::get('/contracts', function () {
     return Inertia::render('Contracts/showContract');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('contracts');
 
-
-// contracts
 Route::get('/manage/contracts', function () {
     return Inertia::render('ManageContracts');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('manageContracts');
+
 //appoinments
 Route::get('/appoinments', function () {
     return Inertia::render('Appoinments');
 })->middleware(['auth', 'verified', 'role:admin,Tenant,Owner'])->name('appoinments');
-
-require __DIR__ . '/auth.php';
 
 //Maintenance
 Route::get('/maintenance', function () {
@@ -98,3 +96,4 @@ Route::get('/registro-propiedad', function () {
     return Inertia::render('RegistroPropiedad'); // Nombre del componente Vue 
 })->name('registro.propiedad');
 
+require __DIR__ . '/auth.php';
