@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ContractController;
 use Illuminate\Foundation\Application;
 use App\Http\Controllers\MaintenanceController;
 use Illuminate\Support\Facades\Route;
@@ -48,11 +48,11 @@ Route::get('/properties', function () {
 })->name('properties');
 
 //my properties
-Route::get('/my-properties', function() {
+Route::get('/my-properties', function () {
     return Inertia::render('MyProperties', [
         'user' => auth()->user()
     ]);
-})->middleware(['auth','verified','role:admin,Owner'])->name('myProperties');
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('myProperties');
 
 //search properties
 Route::get('/search-properties', function () {
@@ -63,15 +63,11 @@ Route::get('/contracts', function () {
     return Inertia::render('Contracts/showContract');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('contracts');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/contracts/all', [ContractController::class, 'index'])->name('contracts.index');
-    Route::post('/contract', [ContractController::class, 'store'])->name('contracts.store');
-});
 
+// contracts
 Route::get('/manage/contracts', function () {
-    return Inertia::render('Contracts/manageContracts');
+    return Inertia::render('ManageContracts');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('manageContracts');
-
 //appoinments
 Route::get('/appoinments', function () {
     return Inertia::render('Appoinments');
