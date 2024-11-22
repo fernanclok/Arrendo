@@ -20,12 +20,15 @@ class ShareNavigationLinks
                     ['route' => 'myProperties', 'label' => 'My Properties', 'icon' => 'home'],
                 ],
                 'Tenant' => [
-                    ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'view-dashboard'],
-                    ['route' => 'appoinments', 'label' => 'Appoinments', 'icon' => 'calendar']
+                    ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'home'],
+                    ['route' => 'searchProperties', 'label' => 'Properties', 'icon' => 'home'],
+                    ['route' => 'appoinments', 'label' => 'Appoinments', 'icon' => 'calendar'],
+                    ['route' => 'maintenance','label' => 'Maintenance','icon'=> 'hammer-wrench'],
                 ],
             ];
 
             $userRole = Auth::user() ? Auth::user()->role : null;
+           
 
             // Si el usuario es un administrador o superadministrador, devolver todas las rutas
             if (in_array($userRole, ['admin', 'superadmin'])) {

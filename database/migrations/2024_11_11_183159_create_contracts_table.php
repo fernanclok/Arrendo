@@ -20,6 +20,7 @@ return new class extends Migration
             $table->decimal('rental_amount', 10, 2);
             $table->enum('status', ['Active', 'Pending Renewal', 'Terminated']);
             $table->json('contract_path');
+            $table->foreignId('owner_user_id')->constrained('users');
             $table->timestamps();
         });
     }
