@@ -179,7 +179,9 @@ import { Head } from '@inertiajs/vue3';
             <div class="absolute top-0 right-0 h-full w-full md:w-1/4 bg-gray-100 p-4 overflow-y-auto transition-transform duration-300 transform"
                 :class="{ 'translate-x-full': !showDetails, 'translate-x-0': showDetails }">
                 <h2 class="text-2xl font-bold mb-4">Right Section</h2>
-                <!-- properties details -->
+                <p class="text-gray-600">This is the right section of the modal.</p>
+                <!-- boton de agendar cita -->
+                <CustomButton type="primary" class="mt-2 mb-2">Schedule a Visit</CustomButton>
                 <CustomButton @click="showDetails = false">Close</CustomButton>
             </div>
         </main>
@@ -198,6 +200,7 @@ export default {
             selectedPrice: 0,
             isRefreshing: false,
             properties: [],
+            propertyDetails: [],
             zones: [
                 { id: 1, name: 'Centro' },
                 { id: 2, name: 'Otay' },
@@ -224,7 +227,8 @@ export default {
     methods: {
         toggleDetails(propertyId) {
             this.showDetails = !this.showDetails;
-            if (this.activePropertyId === propertyId) {
+            this.getPropertyDetails(propertyId);
+            if (this.activePropertyId === propertyId) {    
                 this.showDetails = false;
                 this.activePropertyId = null;
             } else {
@@ -239,6 +243,16 @@ export default {
             axios.get('/api/properties/getProperties')
                 .then(response => {
                     this.properties = response.data;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        },
+        getPropertyDetails(id) {
+            axios.get('/api/properties/getPropertyDetails/' + id)
+                .then(response => {
+                    this.propertyDetails = response.data;
+                    console.log(this.propertyDetails);
                 })
                 .catch(error => {
                     console.error(error);
