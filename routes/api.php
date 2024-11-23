@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ZoneController;
 use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\MaintenanceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,4 +40,16 @@ Route::prefix('properties')->group(function () {
     Route::get('/filter', [PropertyController::class, 'getFilteredProperties']);
     Route::get('/getProperties', [PropertyController::class, 'getProperties']);
     Route::get('/getPropertyDetails/{id}', [PropertyController::class, 'getPropertyDetails']);
+});
+
+Route::prefix('maintenance')->group(function () {
+    Route::get('/', function () {
+        return response()->json(['message' => 'Maintenance API is running']);
+    });
+    Route::get('/getTenantId', [MaintenanceController::class, 'getTenantAuth']);
+    Route::post('/store', [MaintenanceController::class, 'store'])
+        ->name('api.maintenance.store');
+
+    Route::get('/{id}', [MaintenanceController::class, 'show'])
+        ->name('api.maintenance.show');
 });

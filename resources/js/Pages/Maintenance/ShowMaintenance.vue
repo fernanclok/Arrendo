@@ -30,8 +30,7 @@ const maintenanceRequests = [
 
 // Función para navegar a la página de creación
 const newmaintenance = () => {
-    console.log("Navigating to /maintenance/create"); // Depuración
-    router.visit('/maintenance/create');};
+    router.visit('/maintenance/new');};
 </script>
 
 <template>
