@@ -11,7 +11,6 @@ use App\Models\Property;
 
 class MaintenanceController extends Controller
 {
-
     public function create()
     {
         $contract = Contract::with('Property')
@@ -88,10 +87,22 @@ class MaintenanceController extends Controller
             ], 500);
         }
     }
-public function show($id)
-{
-   
-}
+    public function index(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|integer|exists:users,id', // Validar el parámetro
+        ]);
+    
+        // Obtener las solicitudes del usuario autenticado con sus relaciones
+        $maintenanceRequests = Maintenance_request::where('tenant_user_id', $request->user_id)
+            ->with('property') // Relación property
+            ->orderBy('priority', 'desc') // Ordenar según prioridad
+            ->get();
+    
+        // Devolver respuesta JSON
+        return response()->json($maintenanceRequests);
+    }
+    
     /**
      * 
      */
@@ -99,13 +110,18 @@ public function show($id)
     {
         // Lógica pendiente
     }
-
-    /**
-     * Actualizar el estado o los datos de una solicitud.
-     */
     public function update(Request $request, $id)
     {
-        // Lógica pendiente
+        $validated = $request->validate([
+            'description' => 'required|string|max:1000',
+            'priority' => 'required|in:Low,Medium,High',
+        ]);
+        $maintenanceRequest = Maintenance_request::findOrFail($id);
+        $maintenanceRequest->update($validated);
+        return response()->json([
+            'message' => 'Maintenance request updated successfully.',
+            'maintenanceRequest' => $maintenanceRequest,
+        ]);
     }
 
     /**

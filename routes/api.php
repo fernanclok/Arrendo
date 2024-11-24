@@ -41,15 +41,10 @@ Route::prefix('properties')->group(function () {
     Route::get('/getProperties', [PropertyController::class, 'getProperties']);
     Route::get('/getPropertyDetails/{id}', [PropertyController::class, 'getPropertyDetails']);
 });
-
+//Maintenace
 Route::prefix('maintenance')->group(function () {
-    Route::get('/', function () {
-        return response()->json(['message' => 'Maintenance API is running']);
-    });
-    Route::get('/getTenantId', [MaintenanceController::class, 'getTenantAuth']);
-    Route::post('/store', [MaintenanceController::class, 'store'])
-        ->name('api.maintenance.store');
-
-    Route::get('/{id}', [MaintenanceController::class, 'show'])
-        ->name('api.maintenance.show');
+    Route::get('/', [MaintenanceController::class, 'index']);
+    Route::post('/store', [MaintenanceController::class, 'store']);
+  
+    Route::patch('/{id}',[MaintenanceController::class, 'update']);
 });

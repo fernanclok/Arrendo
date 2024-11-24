@@ -23,12 +23,12 @@ class Maintenance_request extends Model
 
     public function property()
     {
-        return $this->belongsTo(Property::class, 'id');
+        return $this->belongsTo(Property::class, 'property_id');
     }
 
     public function tenantUser()
     {
-        return $this->belongsTo(User::class, 'id');
+        return $this->belongsTo(User::class, 'tenant_user_id');
     }
 
     public function validatePriority(array $attributes)

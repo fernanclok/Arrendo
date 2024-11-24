@@ -85,7 +85,7 @@ Route::get('/maintenance', function () {
 })->middleware([])->name('maintenance');
 
 Route::get('/maintenance/new', [MaintenanceController::class, 'create'])
-->name('maintenance.new');
+->name('maintenance.new'); // I need this for pass data to my maintenance/new but it's a view 
 
 
 

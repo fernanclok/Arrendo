@@ -1,5 +1,6 @@
 <script setup>
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
+import Dropdown from '@/Components/Dropdown.vue';
 import { Head, usePage,router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import axios from 'axios';
@@ -52,18 +53,13 @@ const handleFileChange = (event) => {
 };
 
 const removeFile = () => {
-    // Libera la URL de la imagen actual
     if (imagePreview.value) {
         URL.revokeObjectURL(imagePreview.value);
     }
-
-    // Limpiar la referencia de la imagen y el archivo en el formulario
     form.value.evidence = null;
     imagePreview.value = null;
-
-    // Reiniciar el valor del input de archivo
     if (fileInput.value) {
-        fileInput.value.value = ''; // Restablecer el valor del input
+        fileInput.value.value = ''; 
     }
 };
 
@@ -76,7 +72,6 @@ const submitForm = async () => {
     if (form.value.evidence) {
         formData.append('evidence', form.value.evidence);
     }
-
     try {
         const response = await axios.post('/api/maintenance/store', formData, {
             headers: {
@@ -116,18 +111,18 @@ const submitForm = async () => {
                 <input type="hidden" :value="props.Property.id" name="property_id" />
 
                 <!-- Propiedad asociada -->
-                <div>
-                    <label class="block text-gray-700">Property</label>
-                    <p class="text-gray-600">{{ props.Property.street }}</p>
+                <div class="flex items-center gap-2">
+                <label class="text-gray-1000">My property:</label>
+                <p class="text-gray-500">{{ props.Property.street }}</p>
                 </div>
 
                 <!-- Descripción -->
                 <div>
-                    <label for="description" class="block text-gray-700">Description</label>
+                    <label for="description" class="block text-gray-1000">Description</label>
                     <textarea
                         id="description"
                         v-model="form.description"
-                        class="w-full border-gray-300 rounded shadow-sm"
+                        class="w-full border-gray-300 focus:border-green-700 focus:ring-green-700 rounded-md"
                         rows="4"
                         placeholder="Describe the issue..."
                     ></textarea>
@@ -135,11 +130,11 @@ const submitForm = async () => {
 
                 <!-- Prioridad -->
                 <div>
-                    <label for="priority" class="block text-gray-700">Priority</label>
+                    <label for="priority" class="block text-gray-1000">Priority</label>
                     <select
                         id="priority"
                         v-model="form.priority"
-                        class="w-full border-gray-300 rounded shadow-sm"
+                        class="w-full border-gray-300 focus:border-green-700 focus:ring-green-700 rounded-md"
                     >
                         <option value="" disabled>Select Priority</option>
                         <option value="High">High</option>
@@ -151,22 +146,27 @@ const submitForm = async () => {
                 <!-- Evidencia -->
                 <div class="flex items-center space-x-4">
                     <div class="flex-1">
-                        <label for="evidence" class="block text-gray-700">Evidence</label>
+                        <label for="evidence" class="block text-gray-1000">Evidence</label>
+                        <label
+                            for="evidence"
+                            class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150 cursor-pointer"> Upload Evidence</label>
                         <input
                             id="evidence"
                             type="file"
                             accept=".jpg,.jpeg,.png,.gif"
                             @change="handleFileChange"
-                            class="w-full border-gray-300 rounded shadow-sm"
-                            ref="fileInput"
-                        />
+                            class="hidden"
+                            ref="fileInput" />
                     </div>
-
                     <!-- Vista previa -->
                     <div v-if="imagePreview" class="w-64">
-                        <p class="text-gray-700">Preview:</p>
+                        <p class="text-gray-1000 flex justify-end mt-1">Preview:</p>
                         <img :src="imagePreview" alt="Evidence Preview" class="w-64 h-64 object-contain border rounded" />
-                        <button @click="removeFile" type="button" class="mt-2 text-sm text-red-500">Remove File</button>
+                        <div class="flex justify-end mt-1">
+                            <button @click="removeFile" type="button" class="text-sm text-red-500">
+                                Remove File
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -175,9 +175,9 @@ const submitForm = async () => {
                     <button
                         type="submit"
                         :disabled="!form.description || !form.priority || !form.evidence"
-                        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:bg-gray-300"
-                    >
-                        Submit Request
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150
+                            bg-primary text-white hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:ring-green-500 disabled:bg-gray-300 disabled:text-gray-700 disabled:cursor-not-allowed">
+                            Submit Request
                     </button>
                 </div>
             </form>
