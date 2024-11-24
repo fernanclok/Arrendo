@@ -131,5 +131,46 @@ class MaintenanceController extends Controller
     {
        
     }
+//Function for my owner in Maintenance
+    public function getRequestsByProperty(Request $request)
+    {
+        // Validar que el parámetro property_id esté presente
+        $request->validate([
+            'property_id' => 'required|integer|exists:properties,id', // Validar que exista en la tabla properties
+        ]);
+
+        // Obtener el ID de la propiedad
+        $propertyId = $request->query('property_id');
+
+        // Consultar las solicitudes de mantenimiento asociadas a la propiedad
+        //$maintenanceRequests = Maintenance_request::where('property_id', $propertyId)->get();
+        $maintenanceRequests = Maintenance_request::with(['property', 'tenantUser']) // Cargar relaciones
+        ->where('property_id', $propertyId)
+        ->get();
+        // Devolver la respuesta en formato JSON
+        return response()->json($maintenanceRequests);
+    }
+    public function updateRequest(Request $request, $id)
+    {
+    // Validar que el ID sea válido y que el status sea permitido
+    $request->validate([
+        'status' => 'required|in:Pending,In Progress,Completed',
+    ]);
+
+    // Buscar la solicitud por ID
+    $maintenanceRequest = Maintenance_request::findOrFail($id);
+
+    // Actualizar el estado
+    $maintenanceRequest->status = $request->input('status');
+    $maintenanceRequest->save();
+
+    // Devolver una respuesta exitosa
+    return response()->json([
+        'message' => 'Maintenance request updated successfully.',
+        'maintenanceRequest' => $maintenanceRequest,
+    ]);
+    }
 
 }
+
+

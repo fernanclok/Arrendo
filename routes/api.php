@@ -48,3 +48,10 @@ Route::prefix('maintenance')->group(function () {
   
     Route::patch('/{id}',[MaintenanceController::class, 'update']);
 });
+//MaintenaceOwner
+Route::prefix('maintenanceOwner')->group(function () {
+    Route::get('/properties', [MaintenanceController::class, 'getProperties']); // Listar propiedades
+    Route::get('/maintenancesReq', [MaintenanceController::class, 'getRequestsByProperty']); // Listar solicitudes por propiedad
+    Route::put('/maintenancesReq/{id}', [MaintenanceController::class, 'updateRequest']);
+  
+});

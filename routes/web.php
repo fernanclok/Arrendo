@@ -83,11 +83,13 @@ require __DIR__ . '/auth.php';
 Route::get('/maintenance', function () {
     return Inertia::render('Maintenance/ShowMaintenance');
 })->middleware([])->name('maintenance');
-
 Route::get('/maintenance/new', [MaintenanceController::class, 'create'])
 ->name('maintenance.new'); // I need this for pass data to my maintenance/new but it's a view 
 
-
+//MaintenanceOwner
+Route::get('/maintenanceOwner', function () {
+    return Inertia::render('Maintenance/ShowMaintenanceJobs');
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('maintenanceOwner');
 
 
 //Registro propiedades
