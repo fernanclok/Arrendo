@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Contract;
 use App\Models\User;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class ContractController extends Controller
 {
@@ -61,8 +61,7 @@ class ContractController extends Controller
             $contract->save();
 
             // Devolver una respuesta JSON de éxito
-
-            return redirect()->route('/contracts')->with('success', 'Contract created successfully');
+            return response()->json('success', 'Contract created successfully');
         } catch (\Exception $e) {
             // Devolver una respuesta JSON de error
             return response()->json(['success' => false, 'message' => $e,], 500);
@@ -85,11 +84,21 @@ class ContractController extends Controller
     }
     public function getTenantUsers()
     {
-        // Obtener todos los usuarios con el rol de 'Tenant'
-        $tenantUsers = User::where('role', 'Tenant')->get();
-        // Devolver una respuesta JSON de éxito
-        return response()->json($tenantUsers);
+        try {
+            $tenantUsers = User::where('role', 'Tenant')->get(); // Devolver una respuesta JSON de éxito
+            // Devolver una respuesta JSON de éxito
+            return response()->json($tenantUsers);
+        } catch (\Exception $e) {
+            // Registrar el error y devolver una respuesta JSON de error
+            Log::error('Error fetching tenant users: ' . $e->getMessage());
+            return response()->json(['error' => 'Error fetching tenant users'], 500);
+        }
     }
-    // crear una funcion para actualizar  el status del contrato a Pending Renewal cuando la fecha de termino del contrato sea igual a la fecha actual automaticamente
-
+    public function getContract($id)
+    {
+        // Obtener un contrato por su ID con sus relaciones
+        $contract = Contract::where('id', $id)->with('property', 'tenantUser')->first();
+        // Devolver una respuesta JSON de éxito
+        return response()->json($contract);
+    }
 }

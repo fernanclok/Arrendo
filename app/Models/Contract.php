@@ -23,7 +23,7 @@ class Contract extends Model
 
     public function property()
     {
-        return $this->belongsTo(Property::class);
+        return $this->belongsTo(Property::class, 'property_id');
     }
 
     public function tenantUser()
@@ -32,6 +32,6 @@ class Contract extends Model
     }
     public function ownerUser()
     {
-        return $this->belongsTo(User::class, 'id');
+        return $this->belongsTo(User::class, 'owner_user_id');
     }
 }

@@ -11,11 +11,7 @@ import axios from 'axios';
 
 // Crear dos paginas mas  una de detalles de contratos donde reciba el id del contrato y puedas mostrar las siguientes cosas
 
-// Detalles de contrato
 
-// Fecha de inicio y fin de contrato y nombre del tenant de contrato
-// Informacion de la propiedad     ||    Informacion del Tenant
-// Imagenes y Documentos subidos
 
 // Contratos generales filtrados por tenant ya que tendra varios contratos
 // En esta pagina sera una tarjeta con los contratos por usuario (tenant) y la propiedad que esta rentando actualmente [Pendiente de revision]
@@ -39,7 +35,7 @@ export default {
     const properties = ref([]);
     const getTenants = async () => {
       try {
-        const response = await axios.get('/api/contracts/user_tenant');
+        const response = await axios.get('/api/contracts/get/user_tenant');
         tenants.value = response.data;
       } catch (error) {
         console.error(error);

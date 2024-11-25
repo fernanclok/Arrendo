@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 
+
 class CheckRole
 {
     public function handle(Request $request, Closure $next, ...$roles)
@@ -21,8 +22,8 @@ class CheckRole
         }
 
         $allowedRoutes = [
-            'Owner' => ['dashboard', 'my-properties', 'contracts', 'dashboard/settings'],
-            'Tenant' => ['dashboard','search-properties','appoinments', 'maintenance/create'],
+            'Owner' => ['dashboard', 'my-properties', 'contracts', 'dashboard/settings', 'contracts-details/{employee}'],
+            'Tenant' => ['dashboard', 'search-properties', 'appoinments', 'maintenance/create'],
         ];
 
         $currentPath = $request->path();
