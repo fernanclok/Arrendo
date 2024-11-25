@@ -2,11 +2,10 @@
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import { Head, usePage,router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
 // Estado inicial del formulario
-const { props } = usePage();
 
 const user = usePage().props.auth.user;
 
@@ -17,10 +16,8 @@ const form = ref({
     evidence: null,
 });
 
-// Referencia para la vista previa de la imagen
+const property = ref(null);
 const imagePreview = ref(null);
-
-// Referencia al input de archivo
 const fileInput = ref(null);
 
 // Estado de las notificaciones
@@ -63,9 +60,40 @@ const removeFile = () => {
     }
 };
 
+const fetchProperty = async () => {
+    try {
+        const response = await axios.get('/api/maintenance/getPropertyByTenant', {
+            params: {
+                tenant_user_id: user.id, // Enviar como parámetro de consulta
+            },
+        });
+        console.log('API Response:', response.data); // Log de la respuesta
+        if (response.data && response.data.property) {
+    property.value = response.data.property;
+} else {
+
+    property.value = null;
+    showNotification('error', 'No property found for your account.');
+}
+    } catch (error) {
+        console.error('Error fetching property:', error);
+        property.value = null;
+        showNotification('error', 'Could not fetch property. Please try again later.');
+    }
+};
+onMounted(() => {
+    fetchProperty();
+});
+
 const submitForm = async () => {
+
+    if (!property.value || !property.value.id) {
+        showNotification('error', 'No property selected. Please try again.');
+        return;
+    }
+
     const formData = new FormData();
-    formData.append('property_id', props.Property.id);
+    formData.append('property_id', property.value.id);
     formData.append('tenant_user_id', form.value.tenant_user_id);
     formData.append('description', form.value.description);
     formData.append('priority', form.value.priority);
@@ -78,9 +106,7 @@ const submitForm = async () => {
                 'Content-Type': 'multipart/form-data',
             },
         });
-
         showNotification('success', response.data.message || 'Maintenance request submitted successfully!');
-
         router.get('/maintenance');
     } catch (error) {
         const errorMessage = error.response?.data?.message || 'There was an error submitting the request.';
@@ -88,6 +114,7 @@ const submitForm = async () => {
         console.error(error);
     }
 };
+
 </script>
 
 <template>
@@ -95,27 +122,21 @@ const submitForm = async () => {
         <Head title="Create Maintenance Request" />
         <section class="p-8">
             <h1 class="text-2xl font-bold mb-4">Create Maintenance Request</h1>
-
             <!-- Notificación -->
-            <div
-                v-if="notification.visible"
-                :class="[ 
-                    'fixed top-5 right-5 px-4 py-2 rounded shadow-lg text-white',
-                    notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'
-                ]"
-            >
+            <div v-if="notification.visible":class="[  'fixed top-5 right-5 px-4 py-2 rounded shadow-lg text-white',  notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'  ]">
                 {{ notification.message }}
             </div>
-
             <form class="space-y-4" enctype="multipart/form-data" @submit.prevent="submitForm">
-                <input type="hidden" :value="props.Property.id" name="property_id" />
-
-                <!-- Propiedad asociada -->
-                <div class="flex items-center gap-2">
-                <label class="text-gray-1000">My property:</label>
-                <p class="text-gray-500">{{ props.Property.street }}</p>
+                <input v-if="property" type="hidden" :value="property.id" name="property_id" />
+                <div v-if="property && property.id" class="flex items-center gap-2">
+                    <label class="text-gray-1000">My property:</label>
+                    <p class="text-gray-500">
+                        {{ property.street }}{{ property.number }}, {{ property.city }}, {{ property.state }}
+                    </p>
                 </div>
-
+                <div v-else>
+                    <p class="text-red-500">No property available for your account.</p>
+                </div>
                 <!-- Descripción -->
                 <div>
                     <label for="description" class="block text-gray-1000">Description</label>
@@ -127,36 +148,24 @@ const submitForm = async () => {
                         placeholder="Describe the issue..."
                     ></textarea>
                 </div>
-
                 <!-- Prioridad -->
                 <div>
                     <label for="priority" class="block text-gray-1000">Priority</label>
-                    <select
-                        id="priority"
-                        v-model="form.priority"
-                        class="w-full border-gray-300 focus:border-green-700 focus:ring-green-700 rounded-md"
-                    >
+                    <select id="priority" v-model="form.priority"class="w-full border-gray-300 focus:border-green-700 focus:ring-green-700 rounded-md">        
                         <option value="" disabled>Select Priority</option>
                         <option value="High">High</option>
                         <option value="Medium">Medium</option>
                         <option value="Low">Low</option>
                     </select>
                 </div>
-
                 <!-- Evidencia -->
                 <div class="flex items-center space-x-4">
                     <div class="flex-1">
                         <label for="evidence" class="block text-gray-1000">Evidence</label>
-                        <label
-                            for="evidence"
-                            class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150 cursor-pointer"> Upload Evidence</label>
-                        <input
-                            id="evidence"
-                            type="file"
-                            accept=".jpg,.jpeg,.png,.gif"
-                            @change="handleFileChange"
-                            class="hidden"
-                            ref="fileInput" />
+                        <label for="evidence"class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150 cursor-pointer"> 
+                            Upload Evidence
+                        </label>
+                        <input id="evidence" type="file" accept=".jpg,.jpeg,.png"  @change="handleFileChange" class="hidden" ref="fileInput" />
                     </div>
                     <!-- Vista previa -->
                     <div v-if="imagePreview" class="w-64">
@@ -169,14 +178,9 @@ const submitForm = async () => {
                         </div>
                     </div>
                 </div>
-
                 <!-- Botón para enviar -->
                 <div>
-                    <button
-                        type="submit"
-                        :disabled="!form.description || !form.priority || !form.evidence"
-                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150
-                            bg-primary text-white hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:ring-green-500 disabled:bg-gray-300 disabled:text-gray-700 disabled:cursor-not-allowed">
+                    <button type="submit" :disabled="!form.description || !form.priority || !form.evidence" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-primary text-white hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:ring-green-500 disabled:bg-gray-300 disabled:text-gray-700 disabled:cursor-not-allowed">  
                             Submit Request
                     </button>
                 </div>

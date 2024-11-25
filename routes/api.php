@@ -45,8 +45,8 @@ Route::prefix('properties')->group(function () {
 Route::prefix('maintenance')->group(function () {
     Route::get('/', [MaintenanceController::class, 'index']);
     Route::post('/store', [MaintenanceController::class, 'store']);
-  
     Route::patch('/{id}',[MaintenanceController::class, 'update']);
+    Route::get('/getPropertyByTenant', [MaintenanceController::class, 'getPropertyByTenant']);
 });
 //MaintenaceOwner
 Route::prefix('maintenanceOwner')->group(function () {

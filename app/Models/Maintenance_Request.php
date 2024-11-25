@@ -19,6 +19,9 @@ class Maintenance_request extends Model
         'priority', //Low, Medium, High
         'status', //Pending, In Progress, Completed
         'evidence',
+        'owner_note',
+        'maintenance_cost',
+        'date_review',
     ];
 
     public function property()

@@ -15,6 +15,8 @@ const user = usePage().props.auth.user; // Obtenemos el usuario logeado desde la
 const isModalOpen = ref(false); // Estado del modal
 const selectedRequest = ref({}); // Solicitud seleccionada para mostrar en el modal
 
+
+
 const fetchProperties = () => {
     axios
         .get('/api/properties', { params: { user_id: user.id } }) // API para obtener las propiedades del usuario
@@ -53,10 +55,13 @@ const closeModal = () => {
 // Guardar cambios en el status de la solicitud
 const saveChanges = () => {
     if (!selectedRequest.value) return;
+    const updatedData = {
+        status: selectedRequest.value.status, // Estado
+        owner_note: selectedRequest.value.owner_note, // Nota del owner
+        maintenance_cost: selectedRequest.value.maintenance_cost, // Costo de mantenimiento
+    };
     axios
-        .put(`/api/maintenanceOwner/maintenancesReq/${selectedRequest.value.id}`, {
-            status: selectedRequest.value.status,
-        })
+        .put(`/api/maintenanceOwner/maintenancesReq/${selectedRequest.value.id}`, updatedData)
         .then(() => {
             // Actualizar la lista de solicitudes después de guardar
             fetchMaintenanceRequests(selectedProperty.value.id);
@@ -208,15 +213,32 @@ const filterRequests = (filter) => {
                         <p><strong>Priority:</strong> {{ selectedRequest?.priority }}</p>
                         <div class="mb-4">
                             <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
-                            <select
-                                id="status"
-                                v-model="selectedRequest.status"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                            >
+                            <select id="status"  v-model="selectedRequest.status"class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" >
                                 <option value="Pending">Pending</option>
                                 <option value="In Progress">In Progress</option>
                                 <option value="Completed">Completed</option>
                             </select>
+                        </div>
+                        <div class="mb-4">
+                            <label for="owner_note" class="block text-sm font-medium text-gray-700">Owner Note</label>
+                            <textarea
+                                id="owner_note"
+                                v-model="selectedRequest.owner_note"
+                                rows="3"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                                placeholder="Add a note for the tenant..."
+                            ></textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label for="maintenance_cost" class="block text-sm font-medium text-gray-700">Maintenance Cost</label>
+                            <input
+                                type="number"
+                                id="maintenance_cost"
+                                v-model="selectedRequest.maintenance_cost"
+                                step="0.01"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                                placeholder="Enter maintenance cost..."
+                            />
                         </div>
                         <div v-if="selectedRequest?.evidence" class="mb-4">
                             <label class="block text-sm font-medium text-gray-700">Evidence</label>

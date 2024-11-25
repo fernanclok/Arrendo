@@ -102,14 +102,7 @@ class MaintenanceController extends Controller
         // Devolver respuesta JSON
         return response()->json($maintenanceRequests);
     }
-    
-    /**
-     * 
-     */
-    public function edit($id)
-    {
-        // Lógica pendiente
-    }
+
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
@@ -124,9 +117,36 @@ class MaintenanceController extends Controller
         ]);
     }
 
-    /**
-     * 
-     */
+    public function getPropertyByTenant(Request $request)
+    {
+        // Validar que se reciba el tenant_user_id
+        $validated = $request->validate([
+            'tenant_user_id' => 'required|exists:users,id',
+        ]);
+    
+        // Buscar el contrato activo con su propiedad asociada
+        $contract = Contract::with('Property')
+            ->where('tenant_user_id', $validated['tenant_user_id'])
+            ->where('status', 'Active')
+            ->first();
+    
+        // Validar si el contrato o propiedad existe
+        if (!$contract || !$contract->Property) {
+            return response()->json([
+                'error' => !$contract ? 'No active contract found.' : 'No property associated with this contract.',
+            ], 404);
+        }
+    
+        // Devolver los datos de la propiedad asociada
+        return response()->json([
+            'property' => [
+                'id' => $contract->Property->id,
+                'street' => $contract->Property->street,
+                'city' => $contract->Property->city,
+                'state' => $contract->Property->state,
+            ],
+        ], 200);
+    }
     public function destroy($id)
     {
        
@@ -152,23 +172,23 @@ class MaintenanceController extends Controller
     }
     public function updateRequest(Request $request, $id)
     {
-    // Validar que el ID sea válido y que el status sea permitido
-    $request->validate([
-        'status' => 'required|in:Pending,In Progress,Completed',
-    ]);
+        $validated = $request->validate([
+            'status' => 'required|in:Pending,In Progress,Completed',
+            'owner_note' => 'nullable|string|max:255',
+            'maintenance_cost' => 'nullable|numeric|min:0',
+        ]);
 
-    // Buscar la solicitud por ID
-    $maintenanceRequest = Maintenance_request::findOrFail($id);
-
-    // Actualizar el estado
-    $maintenanceRequest->status = $request->input('status');
-    $maintenanceRequest->save();
-
-    // Devolver una respuesta exitosa
-    return response()->json([
-        'message' => 'Maintenance request updated successfully.',
-        'maintenanceRequest' => $maintenanceRequest,
-    ]);
+        $maintenanceRequest = Maintenance_request::findOrFail($id);
+        $maintenanceRequest->status = $validated['status'];
+        $maintenanceRequest->owner_note = $validated['owner_note'] ?? null;
+        $maintenanceRequest->maintenance_cost = $validated['maintenance_cost'] ?? null;
+        $maintenanceRequest->date_review = now();
+        $maintenanceRequest->save();
+        // Devolver una respuesta exitosa
+        return response()->json([
+            'message' => 'Maintenance request updated successfully.',
+            'maintenanceRequest' => $maintenanceRequest,
+        ]);
     }
 
 }
