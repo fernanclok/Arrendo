@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Property;
 use Illuminate\Support\Facades\Log;
+use App\Models\Rental_application;
+use Illuminate\Support\Facades\Validator;
 
 class PropertyController extends Controller
 {
@@ -184,5 +186,69 @@ class PropertyController extends Controller
             'status' => 'success',
             'message' => 'Property created successfully'
         ]);
+    }
+
+    public function getAllApplications()
+    { 
+        $application = Rental_application::all();
+
+        $data = [
+            'applications' => $application,
+            'status' => 200
+        ];
+
+        return response()->json($data);
+    }
+    
+    public function createApplication(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'property_id' => 'required',
+            'tenant_user_id' => 'required',
+            'application_date' => 'required',
+            'status' => 'required'
+        ]);
+
+        if($validator->fails()){
+            $data = [
+                'message' => 'Error en la validacion de los datos',
+                'error' => $validator->errors(),
+                'status' => 200
+            ];
+            
+            return response()->json($data,400);
+        }
+
+        $exists = Rental_application::where('property_id', $request->property_id)
+        ->where('tenant_user_id', $request->tenant_user_id)
+        ->exists();
+
+        if ($exists) {
+            return response()->json(['message' => 'You have already applied to this property'], 409);
+        }
+
+        $application = Rental_application::create([
+            'property_id' => $request->property_id,
+            'tenant_user_id' => $request->tenant_user_id,
+            'application_date' => $request->application_date,
+            'status' => $request->status
+        ]);
+
+        if(!$application){
+            $data = [
+                'message' => 'Error creating the application',
+                'status' => 500
+            ];
+
+            return response()->json($data);
+        }
+
+        $data = [
+            'application' => $application,
+            'status' => 201
+        ];
+
+        return response()->json($data);
     }
 }
