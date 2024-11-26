@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Property;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use App\Models\Rental_application;
 use Illuminate\Support\Facades\Validator;
 
@@ -190,7 +191,9 @@ class PropertyController extends Controller
 
     public function getAllApplications()
     { 
-        $application = Rental_application::all();
+        //$application = Rental_application::all();
+
+        $application = DB::table('rental_applications')->get();
 
         $data = [
             'applications' => $application,
@@ -220,7 +223,24 @@ class PropertyController extends Controller
             return response()->json($data,400);
         }
 
-        $exists = Rental_application::where('property_id', $request->property_id)
+        // $exists = Rental_application::where('property_id', $request->property_id)
+        // ->where('tenant_user_id', $request->tenant_user_id)
+        // ->exists();
+
+        // if ($exists) {
+        //     return response()->json(['message' => 'You have already applied to this property'], 409);
+        // }
+
+        // $application = Rental_application::create([
+        //     'property_id' => $request->property_id,
+        //     'tenant_user_id' => $request->tenant_user_id,
+        //     'application_date' => $request->application_date,
+        //     'status' => $request->status
+        // ]);
+
+        // Verificar si ya existe una aplicación con los mismos datos
+        $exists = DB::table('rental_applications')
+        ->where('property_id', $request->property_id)
         ->where('tenant_user_id', $request->tenant_user_id)
         ->exists();
 
@@ -228,7 +248,7 @@ class PropertyController extends Controller
             return response()->json(['message' => 'You have already applied to this property'], 409);
         }
 
-        $application = Rental_application::create([
+        $application = DB::table('rental_applications')->insert([
             'property_id' => $request->property_id,
             'tenant_user_id' => $request->tenant_user_id,
             'application_date' => $request->application_date,

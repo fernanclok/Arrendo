@@ -77,6 +77,11 @@ Route::get('/appoinments', function () {
     return Inertia::render('Appoinments');
 })->middleware(['auth', 'verified', 'role:admin,Tenant,Owner'])->name('appoinments');
 
+//Evaluacion de solicitudes
+Route::get('/tenant-requests', function () {
+    return Inertia::render('TenantEvaluations'); // Nombre del componente Vue 
+})->middleware(['auth', 'verified', 'role:Owner'])->name('tenantRequest');
+
 //Maintenance
 Route::get('/maintenance', function () {
     return Inertia::render('Maintenance/ShowMaintenance');
@@ -95,5 +100,6 @@ Route::get('/maintenance/{id}', [MaintenanceController::class, 'show'])
 Route::get('/registro-propiedad', function () {
     return Inertia::render('RegistroPropiedad'); // Nombre del componente Vue 
 })->name('registro.propiedad');
+
 
 require __DIR__ . '/auth.php';
