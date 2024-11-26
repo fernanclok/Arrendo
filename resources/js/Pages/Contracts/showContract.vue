@@ -7,7 +7,6 @@ import manageContracts from './manageContracts.vue';
 
 const user = usePage().props.auth.user;
 const contracts = ref([]);
-console.log(contracts)
 const filterStatus = ref('all'); // valor por defecto
 
 const getContracts = async () => {

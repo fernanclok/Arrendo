@@ -41,7 +41,10 @@ class ContractController extends Controller
                     $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                     $extension = $file->getClientOriginalExtension();
                     $timestamp = now()->format('YmdHis');
-                    $newName = "{$originalName}_{$timestamp}.{$extension}";
+
+                    // Reemplazar espacios por guiones bajos o quitarlos
+                    $sanitizedOriginalName = preg_replace('/\s+/', '_', $originalName);
+                    $newName = "{$sanitizedOriginalName}_{$timestamp}.{$extension}";
                     $destinationPath = public_path('contracts_files');
 
                     // Crear la carpeta si no existe
@@ -50,7 +53,7 @@ class ContractController extends Controller
                     }
 
                     $file->move($destinationPath, $newName);
-                    $files[] = "contracts/{$newName}";
+                    $files[] = "contracts_files/{$newName}";
                 }
                 $contract->contract_path = json_encode($files);
             }
@@ -61,7 +64,7 @@ class ContractController extends Controller
             $contract->save();
 
             // Devolver una respuesta JSON de éxito
-            return response()->json('success', 'Contract created successfully');
+            return response()->json(['message' => 'Contract created successfully'], 201);
         } catch (\Exception $e) {
             // Devolver una respuesta JSON de error
             return response()->json(['success' => false, 'message' => $e,], 500);

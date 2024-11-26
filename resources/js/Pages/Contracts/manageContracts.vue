@@ -108,7 +108,7 @@ export default {
             'Content-Type': 'multipart/form-data'
           }
         });
-        console.log('Contrato creado exitosamente', response.data);
+        alert('Contrato creado exitosamente');
       } catch (error) {
         console.error('Error al crear el contrato', error.response.data);
       }
@@ -140,7 +140,7 @@ export default {
               <p class="text-sm text-gray-500 font-semibold">Click to upload</p>
               <p class="text-sm text-gray-500 font-semibold">PDF, PNG, JPG</p>
             </div>
-            <input type="file" id="contract_file"  @change="handleFileUpload" class="hidden" accept=".png, .jpg, .jpeg, .pdf" multiple />
+            <input type="file" id="contract_file"  @change="handleFileUpload"  class="hidden" accept=".png, .jpg, .jpeg, .pdf" multiple />
           </InputLabel>
           <InputError class="mt-2" :message="form.errors.contract_file" />         
         </div>

@@ -37,7 +37,7 @@ const getContractDetails = async () => {
 };
 // Función para verificar si el archivo es una imagen
 const isImage = (file) => {
-    return /\.(jpg|jpeg|png|gif)$/i.test(file);
+    return /\.(jpg|jpeg|png)$/i.test(file);
 };
 
 // Función para verificar si el archivo es un PDF

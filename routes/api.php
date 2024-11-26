@@ -24,7 +24,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //Contracts
 Route::prefix('contracts')->group(function () {
     Route::get('/', [ContractController::class, 'index']);
-    Route::get('/{id}', [ContractController::class, 'getContract']);
+    Route::get('{id}', [ContractController::class, 'getContract']);
     Route::post('/create', [ContractController::class, 'store']);
     Route::get('/get/user_tenant', [ContractController::class, 'getTenantUsers']);
 });
