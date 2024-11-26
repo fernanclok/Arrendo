@@ -78,6 +78,10 @@ Route::get('/contracts-details/{id}', function ($id) {
     return Inertia::render('Contracts/detailsContract');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('ContractDetails');
 
+Route::get('/all-contracts', function () {
+    return Inertia::render('Contracts/allContract');
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('AllContracts');
+
 //appoinments
 Route::get('/appoinments', function () {
     return Inertia::render('Appoinments');

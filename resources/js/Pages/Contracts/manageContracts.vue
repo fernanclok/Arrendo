@@ -109,6 +109,8 @@ export default {
           }
         });
         alert('Contrato creado exitosamente');
+        // reload the function to get the new contracts
+        getContracts();
       } catch (error) {
         console.error('Error al crear el contrato', error.response.data);
       }

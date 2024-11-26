@@ -52,7 +52,12 @@ onMounted(() => {
               </nav>
               <nav class="block bg-gray-100 rounded-lg shadow-lg p-2 h-[600px]">
                 <div class="block justify-between items-center p-2">
-                    <h1 class="text-lg font-bold w-full flex">Contracts</h1>
+                    <div class="flex justify-center text-center items-center">
+                        <h1 class="text-lg font-bold w-full flex">Contracts</h1> 
+                        <Link href="/all-contracts" class="w-full">
+                            <CustomButton>Manage Contracts</CustomButton>
+                        </Link>
+                    </div>
                     <nav class="flex justify-center text-sm w-full text-gray-500">
                         <button @click="filter('all')" class="p-2 flex justify-center text-center items-center group rounded-lg">
                             <i class="mdi mdi-circle pr-2 text-blue-700 group-hover:text-blue-500"></i>
