@@ -428,7 +428,7 @@ import { ref } from 'vue';
 const navItems = [
   { href: '/', label: 'Inicio' },
   { href: '/properties', label: 'Properties' },
-  { href: '/propietarios', label: 'Para propietarios' },
+  { href: '/propietarios', label: 'For Owners' },
   { href: '/contact', label: 'Contact' },
 ]
 
