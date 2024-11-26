@@ -16,14 +16,14 @@ class ShareNavigationLinks
                 'Owner' => [
                     ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'home'],
                     ['route' => 'contracts', 'label' => 'contracts', 'icon' => 'file'],
-                    ['route' => 'appoinments', 'label' => 'Appoinments', 'icon' => 'calendar'],
+                    ['route' => 'appointments', 'label' => 'Appointments', 'icon' => 'calendar'],
                     ['route' => 'myProperties', 'label' => 'My Properties', 'icon' => 'home'],
                     ['route' => 'tenantRequest', 'label' => 'My Properties', 'icon' => 'application-edit'],
                 ],
                 'Tenant' => [
                     ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'home'],
                     ['route' => 'searchProperties', 'label' => 'Properties', 'icon' => 'home'],
-                    ['route' => 'appoinments', 'label' => 'Appoinments', 'icon' => 'calendar'],
+                    ['route' => 'appointments', 'label' => 'Appointments', 'icon' => 'calendar'],
                     ['route' => 'maintenance','label' => 'Maintenance','icon'=> 'hammer-wrench'],
                 ],
             ];
