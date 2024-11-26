@@ -54,25 +54,33 @@ onMounted(() => {
     <Head title="Contracts" />
     <DashboardLayout>
       <div class=" bg-white">
-        <h1 class="text-4xl font-bold text-gray-800 text-center mb-8">Detalles del Contrato</h1>
+        <h1 class="text-4xl font-bold text-gray-800 text-center mb-8">Contract Details</h1>
       </div>
   
       <nav v-if="loading" class="w-full h-full flex justify-center items-center text-center mt-8">
         <i class="mdi mdi-loading text-gray-400 text-4xl animate-spin"></i>
-        <p class="text-gray-400 text-xl ml-2">Cargando...</p>
+        <p class="text-gray-400 text-xl ml-2">Loading...</p>
       </nav>
   
       <nav v-else class="p-8">
         <!-- Contract Information -->
         <div class="bg-white shadow-lg rounded-lg p-6 space-y-6 border border-gray-200 ">
-            <h2 class="text-3xl font-semibold text-gray-800">{{ contract.tenant_user.first_name }} {{ contract.tenant_user.last_name }}</h2>
+            <div class="flex justify-between items-center text-center">
+                <h2 class="text-3xl font-semibold text-gray-800">{{ contract.tenant_user.first_name }} {{ contract.tenant_user.last_name }}</h2>
+            <p :class="{
+                                        'text-sm justify-end text-end items-end font-bold  px-4 py-1 rounded-md':true,
+                                        'bg-gradient-to-l from-green-500 to-white from-10%': contract.status == 'Active',
+                                        'bg-gradient-to-l from-yellow-500 to-white from-10%': contract.status == 'Pending Renewal',
+                                        'bg-gradient-to-l from-red-500 to-white from-10%': contract.status == 'Terminated'
+                                        }"> {{ contract.status }}</p>
+            </div>
             <div class="flex justify-between text-gray-600 text-sm">
               <div>
-                <p class="font-medium text-gray-700">Fecha de inicio</p>
+                <p class="font-medium text-gray-700">Start Date</p>
                 <p class="text-gray-500">{{ contract.start_date }}</p>
               </div>
               <div>
-                <p class="font-medium text-gray-700">Fecha de fin</p>
+                <p class="font-medium text-gray-700">End Date</p>
                 <p class="text-red-600">{{ contract.end_date }}</p>
               </div>
             </div>
@@ -80,25 +88,25 @@ onMounted(() => {
         <section class="py-8">
           <!-- Property Details -->
           <div class="bg-white shadow-lg rounded-lg p-6 space-y-6 border border-gray-200">
-            <h2 class="text-3xl font-semibold text-gray-800">Detalles de la Propiedad</h2>
+            <h2 class="text-3xl font-semibold text-gray-800">Property Details</h2>
             <div class="space-y-4">
-              <p class="font-medium text-gray-700">Dirección</p>
+              <p class="font-medium text-gray-700">Address</p>
               <p class="text-gray-500">{{ contract.property.street }} {{ contract.property.number }}, {{ contract.property.city }} {{ contract.property.state }}, {{ contract.property.postal_code }}</p>
             </div>
             <div class="space-y-4">
-              <p class="font-medium text-gray-700">Especificaciones</p>
+              <p class="font-medium text-gray-700">Specifications</p>
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-gray-500">
-                <p><i class="mdi mdi-bed px-2" /> {{ contract.property.total_rooms }} Habitaciones</p>
-                <p><i class="mdi mdi-bathtub px-2" /> {{ contract.property.total_bathrooms }} Baños</p>
+                <p><i class="mdi mdi-bed px-2" /> {{ contract.property.total_rooms }} Rooms</p>
+                <p><i class="mdi mdi-bathtub px-2" /> {{ contract.property.total_bathrooms }} Bathrooms</p>
                 <p><i class="mdi mdi-select-place px-2" /> {{ contract.property.total_m2 }} m²</p>
               </div>
             </div>
             <div class="space-y-4">
-              <p class="font-medium text-gray-700">Monto de Renta</p>
+              <p class="font-medium text-gray-700">Rental Amount</p>
               <p class="text-gray-500">${{ contract.rental_amount }} MXN</p>
             </div>
             <div>
-              <p class="font-medium text-gray-700">Imágenes</p>
+              <p class="font-medium text-gray-700">Images</p>
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <img v-for="(image, index) in contract.property.property_photos_path" :key="index" :src="`/${image}`" class="w-full h-40 object-cover rounded-lg shadow-md" alt="Property Image" />
               </div>
@@ -108,19 +116,19 @@ onMounted(() => {
   
         <!-- Tenant Details -->
         <section class="bg-white shadow-lg rounded-lg p-6 space-y-6 mb-8 border border-gray-200">
-          <h2 class="text-3xl font-semibold text-gray-800">Detalles del Inquilino</h2>
+          <h2 class="text-3xl font-semibold text-gray-800">Tenant Details</h2>
           <p class="text-xl font-medium text-gray-800">{{ contract.tenant_user.first_name }} {{ contract.tenant_user.last_name }}</p>
           <div class="space-y-4 mt-4">
             <div>
-              <p class="font-medium text-gray-700">Correo Electrónico</p>
+              <p class="font-medium text-gray-700">Email</p>
               <p class="text-gray-500"><i class="mdi mdi-mail px-2" />{{ contract.tenant_user.email }}</p>
             </div>
             <div>
-              <p class="font-medium text-gray-700">Teléfono</p>
+              <p class="font-medium text-gray-700">Phone Number</p>
               <p class="text-gray-500"><i class="mdi mdi-phone px-2" />{{ contract.tenant_user.phone }}</p>
             </div>
             <div>
-              <p class="font-medium text-gray-700">Contacto de Emergencia</p>
+              <p class="font-medium text-gray-700">Emergency Contact</p>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-gray-500">
                 <p><strong>Nombre:</strong> {{ contract.tenant_user.emergency_contact_name }}</p>
                 <p><i class="mdi mdi-phone px-2" />{{ contract.tenant_user.emergency_contact_phone }}</p>
