@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('postal_code', 20);
             $table->decimal('rental_rate', 8, 2)->nullable();
             $table->enum('availability', ['Available', 'Not Available']);
-            $table->decimal('total_bathrooms', 8, 2);
+            $table->integer('total_bathrooms');
             $table->integer('total_rooms');
             $table->integer('total_m2');
             $table->boolean('have_parking')->nullable();
@@ -31,6 +31,17 @@ return new class extends Migration
             $table->foreignId('owner_user_id')->constrained('users');
             $table->foreignId('zone_id')->constrained('zones');
             $table->timestamps();
+
+            $table->string('colony', 100)->nullable();
+            $table->integer('half_bathrooms')->nullable();
+            $table->integer('surface_built')->nullable();
+            $table->integer('total_surface')->nullable();
+            $table->integer('antiquity')->nullable();
+            $table->decimal('maintenance', 10, 2)->nullable();
+            $table->string('state_conservation', 50)->nullable();
+            $table->integer('wineries')->nullable();
+            $table->integer('closets')->nullable();
+            $table->integer('levels')->nullable();
         });
     }
 
