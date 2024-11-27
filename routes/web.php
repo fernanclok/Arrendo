@@ -88,8 +88,6 @@ Route::get('/appoinments', function () {
 })->middleware(['auth', 'verified', 'role:admin,Tenant,Owner'])->name('appoinments');
 
 
-require __DIR__ . '/auth.php';
-
 //Maintenance
 Route::get('/maintenance', function () {
     return Inertia::render('Maintenance/ShowMaintenance');
