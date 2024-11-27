@@ -9,10 +9,6 @@ use App\Http\Controllers\RentalApplicationController;
 use App\Http\Controllers\AppointmentController;
 use App\Models\Appoinment;
 
-
-use App\Http\Controllers\RentalApplicationController;
-
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
