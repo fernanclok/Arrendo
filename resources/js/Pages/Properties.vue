@@ -53,13 +53,13 @@ import { ref } from 'vue';
 
                         <div class="flex-[2] flex flex-col space-y-1">
                             <div class="text-sm font-medium text-gray-600">
-                                <b>Maximum Price:</b> {{ displayPrice }}
+                                <b>Maximum Price:</b> {{ displayPrice }} $MXN
                             </div>
                             <input type="range" v-model="selectedPrice" :min="0" :max="priceOptions.length - 1" step="1"
                                 class="w-full focus:ring-green-500" />
                             <div class="flex justify-between text-sm text-gray-500">
                                 <span v-for="(price, index) in priceOptions" :key="index">
-                                    {{ price }}
+                                    {{ price }} 
                                 </span>
                             </div>
                         </div>
@@ -111,7 +111,7 @@ import { ref } from 'vue';
 
                                     <div class="col-span-1 flex flex-col items-center justify-center space-y-4">
                                         <CustomButton @click="refreshFilters" type="primary" class="py-2 w-32">
-                                            <i class="mdi mdi-refresh mr-2"></i> REFRESH
+                                            <i class="mdi mdi-refresh mr-2"></i> REFRESH FILTERS 
                                         </CustomButton>
                                         <CustomButton @click="filterProperties" type="primary" class="py-2 w-32">
                                             <i class="mdi mdi-magnify mr-2"></i> SEARCH
@@ -143,8 +143,8 @@ import { ref } from 'vue';
                             class="w-full h-48 object-cover" v-if="property.property_photos_path.length" />
                         <div class="p-4">
                             <h2 class="text-xl font-bold mb-2">{{ property.zone_name }}</h2>
-                            <p class="text-gray-600 mb-2">{{ property.city }} {{ property.state }} , {{ property.street
-                                }}, {{ property.number }}</p>
+                            <p class="text-gray-600 mb-2">{{ property.city }} {{ property.state }} , 
+                                {{ property.street}} {{ property.number }}</p>
                             <div class="flex justify-between items-center mb-2">
                                 <span class="flex items-center">
                                     <!-- SVG Icon for rooms -->
@@ -159,7 +159,7 @@ import { ref } from 'vue';
                                 <span v-if="property.rental_rate != null" class="flex items-center">
                                     <!-- SVG Icon for bathrooms -->
                                     <icon class="mdi mdi-star mr-2"></icon>
-                                    {{ property.rental_rate }}
+                                    {{ property.rental_rate }} 
                                 </span>
                                 <span v-else class="flex items-center">
                                     <!-- SVG Icon for bathrooms -->
@@ -171,7 +171,7 @@ import { ref } from 'vue';
                         <div class="bg-gray-100 px-4 py-3 flex justify-between items-center">
                             <span class="text-lg font-bold flex items-center">
                                 <icon class="mdi mdi-cash mr-2"></icon>
-                                ${{ property.property_price }}
+                                {{ property.property_price }} $MXN
                             </span>
                             <CustomButton v-if="property.id != activePropertyId" type="primary"
                                 @click="toggleDetails(property.id)">
@@ -199,17 +199,17 @@ import { ref } from 'vue';
 
                 <!-- Especificaciones clave -->
                 <div class="mt-4">
-                    <p><strong>Precio:</strong> ${{ selectedProperty.property_price }}</p>
-                    <p><strong>Habitaciones:</strong> {{ selectedProperty.total_rooms }}</p>
-                    <p><strong>Baños:</strong> {{ selectedProperty.total_bathrooms }}</p>
-                    <p><strong>Metros cuadrados:</strong> {{ selectedProperty.total_m2 }}</p>
-                    <p><strong>Estacionamiento:</strong> {{ selectedProperty.have_parking ? "Sí" : "No" }}</p>
-                    <p><strong>Acepta mascotas:</strong> {{ selectedProperty.accept_mascots ? "Sí" : "No" }}</p>
+                    <p><strong>Property Price:</strong> {{ selectedProperty.property_price }} $MXN</p>
+                    <p><strong>Bedrooms:</strong> {{ selectedProperty.total_rooms }}</p>
+                    <p><strong>Bathrooms:</strong> {{ selectedProperty.total_bathrooms }}</p>
+                    <p><strong>M²:</strong> {{ selectedProperty.total_m2 }}</p>
+                    <p><strong>Parking Lot:</strong> {{ selectedProperty.have_parking ? "Yes" : "No" }}</p>
+                    <p><strong>Accept Pets:</strong> {{ selectedProperty.accept_mascots ? "Yes" : "No" }}</p>
                 </div>
 
                 <!-- Detalles adicionales -->
                 <div class="mt-4">
-                    <h3 class="text-lg font-bold">Detalles:</h3>
+                    <h3 class="text-lg font-bold">Details:</h3>
                     <p class="text-gray-700">{{ selectedProperty.property_details }}</p>
                 </div>
 
