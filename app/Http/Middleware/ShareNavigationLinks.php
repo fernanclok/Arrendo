@@ -18,13 +18,15 @@ class ShareNavigationLinks
                     ['route' => 'contracts', 'label' => 'contracts', 'icon' => 'file'],
                     ['route' => 'appoinments', 'label' => 'Appoinments', 'icon' => 'calendar'],
                     ['route' => 'myProperties', 'label' => 'My Properties', 'icon' => 'home'],
-                    ['route' => 'tenantRequest', 'label' => 'My Properties', 'icon' => 'application-edit'],
+                    ['route' => 'EvaluateRequest', 'label' => 'Request', 'icon' => 'account-question']
                 ],
                 'Tenant' => [
                     ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'home'],
                     ['route' => 'searchProperties', 'label' => 'Properties', 'icon' => 'home'],
                     ['route' => 'appoinments', 'label' => 'Appoinments', 'icon' => 'calendar'],
                     ['route' => 'maintenance','label' => 'Maintenance','icon'=> 'hammer-wrench'],
+                    ['route' => 'TrackRequest', 'label' => 'Request', 'icon' => 'account-question']
+                    ['route' => 'tenantRequest', 'label' => 'My Properties', 'icon' => 'application-edit'],
                 ],
             ];
 
