@@ -18,6 +18,7 @@ class ShareNavigationLinks
                     ['route' => 'AllContracts', 'label' => 'contracts', 'icon' => 'file'],
                     ['route' => 'appointments', 'label' => 'Appointments', 'icon' => 'calendar'],
                     ['route' => 'myProperties', 'label' => 'My Properties', 'icon' => 'home'],
+                    ['route' => 'maintenanceOwner','label' => 'Maintenance','icon'=> 'hammer-wrench'],
                     ['route' => 'EvaluateRequest', 'label' => 'Request', 'icon' => 'account-question']
                 ],
                 'Tenant' => [
