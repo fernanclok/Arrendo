@@ -24,16 +24,16 @@ Route::get('/', function () {
     return Inertia::render('Welcome', []);
 });
 
-// Dashboard
-Route::middleware(['auth', 'verified', 'role:Owner'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/dashboard/settings', [DashboardController::class, 'index'])->name('dashboard.settings');
-});
-
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// Dashboard
+Route::middleware(['auth', 'verified', 'role:Owner'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/settings', [DashboardController::class, 'index'])->name('dashboard.settings');
 });
 
 //properties
@@ -57,13 +57,13 @@ Route::get('/search-properties', function () {
     return Inertia::render('SearchProperties');
 })->middleware(['auth', 'verified', 'role:Tenant'])->name('searchProperties');
 
-
+// contracts
 Route::get('/contracts', function () {
     return Inertia::render('Contracts/showContract');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('contracts');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/contracts/all', [ContractController::class, 'index'])->name('contracts.index');
+    Route::get('/contracts/all', [ContractController::class, 'index'])->name('contracts.index');  // que rollo con esto si ya no se ocupa eliminenlo
     Route::post('/contract', [ContractController::class, 'store'])->name('contracts.store');
 });
 
@@ -104,7 +104,6 @@ Route::get('/appointments', function () {
 Route::get('/maintenance', function () {
     return Inertia::render('Maintenance/ShowMaintenance');
 })->middleware([])->name('maintenance');
-
 
 Route::get('/maintenance/new', function(){
     return Inertia::render('Maintenance/CreateMaintenance');
