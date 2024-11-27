@@ -10,6 +10,9 @@ use App\Http\Controllers\AppointmentController;
 use App\Models\Appoinment;
 
 
+use App\Http\Controllers\RentalApplicationController;
+
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -32,7 +35,6 @@ Route::prefix('contracts')->group(function () {
     Route::get('/user_tenant', [ContractController::class, 'getTenantUsers']);
 });
 
-
 // zones
 Route::get('/zones', [ZoneController::class, 'getZones']);
 
@@ -42,6 +44,7 @@ Route::prefix('properties')->group(function () {
     Route::post('/create', [PropertyController::class, 'create']);
     Route::get('/filter', [PropertyController::class, 'getFilteredProperties']);
     Route::get('/getProperties', [PropertyController::class, 'getProperties']);
+
     Route::get('/getPropertyDetails/{id}', [PropertyController::class, 'getPropertyDetails']);
     Route::post('/appointment', [AppointmentController::class, 'createAppoinment']);
     Route::get('/applications', [PropertyController::class, 'getAllApplications']);
@@ -52,3 +55,10 @@ Route::prefix('properties')->group(function () {
 Route::prefix('appointments')->group(function () {
     Route::get('/',[AppointmentController::class, 'getUserAppointments']);
 });
+
+Route::prefix('rental-applications')->group(function(){
+    Route::get('/', [RentalApplicationController::class, 'index']);
+    Route::post('/{id}/approve', [RentalApplicationController::class, 'approve']);
+    Route::post('/{id}/reject', [RentalApplicationController::class, 'reject']);
+});
+
