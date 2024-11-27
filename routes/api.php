@@ -32,3 +32,7 @@ Route::prefix('properties')->group(function () {
     Route::get('/filter', [PropertyController::class, 'getFilteredProperties']);
     Route::get('/getProperties', [PropertyController::class, 'getProperties']);
 });
+
+Route::get('/properties/{id}', [PropertyController::class, 'show']);
+Route::put('/properties/{id}', [PropertyController::class, 'update']);
+Route::delete('/properties/{id}', [PropertyController::class, 'destroy']);

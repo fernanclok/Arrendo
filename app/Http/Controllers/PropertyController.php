@@ -15,6 +15,22 @@ class PropertyController extends Controller
         return response()->json($properties);
     }
 
+    public function show($id)
+    {
+        $property = Property::findOrFail($id);
+        return response()->json($property);    
+    }
+
+    public function destroy($id)
+    {
+        $property = Property::findOrFail($id);
+        $property->delete();
+
+        return response()->json(['message' => 'Property deleted successfully']);
+    }
+
+
+
     public function getFilteredProperties(Request $request) {
         $params = $request->all();
     
@@ -100,7 +116,7 @@ class PropertyController extends Controller
             'state' => 'required|string|max:100',
             'postal_code' => 'required|string|max:20',
             'availability' => 'required|string',
-            'total_bathrooms' => 'required|numeric',
+            'total_bathrooms' => 'required|integer',
             'total_rooms' => 'required|integer',
             'total_m2' => 'required|integer',
             'have_parking' => 'required|boolean',
@@ -108,6 +124,17 @@ class PropertyController extends Controller
             'property_price' => 'required|numeric',
             'property_details' => 'required|string',
             'zone_id' => 'required|integer|exists:zones,id',
+
+            'colony' => 'nullable|string|max:100',
+            'half_bathrooms' => 'nullable|integer',
+            'surface_built' => 'nullable|integer',
+            'total_surface' => 'nullable|integer',
+            'antiquity' => 'nullable|integer',
+            'maintenance' => 'nullable|numeric',
+            'state_conservation' => 'nullable|string|max:50',
+            'wineries' => 'nullable|integer',
+            'closets' => 'nullable|integer',
+            'levels' => 'nullable|integer',
             'property_photos.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
 
@@ -127,6 +154,19 @@ class PropertyController extends Controller
         $property->property_details = $validatedData['property_details'];
         $property->zone_id = $validatedData['zone_id'];
         $property->owner_user_id = $request->user_id;
+
+        $property->colony = $validatedData['colony'];
+        $property->half_bathrooms = $validatedData['half_bathrooms'];
+        $property->surface_built = $validatedData['surface_built'];
+        $property->total_surface = $validatedData['total_surface'];
+        $property->antiquity = $validatedData['antiquity'];
+        $property->maintenance = $validatedData['maintenance'];
+        $property->state_conservation = $validatedData['state_conservation'];
+        $property->wineries = $validatedData['wineries'];
+        $property->closets = $validatedData['closets'];
+        $property->levels = $validatedData['levels'];
+
+
 
         // Guardar las fotos de la propiedad
         if ($request->hasFile('property_photos')) {
@@ -150,4 +190,41 @@ class PropertyController extends Controller
             'message' => 'Property created successfully'
         ]);
     }
+
+
+    public function update(Request $request, $id)
+{
+    $validatedData = $request->validate([
+        'street' => 'required|string|max:255',
+        'number' => 'required|string|max:10',
+        'city' => 'required|string|max:100',
+        'state' => 'required|string|max:100',
+        'postal_code' => 'required|string|max:20',
+        'availability' => 'required|string',
+        'total_bathrooms' => 'required|integer',
+        'total_rooms' => 'required|integer',
+        'total_m2' => 'required|integer',
+        'have_parking' => 'required|boolean',
+        'accept_mascots' => 'required|boolean',
+        'property_price' => 'required|numeric',
+        'property_details' => 'required|string',
+
+        'colony' => 'nullable|string|max:100',
+        'half_bathrooms' => 'nullable|integer',
+        'surface_built' => 'nullable|integer',
+        'total_surface' => 'nullable|integer',
+        'antiquity' => 'nullable|integer',
+        'maintenance' => 'nullable|numeric',
+        'state_conservation' => 'nullable|string|max:50',
+        'wineries' => 'nullable|integer',
+        'closets' => 'nullable|integer',
+        'levels' => 'nullable|integer',
+    ]);
+
+    $property = Property::findOrFail($id);
+    $property->update($validatedData);
+
+    return response()->json($property);
+}
+
 }
