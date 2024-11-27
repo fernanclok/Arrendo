@@ -29,6 +29,17 @@ class Property extends Model
         'property_photos_path',
         'owner_user_id',
         'zone_id',
+
+        'colony', 
+        'half_bathrooms', 
+        'surface_built', 
+        'total_surface', 
+        'antiquity', 
+        'maintenance', 
+        'state_conservation', 
+        'wineries', 
+        'closets', 
+        'levels', 
     ];
 
     public function ownerUser()
