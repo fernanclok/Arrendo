@@ -1,110 +1,17 @@
 <script setup>
+import { ref, onMounted } from 'vue';
+import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import CustomButton from '@/Components/CustomButton.vue';
 import TextInput from '@/Components/TextInput.vue';
-import { Head, Link } from '@inertiajs/vue3';
 import axios from 'axios';
-import { ref } from 'vue';
-
-// Datos falsos para las propiedades
-// const properties = ref([
-//     {
-//         id: 1,
-//         title: 'Beautiful Family House',
-//         description: 'A beautiful house located in a serene environment.',
-//         price: 1200,
-//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-//         address: '123 Main St',
-//         rooms: 3,
-//         bathrooms: 2,
-//     },
-//     {
-//         id: 2,
-//         title: 'Modern Apartment',
-//         description: 'A modern apartment with all the amenities you need.',
-//         price: 900,
-//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-//         address: '456 Elm St',
-//         rooms: 2,
-//         bathrooms: 1,
-//     },
-//     {
-//         id: 3,
-//         title: 'Cozy Cottage',
-//         description: 'A cozy cottage perfect for a small family.',
-//         price: 700,
-//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-//         address: '789 Oak St',
-//         rooms: 2,
-//         bathrooms: 1,
-//     },
-//     {
-//         id: 4,
-//         title: 'Cozy Cottage',
-//         description: 'A cozy cottage perfect for a small family.',
-//         price: 700,
-//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-//         address: '789 Oak St',
-//         rooms: 2,
-//         bathrooms: 1,
-//     },
-//     {
-//         id: 5,
-//         title: 'Cozy Cottage',
-//         description: 'A cozy cottage perfect for a small family.',
-//         price: 700,
-//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-//         address: '789 Oak St',
-//         rooms: 2,
-//         bathrooms: 1,
-//     },
-//     {
-//         id: 6,
-//         title: 'Cozy Cottage',
-//         description: 'A cozy cottage perfect for a small family.',
-//         price: 700,
-//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-//         address: '789 Oak St',
-//         rooms: 2,
-//         bathrooms: 1,
-//     },
-// ]);
-
+import { Head, usePage } from '@inertiajs/vue3';
 </script>
 
 <template>
-    <div class="flex flex-col min-h-screen">
-        <Head title="properties" />
 
-        <!-- Header Navbar -->
-        <header class="shadow">
-            <div class="container mx-auto px-4 py-4">
-                <div class="flex items-center justify-between">
-                    <Link to="/" class="flex items-center space-x-2">
-                    <span class="text-xl font-bold">Arrendo</span>
-                    </Link>
-                    <nav class="hidden md:flex space-x-4">
-                        <Link v-for="item in navItems" :key="item.href" :href="item.href"
-                            class="text-sm font-medium hover:underline">
-                        {{ item.label }}
-                        </Link>
-                    </nav>
+    <Head title="Search Properties" />
 
-                    <div class="flex items-center space-x-2">
-                        <Link href="registro-propiedad"
-                            class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-white text-gray-800 hover:bg-gray-100 focus:bg-gray-100 active:bg-gray-200 focus:ring-gray-300">
-                        Publicar
-                        </Link>
-                        <Link href="/login"
-                            class="inline-flex items-center px-3 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-primary text-white hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:ring-blue-500">
-                        Log In
-                        </Link>
-                    </div>
-
-                </div>
-            </div>
-        </header>
-
-        <!-- Main Content -->
+    <DashboardLayout>
         <main :class="{ 'flex': showDetails, 'block': !showDetails }" class="flex-grow relative overflow-hidden p-6">
             <div :class="{ 'w-full': !showDetails, 'w-full md:w-3/4': showDetails }" class="p-4 h-full overflow-y-auto">
                 <h1 class="text-3xl font-bold mb-6">Properties in Rent</h1>
@@ -252,7 +159,6 @@ import { ref } from 'vue';
 
             <div class="absolute top-0 right-0 h-full w-full md:w-1/4 bg-gray-100 p-4 overflow-y-auto transition-transform duration-300 transform"
                 :class="{ 'translate-x-full': !showDetails, 'translate-x-0': showDetails }">
-                <!-- Encabezado principal -->
                 <h2 class="text-2xl font-bold mb-4">{{ selectedProperty.street }}, {{ selectedProperty.number }}</h2>
                 <p class="text-gray-600">
                     Zona: {{ selectedProperty.zone_name }}, {{ selectedProperty.city }}, {{ selectedProperty.state }} -
@@ -285,67 +191,56 @@ import { ref } from 'vue';
                 <!-- Botones -->
                 <div class="mt-4 flex justify-between">
                     <CustomButton @click="showDetails = false">Close</CustomButton>
+                    <CustomButton type="primary" @click="applyToListing(selectedProperty.id)">Apply to this Listing
+                    </CustomButton>
+                    <CustomButton @click="scheduleAppointment = true" type="primary">Schedule a Visit</CustomButton>
                 </div>
             </div>
         </main>
 
-        <!-- Footer -->
-        <footer class="text-black py-12 shadow-inner mt-auto ">
-            <div class="container mx-auto px-4">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                    <div>
-                        <h3 class="text-lg font-semibold mb-4">Arrendo</h3>
-                        <p class="text-sm text-gray-400">A New Way to Rent Houses</p>
+        <div v-if="scheduleAppointment"
+            class="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div class="bg-white p-6 rounded-lg">
+                <h2 class="text-2xl font-bold mb-4">Schedule an Appointment</h2>
+                <p class="text-gray-600">house id: {{ selectedProperty.id }}</p>
+                <p class="text-gray-600">The owner will be notified of your request.</p>
+                <form @submit.prevent="ApplyToAnAppointment(selectedProperty.id)">
+                    <div class="mb-4">
+                        <label for="requested_date" class="block text-sm font-medium text-gray-700">Requested
+                            Date</label>
+                        <input type="datetime-local" v-model="appointmentForm.requested_date" id="requested_date"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-700 focus:ring focus:ring-green-700 focus:ring-opacity-50">
                     </div>
-                    <div v-for="(column, index) in footerColumns" :key="index">
-                        <h4 class="text-lg font-semibold mb-4">{{ column.title }}</h4>
-                        <ul class="space-y-2">
-                            <li v-for="link in column.links" :key="link.href">
-                                <router-link :to="link.href" class="text-sm text-gray-400 hover:text-white">
-                                    {{ link.label }}
-                                </router-link>
-                            </li>
-                        </ul>
+                    <div class="flex justify-end">
+                        <CustomButton @click="scheduleAppointment = false">Close</CustomButton>
+                        <button type="submit"
+                            class="ml-2 inline-flex items-center px-3 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-primary text-white hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:ring-green-500">Submit</button>
                     </div>
-                    <div>
-                        <h4 class="text-lg font-semibold mb-4">Follow Us</h4>
-                        <div class="flex space-x-4">
-                            <a v-for="social in socialLinks" :key="social.name" :href="social.href"
-                                class="text-gray-400 hover:text-white">
-                                <span class="sr-only">{{ social.name }}</span>
-                                <component :is="social.icon" class="h-6 w-6" />
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="border-t border-primary pt-8 text-center">
-                    <p class="text-sm text-gray-400">&copy; {{ new Date().getFullYear() }} Arrendo. All Rights Reserved
-                    </p>
-                </div>
+                </form>
             </div>
-        </footer>
-    </div>
+        </div>
+
+    </DashboardLayout>
 </template>
 
 <script>
-const navItems = [
-    { href: '/', label: 'Home' },
-    { href: '/properties', label: 'Properties' },
-    { href: '/propietarios', label: 'Para propietarios' },
-    { href: '/contact', label: 'Contact' },
-]
-
 export default {
     data() {
         return {
             showDetails: false,
+            scheduleAppointment: false,
             showFilters: false,
             activePropertyId: null,
             priceOptions: ["5000", "7000", "10000", "+10000"],
             selectedPrice: 0,
             isRefreshing: false,
-            selectedProperty: {},
             properties: [],
+            propertyDetails: [],
+            appointmentForm: {
+                requested_date: '',
+            },
+            selectedProperty: {},
+            user: null,
             zones: [
                 { id: 1, name: 'Centro' },
                 { id: 2, name: 'Otay' },
@@ -377,7 +272,7 @@ export default {
             } else {
                 try {
                     const response = await axios.get(`/api/properties/getPropertyDetails/${propertyId}`);
-                    this.selectedProperty = response.data; // Guardamos los detalles de la propiedad
+                    this.selectedProperty = response.data;
                     this.activePropertyId = propertyId;
                     this.showDetails = true;
                 } catch (error) {
@@ -393,6 +288,16 @@ export default {
             axios.get('/api/properties/getProperties')
                 .then(response => {
                     this.properties = response.data;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        },
+        getPropertyDetails(id) {
+            axios.get('/api/properties/getPropertyDetails/' + id)
+                .then(response => {
+                    this.propertyDetails = response.data;
+                    console.log(this.propertyDetails);
                 })
                 .catch(error => {
                     console.error(error);
@@ -419,7 +324,7 @@ export default {
                 });
         },
         refreshFilters() {
-            this.isRefreshing = true; 
+            this.isRefreshing = true;
             this.propertiesSpecifications = {
                 selectedZone: '',
                 maxPrice: '',
@@ -435,8 +340,52 @@ export default {
 
             setTimeout(() => {
                 this.isRefreshing = false;
-            }, 0); 
+            }, 0);
         },
+        async applyToListing(propertyId) {
+            try {
+                const requestData = {
+                    property_id: propertyId,
+                    tenant_user_id: this.user.id, // ID del usuario autenticado
+                    application_date: new Date().toISOString().split('T')[0], // Fecha actual en formato YYYY-MM-DD
+                    status: 'Pending', // Estado inicial
+                };
+
+                const response = await axios.post('/api/properties/applicate', requestData);
+                alert("Application sent successfully!"); // Mensaje para éxito
+            } catch (error) {
+                // Verifica si el error es de validación u otro tipo
+                if (error.response && error.response.status === 409) {
+                    // Mostrar el mensaje del backend para errores específicos
+                    alert(error.response.data.message || "You have already applied to this property.");
+                } else {
+                    // Mensaje genérico para otros errores
+                    console.error("Error applying to listing:", error.response?.data || error);
+                    alert("Failed to apply to the listing. Please try again.");
+                }
+            }
+        },
+        ApplyToAnAppointment(propertyId) {
+            const form = {
+                property_id: propertyId,
+                tenant_user_id: this.user.id,
+                requested_date: this.appointmentForm.requested_date,
+                status: 'Pending'
+            };
+            axios.post('/api/properties/appointment', form)
+                .then(response => {
+                    this.emmiter.emit('show_notification', {
+                        title: 'Success',
+                        message: "Script Added Succesfully",
+                        type: 'success'
+                    });
+                    this.scheduleAppointment = false;
+                })
+                .catch(error => {
+                    console.error("Error applying to listing:", error.response?.data || error);
+                    alert("Failed to apply to the listing. Please try again.");
+                });
+        }
     },
     watch: {
         showDetails(newVal) {
@@ -449,7 +398,7 @@ export default {
                 this.filterProperties();
             }
         },
-        'propertiesSpecifications.selectedZone': function() {
+        'propertiesSpecifications.selectedZone': function () {
             if (!this.isRefreshing) {
                 this.filterProperties();
             }
@@ -467,6 +416,7 @@ export default {
     },
     mounted() {
         this.getProperties();
+        this.user = usePage().props.auth.user;
     }
 };
 </script>
@@ -478,7 +428,7 @@ input[type="range"]::-webkit-slider-thumb {
     height: 20px;
     width: 20px;
     border-radius: 50%;
-    background-color: #10b981; 
+    background-color: #10b981;
     border: 2px solid #10b981;
     cursor: pointer;
     transition: transform 0.2s ease-in-out;

@@ -11,6 +11,8 @@ class Rental_application extends Model
 {
     use HasFactory;
 
+    protected $table = "rental_application";
+
     protected $fillable = [
         'property_id',
         'tenant_user_id',
