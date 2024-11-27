@@ -5,9 +5,9 @@
             <Link class="text-white text-sm uppercase lg:inline-block font-semibold p-4" href="/dashboard">
             Dashboard
             </Link>
-            <Link href="/dashboard/settings" class="text-white text-sm uppercase lg:inline-block font-semibold p-4">
+            <!-- <Link href="/dashboard/settings" class="text-white text-sm uppercase lg:inline-block font-semibold p-4">
             settings
-            </Link>
+            </Link> -->
             <div>
                 <div class="flex flex-wrap">
                     <div v-for="(card, index) in cardStats" :key="index" class="w-full lg:w-6/12 xl:w-3/12 px-4">
