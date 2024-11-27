@@ -25,7 +25,6 @@ import { Head } from '@inertiajs/vue3';
                                 <div class="flex items-center justify-between cursor-pointer"
                                     @click="toggleAccordion(appointment)">
                                     <div class="flex items-center space-x-4">
-                                        <CalendarIcon class="text-blue-500" />
                                         <div>
                                             <p class="font-medium text-gray-900">
                                                 {{ formatDateTime(appointment.requested_date) }}
@@ -46,12 +45,10 @@ import { Head } from '@inertiajs/vue3';
                                         <button @click.stop="editAppointment(appointment.id)"
                                             class="text-blue-600 hover:text-blue-800"
                                             :disabled="appointment.status === 'Cancelled'">
-                                            <PencilIcon class="h-5 w-5" />
                                         </button>
                                         <button @click.stop="cancelAppointment(appointment.id)"
                                             class="text-red-600 hover:text-red-800"
                                             :disabled="appointment.status === 'Cancelled'">
-                                            <XIcon class="h-5 w-5" />
                                         </button>
                                         <i
                                             :class="appointment.isOpen ? 'mdi mdi-chevron-up' : 'mdi mdi-chevron-down'"></i>

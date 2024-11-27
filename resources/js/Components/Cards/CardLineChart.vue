@@ -30,6 +30,7 @@ export default {
             required: true,
         },
     },
+    
     mounted() {
         this.$nextTick(() => {
             // Etiquetas de los meses (siempre estarán en este orden)
@@ -124,6 +125,8 @@ export default {
             const ctx = document.getElementById("line-chart").getContext("2d");
             window.myLine = new Chart(ctx, config);
         });
+
+        console.log(this.monthlyIncome,'monthlyIncome');
     },
 };
 

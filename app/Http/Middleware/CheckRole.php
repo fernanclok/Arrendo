@@ -22,8 +22,10 @@ class CheckRole
         }
 
         $allowedRoutes = [
-            'Owner' => ['dashboard', 'dashboard/settings', 'my-properties', 'contracts', 'contracts-details/{employee}', 'all-contracts', 'EvaluateRequest', 'appointments'],
-            'Tenant' => ['dashboard','search-properties','appointments','TrackRequest', 'maintenance/create'],
+            'Owner' => ['dashboard', 'my-properties', 'contracts', 'dashboard/settings'],
+            'Tenant' => ['dashboard','search-properties','appoinments'],
+            'Owner' => ['dashboard', 'dashboard/settings', 'my-properties', 'contracts', 'contracts-details/{employee}', 'all-contracts', 'EvaluateRequest', 'appointments', 'maintenanceOwner'],
+            'Tenant' => ['dashboard','search-properties','appointments','TrackRequest', 'maintenance/new'],
         ];
 
         $currentPath = $request->path();
