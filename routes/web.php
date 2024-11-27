@@ -68,14 +68,29 @@ Route::get('/contracts', function () {
     return Inertia::render('Contracts/showContract');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('contracts');
 
+Route::get('/TrackRequest', function () {
+    return Inertia::render('TrackRequest');
+})->middleware(['auth', 'verified', 'role:Tenant'])->name('TrackRequest');
+
+Route::get('/EvaluateRequest', function () {
+    return Inertia::render('EvaluateRequest');
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('EvaluateRequest');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/contracts/all', [ContractController::class, 'index'])->name('contracts.index');
+    Route::post('/contract', [ContractController::class, 'store'])->name('contracts.store');
+});
+
 Route::get('/manage/contracts', function () {
     return Inertia::render('ManageContracts');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('manageContracts');
 
-//appoinments
-Route::get('/appoinments', function () {
-    return Inertia::render('Appoinments');
-})->middleware(['auth', 'verified', 'role:admin,Tenant,Owner'])->name('appoinments');
+//appointments
+Route::get('/appointments', function () {
+    return Inertia::render('Appointments', [
+        'user' => auth()->user()
+    ]);
+})->middleware(['auth', 'verified', 'role:admin,Tenant,Owner'])->name('appointments');
 
 //Evaluacion de solicitudes
 Route::get('/tenant-requests', function () {

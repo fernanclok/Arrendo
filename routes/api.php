@@ -6,9 +6,8 @@ use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ZoneController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\RentalApplicationController;
-use App\Http\Controllers\AppoinmentController;
+use App\Http\Controllers\AppointmentController;
 use App\Models\Appoinment;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -32,7 +31,6 @@ Route::prefix('contracts')->group(function () {
     Route::get('/user_tenant', [ContractController::class, 'getTenantUsers']);
 });
 
-
 // zones
 Route::get('/zones', [ZoneController::class, 'getZones']);
 
@@ -42,8 +40,21 @@ Route::prefix('properties')->group(function () {
     Route::post('/create', [PropertyController::class, 'create']);
     Route::get('/filter', [PropertyController::class, 'getFilteredProperties']);
     Route::get('/getProperties', [PropertyController::class, 'getProperties']);
+
     Route::get('/getPropertyDetails/{id}', [PropertyController::class, 'getPropertyDetails']);
-    Route::post('/appointment', [AppoinmentController::class, 'createAppoinment']);
+    Route::post('/appointment', [AppointmentController::class, 'createAppoinment']);
     Route::get('/applications', [PropertyController::class, 'getAllApplications']);
     Route::post('/applicate', [PropertyController::class, 'createApplication']);
 });
+
+// appointments
+Route::prefix('appointments')->group(function () {
+    Route::get('/',[AppointmentController::class, 'getUserAppointments']);
+});
+
+Route::prefix('rental-applications')->group(function(){
+    Route::get('/', [RentalApplicationController::class, 'index']);
+    Route::post('/{id}/approve', [RentalApplicationController::class, 'approve']);
+    Route::post('/{id}/reject', [RentalApplicationController::class, 'reject']);
+});
+
