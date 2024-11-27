@@ -31,7 +31,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // Dashboard
-Route::middleware(['auth', 'verified','role:Owner'])->group(function () {
+Route::middleware(['auth', 'verified', 'role:Owner'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/dashboard/settings', function () {
@@ -61,7 +61,9 @@ Route::get('/my-properties', function () {
 //search properties
 Route::get('/search-properties', function () {
     return Inertia::render('SearchProperties');
-})->middleware(['auth','verified','role:Tenant'])->name('searchProperties');
+})->middleware(['auth', 'verified', 'role:Tenant'])->name('searchProperties');
+
+
 
 // contracts
 Route::get('/contracts', function () {
@@ -72,6 +74,13 @@ Route::get('/manage/contracts', function () {
     return Inertia::render('ManageContracts');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('manageContracts');
 
+Route::get('/contracts-details/{id}', function ($id) {
+    return Inertia::render('Contracts/detailsContract');
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('ContractDetails');
+
+Route::get('/all-contracts', function () {
+    return Inertia::render('Contracts/allContract');
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('AllContracts');
 
 // rental applications
 Route::get('/TrackRequest', function () {
@@ -81,7 +90,6 @@ Route::get('/TrackRequest', function () {
 Route::get('/EvaluateRequest', function () {
     return Inertia::render('EvaluateRequest');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('EvaluateRequest');
-
 
 Route::middleware('auth')->group(function () {
     Route::get('/contracts/all', [ContractController::class, 'index'])->name('contracts.index');
@@ -95,19 +103,20 @@ Route::get('/appointments', function () {
     ]);
 })->middleware(['auth', 'verified', 'role:admin,Tenant,Owner'])->name('appointments');
 
+
 //Maintenance
 Route::get('/maintenance', function () {
     return Inertia::render('Maintenance/ShowMaintenance');
 })->middleware([])->name('maintenance');
 
 Route::get('/maintenance/create', [MaintenanceController::class, 'create'])
-->name('maintenance.create');
+    ->name('maintenance.create');
 
 Route::post('/maintenance/store', [MaintenanceController::class, 'store'])
-->name('maintenance.store');
+    ->name('maintenance.store');
 
 Route::get('/maintenance/{id}', [MaintenanceController::class, 'show'])
-->name('maintenance.show');
+    ->name('maintenance.show');
 
 //Registro propiedades
 Route::get('/registro-propiedad', function () {
