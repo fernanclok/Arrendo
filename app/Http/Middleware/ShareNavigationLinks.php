@@ -15,7 +15,7 @@ class ShareNavigationLinks
             $allowedRoutes = [
                 'Owner' => [
                     ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'monitor-dashboard'],
-                    ['route' => 'contracts', 'label' => 'contracts', 'icon' => 'file'],
+                    ['route' => 'AllContracts', 'label' => 'contracts', 'icon' => 'file'],
                     ['route' => 'appointments', 'label' => 'Appointments', 'icon' => 'calendar'],
                     ['route' => 'myProperties', 'label' => 'My Properties', 'icon' => 'home'],
                     ['route' => 'EvaluateRequest', 'label' => 'Request', 'icon' => 'account-question']
@@ -30,7 +30,7 @@ class ShareNavigationLinks
             ];
 
             $userRole = Auth::user() ? Auth::user()->role : null;
-           
+
 
             // Si el usuario es un administrador o superadministrador, devolver todas las rutas
             if (in_array($userRole, ['admin', 'superadmin'])) {
