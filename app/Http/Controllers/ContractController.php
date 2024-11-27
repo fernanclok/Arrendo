@@ -97,7 +97,7 @@ class ContractController extends Controller
             return response()->json(['error' => 'Error fetching tenant users'], 500);
         }
     }
-    
+
     public function getContract($id)
     {
         // Obtener un contrato por su ID con sus relaciones

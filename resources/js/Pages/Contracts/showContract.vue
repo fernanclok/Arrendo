@@ -53,9 +53,9 @@ onMounted(() => {
               <nav class="block bg-gray-100 rounded-lg shadow-lg p-2 h-[600px]">
                 <div class="block justify-between items-center p-2">
                     <div class="flex justify-center text-center items-center">
-                        <h1 class="text-lg font-bold w-full flex">Contracts</h1> 
+                        <h1 class="text-lg font-bold w-full flex">Preview</h1> 
                         <Link href="/all-contracts" class="w-full">
-                            <CustomButton>Manage Contracts</CustomButton>
+                            <CustomButton> Manage Contracts</CustomButton>
                         </Link>
                     </div>
                     <nav class="flex justify-center text-sm w-full text-gray-500">

@@ -158,9 +158,9 @@ onMounted(() => {
   
         <!-- Go Back Button -->
         <div class="mt-8 flex justify-center">
-        <Link  href="/contracts">
+        <Link  href="/all-contracts">
             <CustomButton class="bg-primary text-white py-3 px-8 rounded-lg shadow-md hover:bg-green-600 transition">
-            <p class="font-semibold">Volver a Contratos</p>
+            <p class="font-semibold">Back to Contracts</p>
           </CustomButton>
         </Link>
         </div>
