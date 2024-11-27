@@ -14,24 +14,24 @@ class ShareNavigationLinks
         Inertia::share('navLinks', function () {
             $allowedRoutes = [
                 'Owner' => [
-                    ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'home'],
-                    ['route' => 'contracts', 'label' => 'contracts', 'icon' => 'file'],
-                    ['route' => 'appoinments', 'label' => 'Appoinments', 'icon' => 'calendar'],
+                    ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'monitor-dashboard'],
+                    ['route' => 'AllContracts', 'label' => 'contracts', 'icon' => 'file'],
+                    ['route' => 'appointments', 'label' => 'Appointments', 'icon' => 'calendar'],
                     ['route' => 'myProperties', 'label' => 'My Properties', 'icon' => 'home'],
+                    ['route' => 'maintenanceOwner','label' => 'Maintenance','icon'=> 'hammer-wrench'],
                     ['route' => 'EvaluateRequest', 'label' => 'Request', 'icon' => 'account-question']
                 ],
                 'Tenant' => [
-                    ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'home'],
+                    ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'monitor-dashboard'],
                     ['route' => 'searchProperties', 'label' => 'Properties', 'icon' => 'home'],
-                    ['route' => 'appoinments', 'label' => 'Appoinments', 'icon' => 'calendar'],
+                    ['route' => 'appointments', 'label' => 'Appointments', 'icon' => 'calendar'],
                     ['route' => 'maintenance','label' => 'Maintenance','icon'=> 'hammer-wrench'],
-                    ['route' => 'TrackRequest', 'label' => 'Request', 'icon' => 'account-question']
-                    ['route' => 'tenantRequest', 'label' => 'My Properties', 'icon' => 'application-edit'],
+                    ['route' => 'TrackRequest', 'label' => 'Applications', 'icon' => 'account-question'],
                 ],
             ];
 
             $userRole = Auth::user() ? Auth::user()->role : null;
-           
+
 
             // Si el usuario es un administrador o superadministrador, devolver todas las rutas
             if (in_array($userRole, ['admin', 'superadmin'])) {
