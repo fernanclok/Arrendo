@@ -36,7 +36,7 @@ Route::middleware(['auth', 'verified','role:Owner'])->group(function () {
 
     Route::get('/dashboard/settings', function () {
         return Inertia::render('Dashboard', [
-            'auth' => Auth::user(), // Pasa los datos de autenticación
+            'auth' => Auth::user(),
             'childComponent' => 'Settings',
         ]);
     })->name('dashboard.settings');
@@ -47,9 +47,9 @@ Route::get('/properties', function () {
     return Inertia::render('Properties');
 })->name('properties');
 
-Route::get('/detailprop', function () {
-    return Inertia::render('DetailPropertie');
-})->name('detailproperties');
+// Route::get('/detailprop', function () {
+//     return Inertia::render('DetailPropertie');  ---que show con esto al que le toco
+// })->name('detailproperties');
 
 //my properties
 Route::get('/my-properties', function () {
@@ -68,6 +68,12 @@ Route::get('/contracts', function () {
     return Inertia::render('Contracts/showContract');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('contracts');
 
+Route::get('/manage/contracts', function () {
+    return Inertia::render('ManageContracts');
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('manageContracts');
+
+
+// rental applications
 Route::get('/TrackRequest', function () {
     return Inertia::render('TrackRequest');
 })->middleware(['auth', 'verified', 'role:Tenant'])->name('TrackRequest');
@@ -76,14 +82,11 @@ Route::get('/EvaluateRequest', function () {
     return Inertia::render('EvaluateRequest');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('EvaluateRequest');
 
+
 Route::middleware('auth')->group(function () {
     Route::get('/contracts/all', [ContractController::class, 'index'])->name('contracts.index');
     Route::post('/contract', [ContractController::class, 'store'])->name('contracts.store');
 });
-
-Route::get('/manage/contracts', function () {
-    return Inertia::render('ManageContracts');
-})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('manageContracts');
 
 //appointments
 Route::get('/appointments', function () {
@@ -91,11 +94,6 @@ Route::get('/appointments', function () {
         'user' => auth()->user()
     ]);
 })->middleware(['auth', 'verified', 'role:admin,Tenant,Owner'])->name('appointments');
-
-//Evaluacion de solicitudes
-Route::get('/tenant-requests', function () {
-    return Inertia::render('TenantEvaluations'); // Nombre del componente Vue 
-})->middleware(['auth', 'verified', 'role:Owner'])->name('tenantRequest');
 
 //Maintenance
 Route::get('/maintenance', function () {
