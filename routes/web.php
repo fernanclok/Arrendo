@@ -31,15 +31,10 @@ Route::middleware('auth')->group(function () {
 });
 
 // Dashboard
-Route::middleware(['auth', 'verified','role:Owner'])->group(function () {
+Route::middleware(['auth', 'verified', 'role:Owner'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/dashboard/settings', function () {
-        return Inertia::render('Dashboard', [
-            'auth' => Auth::user(), // Pasa los datos de autenticación
-            'childComponent' => 'Settings',
-        ]);
-    })->name('dashboard.settings');
+    Route::get('/dashboard/settings', [DashboardController::class, 'index'])->name('dashboard.settings');
 });
 
 //properties
@@ -61,7 +56,7 @@ Route::get('/my-properties', function () {
 //search properties
 Route::get('/search-properties', function () {
     return Inertia::render('SearchProperties');
-})->middleware(['auth','verified','role:Tenant'])->name('searchProperties');
+})->middleware(['auth', 'verified', 'role:Tenant'])->name('searchProperties');
 
 // contracts
 Route::get('/contracts', function () {
@@ -83,17 +78,17 @@ Route::get('/maintenance', function () {
 })->middleware([])->name('maintenance');
 
 Route::get('/maintenance/create', [MaintenanceController::class, 'create'])
-->name('maintenance.create');
+    ->name('maintenance.create');
 
 Route::post('/maintenance/store', [MaintenanceController::class, 'store'])
-->name('maintenance.store');
+    ->name('maintenance.store');
 
 Route::get('/maintenance/{id}', [MaintenanceController::class, 'show'])
-->name('maintenance.show');
+    ->name('maintenance.show');
 
 //Registro propiedades
 Route::get('/registro-propiedad', function () {
-    return Inertia::render('RegistroPropiedad'); // Nombre del componente Vue 
+    return Inertia::render('RegistroPropiedad'); // Nombre del componente Vue
 })->name('registro.propiedad');
 
 require __DIR__ . '/auth.php';

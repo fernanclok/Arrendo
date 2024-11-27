@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ZoneController;
 use App\Http\Controllers\PropertyController;
+use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,3 +41,7 @@ Route::prefix('properties')->group(function () {
     Route::get('/filter', [PropertyController::class, 'getFilteredProperties']);
     Route::get('/getProperties', [PropertyController::class, 'getProperties']);
 });
+
+// dashboard
+Route::get('/payment-history/{tenantUserId}', [DashboardController::class, 'getPaymentHistory']);
+Route::get('/rented-property/{tenantUserId}', [DashboardController::class, 'getRentedProperty']);

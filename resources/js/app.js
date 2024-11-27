@@ -6,6 +6,9 @@ import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 
+import VCalendar, { Calendar } from "v-calendar";
+import "v-calendar/dist/style.css";
+
 
 const appName = import.meta.env.VITE_APP_NAME || 'Arrendo';
 
@@ -16,6 +19,7 @@ createInertiaApp({
         return createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(ZiggyVue)
+            .use(VCalendar,{})
             .mount(el);
     },
     progress: {
