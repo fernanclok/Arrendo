@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ZoneController;
 use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\RentalApplicationController;
 use App\Http\Controllers\AppointmentController;
 use App\Models\Appoinment;
@@ -61,5 +62,20 @@ Route::prefix('rental-applications')->group(function(){
     Route::get('/', [RentalApplicationController::class, 'index']);
     Route::post('/{id}/approve', [RentalApplicationController::class, 'approve']);
     Route::post('/{id}/reject', [RentalApplicationController::class, 'reject']);
+});
+
+//Maintenace
+Route::prefix('maintenance')->group(function () {
+    Route::get('/', [MaintenanceController::class, 'index']);
+    Route::post('/store', [MaintenanceController::class, 'store']);
+    Route::patch('/{id}',[MaintenanceController::class, 'update']);
+    Route::get('/getPropertyByTenant', [MaintenanceController::class, 'getPropertyByTenant']);
+});
+//MaintenaceOwner
+Route::prefix('maintenanceOwner')->group(function () {
+    Route::get('/properties', [MaintenanceController::class, 'getProperties']); // Listar propiedades
+    Route::get('/maintenancesReq', [MaintenanceController::class, 'getRequestsByProperty']); // Listar solicitudes por propiedad
+    Route::put('/maintenancesReq/{id}', [MaintenanceController::class, 'updateRequest']);
+  
 });
 
