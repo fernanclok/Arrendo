@@ -246,7 +246,7 @@ import { ref } from 'vue';
       
       
               <!-- Upload Section -->
-              <form @submit.prevent="enviarFotos" class="space-y-6">
+        <form @submit.prevent="enviarFotos" class="space-y-6">
           <div class="border-2 border-dashed border-primary p-6 rounded-lg text-center">
             <p class="text-orange-600 mb-4">Arrastra o agrega las fotos del inmueble</p>
             <input
@@ -257,6 +257,8 @@ import { ref } from 'vue';
               class="hidden"
               ref="fileInput"
             />
+
+            
             <button
               type="button"
               class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-700"
@@ -266,15 +268,7 @@ import { ref } from 'vue';
             </button>
           </div>
   
-          <div v-if="files.length > 0" class="grid grid-cols-2 gap-4 mt-6">
-            <div
-              v-for="(file, index) in files"
-              :key="index"
-              class="relative border rounded-lg p-2 bg-gray-50">
-              <img :src="file.preview" alt="Foto subida" class="rounded-lg mb-2">
-              <p class="text-sm text-center">{{ file.name }}</p>
-            </div>
-          </div>
+
         </form>
 
       <div class="flex justify-between mt-6">

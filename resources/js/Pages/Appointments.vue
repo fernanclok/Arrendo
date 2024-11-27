@@ -1,18 +1,20 @@
 <script setup>
-import { ref, onMounted } from 'vue';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import { Head } from '@inertiajs/vue3';
 </script>
 
 <template>
+
+    <Head title="Appointments" />
+
     <DashboardLayout>
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="overflow-hidden">
                     <div class="p-6">
                         <h1 class="text-2xl font-semibold text-gray-900 mb-6">Your Appointments</h1>
 
-                        <div v-if="appointments.length === 0" class="text-gray-600">
+                        <div v-if="appointments.length === 0" class="flex items-center justify-center h-64 text-gray-600 text-lg">
                             You have no appointments scheduled.
                         </div>
 
@@ -28,7 +30,7 @@ import { Head } from '@inertiajs/vue3';
                                             <p class="font-medium text-gray-900">
                                                 {{ formatDateTime(appointment.requested_date) }}
                                             </p>
-                                            <p class="text-sm text-gray-600">Property: {{ appointment.property.name }}
+                                            <p class="text-sm text-gray-600">Property: {{ appointment.property.street }}, {{ appointment.property.city }}, {{ appointment.property.state }}
                                             </p>
                                         </div>
                                     </div>
@@ -89,47 +91,13 @@ import { Head } from '@inertiajs/vue3';
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
+    props: ['user'],
     data() {
         return {
-            appointments: [
-                {
-                    id: 1,
-                    requested_date: '2024-11-16T10:00:00Z',
-                    confirmation_date: '2024-11-15T12:00:00Z',
-                    status: 'Confirmed',
-                    isOpen: false, // Estado del acordeón
-                    property: {
-                        name: 'Sunny Apartment',
-                        address: '123 Sunshine St.',
-                        rental_rate: 1200.0,
-                        availability: 'Available',
-                        total_bathrooms: 2,
-                        total_rooms: 3,
-                        total_m2: 120,
-                        have_parking: true,
-                        property_price: 250000.0,
-                    },
-                },
-                {
-                    id: 2,
-                    requested_date: '2024-11-17T12:00:00Z',
-                    confirmation_date: null,
-                    status: 'Pending',
-                    isOpen: false,
-                    property: {
-                        name: 'Modern Condo',
-                        address: '456 Modern Ave.',
-                        rental_rate: 1500.0,
-                        availability: 'Available',
-                        total_bathrooms: 3,
-                        total_rooms: 4,
-                        total_m2: 150,
-                        have_parking: true,
-                        property_price: 350000.0,
-                    },
-                },
-            ],
+            appointments: [],
         };
     },
     methods: {
@@ -142,6 +110,19 @@ export default {
                 }
             });
         },
+        handleGetAppointments() {
+            axios.get('/api/appointments', {
+                params: {
+                    user_id: this.user.id
+                }
+            })
+                .then((response) => {
+                    this.appointments = response.data;
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        },
         editAppointment(id) {
             console.log(`Editing appointment with ID: ${id}`);
         },
@@ -151,6 +132,9 @@ export default {
         formatDateTime(date) {
             return new Date(date).toLocaleString();
         },
+    },
+    mounted() {
+        this.handleGetAppointments();
     },
 };
 </script>

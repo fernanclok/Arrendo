@@ -1,13 +1,12 @@
 <script setup>
 import CustomButton from '@/Components/CustomButton.vue';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
-import { Head, usePage } from '@inertiajs/vue3';
+import { Head, usePage,Link } from '@inertiajs/vue3';
 import { ref, computed, onMounted  } from 'vue';
 import manageContracts from './manageContracts.vue';
 
 const user = usePage().props.auth.user;
 const contracts = ref([]);
-console.log(contracts)
 const filterStatus = ref('all'); // valor por defecto
 
 const getContracts = async () => {
@@ -38,11 +37,6 @@ const filter = (status) => {
     filterStatus.value = status;
 };
 
-const showContract = (key) => {
-    // Redirigir a la página de detalles del contrato
-    return window.location.href = `/contracts/details/${key}`;
-};
-
 // Llamar a getContracts cuando el componente se monte
 onMounted(() => {
     getContracts(); 
@@ -58,7 +52,12 @@ onMounted(() => {
               </nav>
               <nav class="block bg-gray-100 rounded-lg shadow-lg p-2 h-[600px]">
                 <div class="block justify-between items-center p-2">
-                    <h1 class="text-lg font-bold w-full flex">Contracts</h1>
+                    <div class="flex justify-center text-center items-center">
+                        <h1 class="text-lg font-bold w-full flex">Preview</h1> 
+                        <Link href="/all-contracts" class="w-full">
+                            <CustomButton> Manage Contracts</CustomButton>
+                        </Link>
+                    </div>
                     <nav class="flex justify-center text-sm w-full text-gray-500">
                         <button @click="filter('all')" class="p-2 flex justify-center text-center items-center group rounded-lg">
                             <i class="mdi mdi-circle pr-2 text-blue-700 group-hover:text-blue-500"></i>
@@ -98,7 +97,9 @@ onMounted(() => {
 
                             <div class="grid grid-cols-3 md:grid-cols-3 gap-2 justify-center items-center text-center py-2">
                                 <div class="items-center">
-                                    <CustomButton @click="showContract(contract.id)" :key="contract.id" class="">Details</CustomButton>
+                                    <Link :href="`/contracts-details/${contract.id}`">
+                                    <CustomButton>Details</CustomButton>
+                                    </Link>
                                 </div>
                                 <div class="items-center">
                                     <span class="text-sm font-bold text-start ">Start Date:</span><p class="text-xs"> {{ contract.start_date }}</p>
