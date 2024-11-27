@@ -161,29 +161,29 @@ import { Head, usePage } from '@inertiajs/vue3';
                 :class="{ 'translate-x-full': !showDetails, 'translate-x-0': showDetails }">
                 <h2 class="text-2xl font-bold mb-4">{{ selectedProperty.street }}, {{ selectedProperty.number }}</h2>
                 <p class="text-gray-600">
-                    Zona: {{ selectedProperty.zone_name }}, {{ selectedProperty.city }}, {{ selectedProperty.state }} -
+                    Zone: {{ selectedProperty.zone_name }}, {{ selectedProperty.city }}, {{ selectedProperty.state }} -
                     CP {{ selectedProperty.postal_code }}
                 </p>
 
                 <!-- Especificaciones clave -->
                 <div class="mt-4">
-                    <p><strong>Precio:</strong> ${{ selectedProperty.property_price }}</p>
-                    <p><strong>Habitaciones:</strong> {{ selectedProperty.total_rooms }}</p>
-                    <p><strong>Baños:</strong> {{ selectedProperty.total_bathrooms }}</p>
-                    <p><strong>Metros cuadrados:</strong> {{ selectedProperty.total_m2 }}</p>
-                    <p><strong>Estacionamiento:</strong> {{ selectedProperty.have_parking ? "Sí" : "No" }}</p>
-                    <p><strong>Acepta mascotas:</strong> {{ selectedProperty.accept_mascots ? "Sí" : "No" }}</p>
+                    <p><strong>Price:</strong> ${{ selectedProperty.property_price }}</p>
+                    <p><strong>Rooms:</strong> {{ selectedProperty.total_rooms }}</p>
+                    <p><strong>Bathrooms:</strong> {{ selectedProperty.total_bathrooms }}</p>
+                    <p><strong>Square meters:</strong> {{ selectedProperty.total_m2 }}</p>
+                    <p><strong>Parking:</strong> {{ selectedProperty.have_parking ? "Yes" : "No" }}</p>
+                    <p><strong>Accepts pets:</strong> {{ selectedProperty.accept_mascots ? "Yes" : "No" }}</p>
                 </div>
 
                 <!-- Detalles adicionales -->
                 <div class="mt-4">
-                    <h3 class="text-lg font-bold">Detalles:</h3>
+                    <h3 class="text-lg font-bold">Details:</h3>
                     <p class="text-gray-700">{{ selectedProperty.property_details }}</p>
                 </div>
 
                 <!-- Galería de fotos -->
                 <div v-if="selectedProperty.property_photos_path" class="mt-4">
-                    <h3 class="text-lg font-bold">Fotos:</h3>
+                    <h3 class="text-lg font-bold">Photos:</h3>
                     <img v-for="(url, key) in selectedProperty.property_photos_path" :key="key" :src="url"
                         alt="Property photo" class="w-full h-auto mb-2 rounded" />
                 </div>
@@ -201,20 +201,29 @@ import { Head, usePage } from '@inertiajs/vue3';
         <div v-if="scheduleAppointment"
             class="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center">
             <div class="bg-white p-6 rounded-lg">
-                <h2 class="text-2xl font-bold mb-4">Schedule an Appointment</h2>
-                <p class="text-gray-600">house id: {{ selectedProperty.id }}</p>
-                <p class="text-gray-600">The owner will be notified of your request.</p>
+                <h2 class="text-2xl font-bold mb-2">Schedule an Appointment</h2>
+                <p class="text-gray-600 mb-2">The owner will be notified of your request.</p>
                 <form @submit.prevent="ApplyToAnAppointment(selectedProperty.id)">
                     <div class="mb-4">
                         <label for="requested_date" class="block text-sm font-medium text-gray-700">Requested
                             Date</label>
                         <input type="datetime-local" v-model="appointmentForm.requested_date" id="requested_date"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-700 focus:ring focus:ring-green-700 focus:ring-opacity-50">
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-700 focus:ring focus:ring-green-700 focus:ring-opacity-50"
+                            :min="minDateTime" :max="maxDateTime"
+                            @change="checkDisabledDate(appointmentForm.requested_date)">
+                        <p v-if="isDateDisabled" class="text-red-500 text-sm mt-2">
+                            This date is already booked. Please select a different date.
+                        </p>
+                        <p class="text-gray-600 text-sm mt-2">
+                            Please try to select a time with at least one hour difference from the booked times.
+                        </p>
                     </div>
                     <div class="flex justify-end">
-                        <CustomButton @click="scheduleAppointment = false">Close</CustomButton>
-                        <button type="submit"
-                            class="ml-2 inline-flex items-center px-3 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-primary text-white hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:ring-green-500">Submit</button>
+                        <CustomButton type="cancel" @click="scheduleAppointment = false">Close</CustomButton>
+                        <button type="submit" :class="{
+                            'ml-2 inline-flex items-center px-3 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-primary text-white hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:ring-green-500': !isDateDisabled,
+                            'ml-2 inline-flex items-center px-3 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-gray-200 text-gray-700 cursor-not-allowed': isDateDisabled
+                        }" :disabled="isDateDisabled">Submit</button>
                     </div>
                 </form>
             </div>
@@ -226,6 +235,12 @@ import { Head, usePage } from '@inertiajs/vue3';
 <script>
 export default {
     data() {
+        const now = new Date();
+        const minDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+
+        const maxDate = new Date(now);
+        maxDate.setMonth(now.getMonth() + 6);
+        const maxDateTime = new Date(maxDate.getTime() - maxDate.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
         return {
             showDetails: false,
             scheduleAppointment: false,
@@ -235,11 +250,13 @@ export default {
             selectedPrice: 0,
             isRefreshing: false,
             properties: [],
-            propertyDetails: [],
             appointmentForm: {
                 requested_date: '',
             },
             selectedProperty: {},
+            isDateDisabled: false,
+            minDateTime,
+            maxDateTime,
             user: null,
             zones: [
                 { id: 1, name: 'Centro' },
@@ -288,16 +305,6 @@ export default {
             axios.get('/api/properties/getProperties')
                 .then(response => {
                     this.properties = response.data;
-                })
-                .catch(error => {
-                    console.error(error);
-                });
-        },
-        getPropertyDetails(id) {
-            axios.get('/api/properties/getPropertyDetails/' + id)
-                .then(response => {
-                    this.propertyDetails = response.data;
-                    console.log(this.propertyDetails);
                 })
                 .catch(error => {
                     console.error(error);
@@ -376,15 +383,36 @@ export default {
                 .then(response => {
                     this.emmiter.emit('show_notification', {
                         title: 'Success',
-                        message: "Script Added Succesfully",
+                        message: `Appointment requested successfully! Check the status in <a href="/appointments" class="text-green-700 underline">Appointments</a>.`,
                         type: 'success'
                     });
                     this.scheduleAppointment = false;
                 })
                 .catch(error => {
                     console.error("Error applying to listing:", error.response?.data || error);
-                    alert("Failed to apply to the listing. Please try again.");
+                    this.emmiter.emit('show_notification', {
+                        title: 'Error',
+                        message: "Failed to apply. Please try again.",
+                        type: 'error'
+                    });
                 });
+        },
+        checkDisabledDate(selectedDate) {
+            const selectedDateObj = new Date(selectedDate);
+            const selectedDateTijuana = new Date(
+                selectedDateObj.toLocaleString("en-US", { timeZone: "America/Tijuana" })
+            );
+
+            this.isDateDisabled = this.selectedProperty.appointments.some((appointment) => {
+                const appointmentDateObj = new Date(
+                    new Date(appointment).toLocaleString("en-US", { timeZone: "America/Tijuana" })
+                );
+
+                const diffInMs = Math.abs(selectedDateTijuana - appointmentDateObj);
+                const diffInMinutes = diffInMs / (1000 * 60);
+
+                return diffInMinutes < 60;
+            });
         }
     },
     watch: {

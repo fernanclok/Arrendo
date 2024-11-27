@@ -6,8 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\Property;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-use App\Models\Rental_application;
 use Illuminate\Support\Facades\Validator;
+
+use App\Models\Appoinment;
+use App\Models\Rental_application;
 
 class PropertyController extends Controller
 {
@@ -34,12 +36,23 @@ class PropertyController extends Controller
             ->select('properties.*', 'zones.name as zone_name')
             ->where('properties.id', $id)
             ->firstOrFail();
-    
+
         $photos = $property->property_photos_path ? json_decode($property->property_photos_path, true) : [];
         $property->property_photos_path = is_array($photos)
             ? array_map(fn($photo) => asset($photo), $photos)
             : [];
-    
+
+        // Obtener las citas relacionadas con la propiedad
+        $appointments = Appoinment::where('property_id', $id)
+            ->select('requested_date')
+            ->get()
+            ->map(function ($appointment) {
+                return $appointment->requested_date; // Solo devolver las fechas
+            });
+
+        // Agregar las citas al resultado de la propiedad
+        $property->appointments = $appointments;
+
         return response()->json($property);
     }
 
@@ -190,7 +203,7 @@ class PropertyController extends Controller
     }
 
     public function getAllApplications()
-    { 
+    {
         //$application = Rental_application::all();
 
         $application = DB::table('rental_applications')->get();
@@ -202,7 +215,7 @@ class PropertyController extends Controller
 
         return response()->json($data);
     }
-    
+
     public function createApplication(Request $request)
     {
 
@@ -213,14 +226,14 @@ class PropertyController extends Controller
             'status' => 'required'
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             $data = [
                 'message' => 'Error en la validacion de los datos',
                 'error' => $validator->errors(),
                 'status' => 200
             ];
-            
-            return response()->json($data,400);
+
+            return response()->json($data, 400);
         }
 
         // $exists = Rental_application::where('property_id', $request->property_id)
@@ -240,9 +253,9 @@ class PropertyController extends Controller
 
         // Verificar si ya existe una aplicación con los mismos datos
         $exists = DB::table('rental_applications')
-        ->where('property_id', $request->property_id)
-        ->where('tenant_user_id', $request->tenant_user_id)
-        ->exists();
+            ->where('property_id', $request->property_id)
+            ->where('tenant_user_id', $request->tenant_user_id)
+            ->exists();
 
         if ($exists) {
             return response()->json(['message' => 'You have already applied to this property'], 409);
@@ -255,7 +268,7 @@ class PropertyController extends Controller
             'status' => $request->status
         ]);
 
-        if(!$application){
+        if (!$application) {
             $data = [
                 'message' => 'Error creating the application',
                 'status' => 500
