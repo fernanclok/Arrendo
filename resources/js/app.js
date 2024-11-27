@@ -20,7 +20,6 @@ createInertiaApp({
             .use(plugin)
             .use(ZiggyVue)
             .use(VCalendar,{})
-            .mount(el);
 
         app.config.globalProperties.emmiter = emmiter;
         return app.mount(el);
