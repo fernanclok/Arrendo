@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ZoneController;
 use App\Http\Controllers\PropertyController;
+use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\RentalApplicationController;
 use App\Http\Controllers\AppointmentController;
@@ -65,6 +67,10 @@ Route::prefix('appointments')->group(function () {
     Route::get('/',[AppointmentController::class, 'getUserAppointments']);
 });
 
+// dashboard
+Route::get('/payment-history/{tenantUserId}', [DashboardController::class, 'getPaymentHistory']);
+Route::get('/rented-property/{tenantUserId}', [DashboardController::class, 'getRentedProperty']);
+
 Route::prefix('rental-applications')->group(function(){
     Route::get('/', [RentalApplicationController::class, 'index']);
     Route::post('/{id}/approve', [RentalApplicationController::class, 'approve']);
@@ -85,4 +91,5 @@ Route::prefix('maintenanceOwner')->group(function () {
     Route::put('/maintenancesReq/{id}', [MaintenanceController::class, 'updateRequest']);
   
 });
+
 
