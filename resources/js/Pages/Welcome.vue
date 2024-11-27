@@ -81,7 +81,8 @@ import TextInput from '@/Components/TextInput.vue';
                     class="w-full h-48 object-cover" v-if="property.property_photos_path.length" />
                 <div class="p-4">
                     <h2 class="text-xl font-bold mb-2">{{ property.zone_name }}</h2>
-                    <p class="text-gray-600 mb-2">{{ property.city }} {{ property.state }} , {{ property.street }}, {{ property.number }}</p>
+                    <p class="text-gray-600 mb-2">{{ property.city }} {{ property.state }} ,
+                       {{ property.street }} {{ property.number }}</p>
                     <div class="flex justify-between items-center mb-2">
                         <span class="flex items-center">
                             <!-- SVG Icon for rooms -->
@@ -108,7 +109,7 @@ import TextInput from '@/Components/TextInput.vue';
                 <div class="bg-gray-100 px-4 py-3 flex justify-between items-center">
                     <span class="text-lg font-bold flex items-center">
                       <icon class="mdi mdi-cash mr-2"></icon>
-                        ${{ property.property_price }}
+                        {{ property.property_price }} $MXN
                     </span>
                     <!-- <CustomButton v-if="property.id != activePropertyId" type="primary" @click="toggleDetails(property.id)">
                         View Details

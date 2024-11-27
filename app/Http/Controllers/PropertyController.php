@@ -16,6 +16,7 @@ class PropertyController extends Controller
 {
     public function getProperties() {
         $properties = Property::join('zones', 'zones.id', '=', 'properties.zone_id')
+            ->select('properties.*', 'zones.name as zone_name')
             ->where('availability', 'Available')
             ->get()
             ->map(function ($property) {
@@ -65,7 +66,19 @@ class PropertyController extends Controller
         $comment->property_id = $request->property_id;
         $comment->user_id = $request->user_id;
         $comment->save();
+    //
+        $comments = Comment::where('property_id', $request->property_id)->get();
+        $total = 0;
+        foreach ($comments as $comment) {
+            $total += $comment->comment_rate;
+        }
 
+        $property = Property::find($request->property_id);
+
+        $property->rental_rate = $total / count($comments);
+
+        $property->save();
+    //
         return response()->json([
             'status' => 'success',
             'message' => 'Comment created successfully'
