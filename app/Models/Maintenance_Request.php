@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 class Maintenance_request extends Model
 {
     use HasFactory;
-
+    protected $table = 'maintenance_requests';
     protected $fillable = [
         'property_id',
         'tenant_user_id',

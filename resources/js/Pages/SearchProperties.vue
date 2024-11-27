@@ -1,110 +1,17 @@
 <script setup>
+import { ref, onMounted } from 'vue';
+import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import CustomButton from '@/Components/CustomButton.vue';
 import TextInput from '@/Components/TextInput.vue';
-import { Head, Link } from '@inertiajs/vue3';
 import axios from 'axios';
-import { ref } from 'vue';
-
-// Datos falsos para las propiedades
-// const properties = ref([
-//     {
-//         id: 1,
-//         title: 'Beautiful Family House',
-//         description: 'A beautiful house located in a serene environment.',
-//         price: 1200,
-//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-//         address: '123 Main St',
-//         rooms: 3,
-//         bathrooms: 2,
-//     },
-//     {
-//         id: 2,
-//         title: 'Modern Apartment',
-//         description: 'A modern apartment with all the amenities you need.',
-//         price: 900,
-//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-//         address: '456 Elm St',
-//         rooms: 2,
-//         bathrooms: 1,
-//     },
-//     {
-//         id: 3,
-//         title: 'Cozy Cottage',
-//         description: 'A cozy cottage perfect for a small family.',
-//         price: 700,
-//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-//         address: '789 Oak St',
-//         rooms: 2,
-//         bathrooms: 1,
-//     },
-//     {
-//         id: 4,
-//         title: 'Cozy Cottage',
-//         description: 'A cozy cottage perfect for a small family.',
-//         price: 700,
-//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-//         address: '789 Oak St',
-//         rooms: 2,
-//         bathrooms: 1,
-//     },
-//     {
-//         id: 5,
-//         title: 'Cozy Cottage',
-//         description: 'A cozy cottage perfect for a small family.',
-//         price: 700,
-//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-//         address: '789 Oak St',
-//         rooms: 2,
-//         bathrooms: 1,
-//     },
-//     {
-//         id: 6,
-//         title: 'Cozy Cottage',
-//         description: 'A cozy cottage perfect for a small family.',
-//         price: 700,
-//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-//         address: '789 Oak St',
-//         rooms: 2,
-//         bathrooms: 1,
-//     },
-// ]);
-
+import { Head, usePage } from '@inertiajs/vue3';
 </script>
 
 <template>
-    <div class="flex flex-col min-h-screen">
-        <Head title="properties" />
 
-        <!-- Header Navbar -->
-        <header class="shadow">
-            <div class="container mx-auto px-4 py-4">
-                <div class="flex items-center justify-between">
-                    <Link to="/" class="flex items-center space-x-2">
-                    <span class="text-xl font-bold">Arrendo</span>
-                    </Link>
-                    <nav class="hidden md:flex space-x-4">
-                        <Link v-for="item in navItems" :key="item.href" :href="item.href"
-                            class="text-sm font-medium hover:underline">
-                        {{ item.label }}
-                        </Link>
-                    </nav>
+    <Head title="Search Properties" />
 
-                    <div class="flex items-center space-x-2">
-                        <Link href="registro-propiedad"
-                            class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-white text-gray-800 hover:bg-gray-100 focus:bg-gray-100 active:bg-gray-200 focus:ring-gray-300">
-                        Publicar
-                        </Link>
-                        <Link href="/login"
-                            class="inline-flex items-center px-3 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-primary text-white hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:ring-blue-500">
-                        Log In
-                        </Link>
-                    </div>
-
-                </div>
-            </div>
-        </header>
-
-        <!-- Main Content -->
+    <DashboardLayout>
         <main :class="{ 'flex': showDetails, 'block': !showDetails }" class="flex-grow relative overflow-hidden p-6">
             <div :class="{ 'w-full': !showDetails, 'w-full md:w-3/4': showDetails }" class="p-4 h-full overflow-y-auto">
                 <h1 class="text-3xl font-bold mb-6">Properties in Rent</h1>
@@ -250,102 +157,156 @@ import { ref } from 'vue';
                 </div>
             </div>
 
-            <div class="absolute top-0 right-0 h-full w-full md:w-1/4 bg-gray-100 p-4 overflow-y-auto transition-transform duration-300 transform"
-                :class="{ 'translate-x-full': !showDetails, 'translate-x-0': showDetails }">
-                <!-- Encabezado principal -->
-                <h2 class="text-2xl font-bold mb-4">{{ selectedProperty.street }}, {{ selectedProperty.number }}</h2>
-                <p class="text-gray-600">
-                    Zona: {{ selectedProperty.zone_name }}, {{ selectedProperty.city }}, {{ selectedProperty.state }} -
-                    CP {{ selectedProperty.postal_code }}
-                </p>
+            <div v-if="showDetails" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title"
+                role="dialog" aria-modal="true">
+                <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+                    <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75 backdrop-blur-sm"
+                        aria-hidden="true" @click="showDetails = false"></div>
 
-                <!-- Especificaciones clave -->
-                <div class="mt-4">
-                    <p><strong>Precio:</strong> ${{ selectedProperty.property_price }}</p>
-                    <p><strong>Habitaciones:</strong> {{ selectedProperty.total_rooms }}</p>
-                    <p><strong>Baños:</strong> {{ selectedProperty.total_bathrooms }}</p>
-                    <p><strong>Metros cuadrados:</strong> {{ selectedProperty.total_m2 }}</p>
-                    <p><strong>Estacionamiento:</strong> {{ selectedProperty.have_parking ? "Sí" : "No" }}</p>
-                    <p><strong>Acepta mascotas:</strong> {{ selectedProperty.accept_mascots ? "Sí" : "No" }}</p>
-                </div>
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-                <!-- Detalles adicionales -->
-                <div class="mt-4">
-                    <h3 class="text-lg font-bold">Detalles:</h3>
-                    <p class="text-gray-700">{{ selectedProperty.property_details }}</p>
-                </div>
+                    <div
+                        class="inline-block w-full max-w-4xl overflow-hidden text-left align-bottom transition-all transform bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg shadow-2xl sm:my-8 sm:align-middle sm:w-full animate-modal-appear">
+                        <div class="px-4 pt-5 pb-4 bg-opacity-30 sm:p-6 sm:pb-4">
+                            <div class="sm:flex sm:items-start">
+                                <div class="w-full mt-3 text-center sm:mt-0 sm:text-left">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <h3 class="text-2xl font-bold leading-6 text-white" id="modal-title">
+                                            {{ selectedProperty.street }}, {{ selectedProperty.number }}
+                                        </h3>
+                                        <button @click="showDetails = false"
+                                            class="text-gray-400 transition-colors duration-200 hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                                            <span class="sr-only">Close</span>
+                                            <i class="text-2xl mdi mdi-close" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                    <p class="mb-4 text-sm text-gray-300">
+                                        <i class="mr-2 mdi mdi-map-marker"></i>
+                                        {{ selectedProperty.zone_name }}, {{ selectedProperty.city }}, {{
+                                        selectedProperty.state }} - CP {{ selectedProperty.postal_code }}
+                                    </p>
 
-                <!-- Galería de fotos -->
-                <div v-if="selectedProperty.property_photos_path" class="mt-4">
-                    <h3 class="text-lg font-bold">Fotos:</h3>
-                    <img v-for="(url, key) in selectedProperty.property_photos_path" :key="key" :src="url"
-                        alt="Property photo" class="w-full h-auto mb-2 rounded" />
-                </div>
+                                    <div class="grid grid-cols-1 gap-6 mb-6 md:grid-cols-2">
+                                        <div class="p-4 bg-gray-700 bg-opacity-50 rounded-lg">
+                                            <h4 class="mb-2 text-lg font-semibold text-white">Key Specifications</h4>
+                                            <ul class="space-y-2 text-gray-300">
+                                                <li><i class="mr-2 mdi mdi-currency-usd"></i><strong>Price:</strong> ${{
+                                                    selectedProperty.property_price }}</li>
+                                                <li><i class="mr-2 mdi mdi-bed"></i><strong>Rooms:</strong> {{
+                                                    selectedProperty.total_rooms }}</li>
+                                                <li><i class="mr-2 mdi mdi-shower"></i><strong>Bathrooms:</strong> {{
+                                                    selectedProperty.total_bathrooms }}</li>
+                                                <li><i class="mr-2 mdi mdi-ruler"></i><strong>Square Meters:</strong> {{
+                                                    selectedProperty.total_m2 }}</li>
+                                                <li><i class="mr-2 mdi mdi-car"></i><strong>Parking:</strong> {{
+                                                    selectedProperty.have_parking ? "Yes" : "No" }}</li>
+                                                <li><i class="mr-2 mdi mdi-paw"></i><strong>Pets Allowed:</strong> {{
+                                                    selectedProperty.accept_mascots ? "Yes" : "No" }}</li>
+                                            </ul>
+                                        </div>
+                                        <div class="p-4 bg-gray-700 bg-opacity-50 rounded-lg">
+                                            <h4 class="mb-2 text-lg font-semibold text-white">Details</h4>
+                                            <p class="text-gray-300">{{ selectedProperty.property_details }}</p>
+                                        </div>
+                                    </div>
 
-                <!-- Botones -->
-                <div class="mt-4 flex justify-between">
-                    <CustomButton @click="showDetails = false">Close</CustomButton>
+                                    <div v-if="selectedProperty.property_photos_path" class="mb-6">
+                                        <h4 class="mb-2 text-lg font-semibold text-white">Photos</h4>
+                                        <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+                                            <div v-for="(url, key) in selectedProperty.property_photos_path" :key="key"
+                                                class="relative overflow-hidden rounded-lg group aspect-w-16 aspect-h-9">
+                                                <img :src="url" :alt="`Property photo ${key + 1}`"
+                                                    class="object-cover w-full h-full transition-transform duration-300 transform group-hover:scale-110" />
+                                                <div
+                                                    class="absolute inset-0 transition-opacity duration-300 bg-black bg-opacity-0 group-hover:bg-opacity-50">
+                                                </div>
+                                                <div
+                                                    class="absolute inset-0 flex items-center justify-center transition-opacity duration-300 opacity-0 group-hover:opacity-100">
+                                                    <i class="text-3xl text-white mdi mdi-magnify"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-4 py-3 bg-gray-700 bg-opacity-50 sm:px-6 sm:flex sm:flex-row-reverse">
+                            <button type="button"
+                                class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white transition-colors duration-200 bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
+                                @click="applyToListing(selectedProperty.id)">
+                                <i class="mr-2 mdi mdi-check"></i> Apply to this Listing
+                            </button>
+                            <button type="button"
+                                class="inline-flex justify-center w-full px-4 py-2 mt-3 text-base font-medium text-gray-700 transition-colors duration-200 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                                @click="scheduleAppointment = true">
+                                <i class="mr-2 mdi mdi-calendar"></i> Schedule a Visit
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
 
-        <!-- Footer -->
-        <footer class="text-black py-12 shadow-inner mt-auto ">
-            <div class="container mx-auto px-4">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                    <div>
-                        <h3 class="text-lg font-semibold mb-4">Arrendo</h3>
-                        <p class="text-sm text-gray-400">A New Way to Rent Houses</p>
+        <div v-if="scheduleAppointment"
+            class="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div class="bg-white p-6 rounded-lg">
+                <h2 class="text-2xl font-bold mb-2">Schedule an Appointment</h2>
+                <p class="text-gray-600 mb-2">The owner will be notified of your request.</p>
+                <form @submit.prevent="ApplyToAnAppointment(selectedProperty.id)">
+                    <div class="mb-4">
+                        <label for="requested_date" class="block text-sm font-medium text-gray-700">Requested
+                            Date</label>
+                        <input type="datetime-local" v-model="appointmentForm.requested_date" id="requested_date"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-700 focus:ring focus:ring-green-700 focus:ring-opacity-50"
+                            :min="minDateTime" :max="maxDateTime"
+                            @change="checkDisabledDate(appointmentForm.requested_date)">
+                        <p v-if="isDateDisabled" class="text-red-500 text-sm mt-2">
+                            This date is already booked. Please select a different date.
+                        </p>
+                        <p class="text-gray-600 text-sm mt-2">
+                            Please try to select a time with at least one hour difference from the booked times.
+                        </p>
                     </div>
-                    <div v-for="(column, index) in footerColumns" :key="index">
-                        <h4 class="text-lg font-semibold mb-4">{{ column.title }}</h4>
-                        <ul class="space-y-2">
-                            <li v-for="link in column.links" :key="link.href">
-                                <router-link :to="link.href" class="text-sm text-gray-400 hover:text-white">
-                                    {{ link.label }}
-                                </router-link>
-                            </li>
-                        </ul>
+                    <div class="flex justify-end">
+                        <CustomButton type="cancel" @click="scheduleAppointment = false">Close</CustomButton>
+                        <button type="submit" :class="{
+                            'ml-2 inline-flex items-center px-3 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-primary text-white hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:ring-green-500': !isDateDisabled,
+                            'ml-2 inline-flex items-center px-3 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-gray-200 text-gray-700 cursor-not-allowed': isDateDisabled
+                        }" :disabled="isDateDisabled">Submit</button>
                     </div>
-                    <div>
-                        <h4 class="text-lg font-semibold mb-4">Follow Us</h4>
-                        <div class="flex space-x-4">
-                            <a v-for="social in socialLinks" :key="social.name" :href="social.href"
-                                class="text-gray-400 hover:text-white">
-                                <span class="sr-only">{{ social.name }}</span>
-                                <component :is="social.icon" class="h-6 w-6" />
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="border-t border-primary pt-8 text-center">
-                    <p class="text-sm text-gray-400">&copy; {{ new Date().getFullYear() }} Arrendo. All Rights Reserved
-                    </p>
-                </div>
+                </form>
             </div>
-        </footer>
-    </div>
+        </div>
+
+    </DashboardLayout>
 </template>
 
 <script>
-const navItems = [
-    { href: '/', label: 'Home' },
-    { href: '/properties', label: 'Properties' },
-    { href: '/propietarios', label: 'Para propietarios' },
-    { href: '/contact', label: 'Contact' },
-]
-
 export default {
     data() {
+        const now = new Date();
+        const minDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+
+        const maxDate = new Date(now);
+        maxDate.setMonth(now.getMonth() + 6);
+        const maxDateTime = new Date(maxDate.getTime() - maxDate.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
         return {
             showDetails: false,
+            scheduleAppointment: false,
             showFilters: false,
             activePropertyId: null,
             priceOptions: ["5000", "7000", "10000", "+10000"],
             selectedPrice: 0,
             isRefreshing: false,
-            selectedProperty: {},
             properties: [],
+            appointmentForm: {
+                requested_date: '',
+            },
+            selectedProperty: {},
+            isDateDisabled: false,
+            minDateTime,
+            maxDateTime,
+            user: null,
             zones: [
                 { id: 1, name: 'Centro' },
                 { id: 2, name: 'Otay' },
@@ -377,7 +338,7 @@ export default {
             } else {
                 try {
                     const response = await axios.get(`/api/properties/getPropertyDetails/${propertyId}`);
-                    this.selectedProperty = response.data; // Guardamos los detalles de la propiedad
+                    this.selectedProperty = response.data;
                     this.activePropertyId = propertyId;
                     this.showDetails = true;
                 } catch (error) {
@@ -419,7 +380,7 @@ export default {
                 });
         },
         refreshFilters() {
-            this.isRefreshing = true; 
+            this.isRefreshing = true;
             this.propertiesSpecifications = {
                 selectedZone: '',
                 maxPrice: '',
@@ -435,8 +396,73 @@ export default {
 
             setTimeout(() => {
                 this.isRefreshing = false;
-            }, 0); 
+            }, 0);
         },
+        async applyToListing(propertyId) {
+            try {
+                const requestData = {
+                    property_id: propertyId,
+                    tenant_user_id: this.user.id, // ID del usuario autenticado
+                    application_date: new Date().toISOString().split('T')[0], // Fecha actual en formato YYYY-MM-DD
+                    status: 'Pending', // Estado inicial
+                };
+
+                const response = await axios.post('/api/properties/applicate', requestData);
+                alert("Application sent successfully!"); // Mensaje para éxito
+            } catch (error) {
+                // Verifica si el error es de validación u otro tipo
+                if (error.response && error.response.status === 409) {
+                    // Mostrar el mensaje del backend para errores específicos
+                    alert(error.response.data.message || "You have already applied to this property.");
+                } else {
+                    // Mensaje genérico para otros errores
+                    console.error("Error applying to listing:", error.response?.data || error);
+                    alert("Failed to apply to the listing. Please try again.");
+                }
+            }
+        },
+        ApplyToAnAppointment(propertyId) {
+            const form = {
+                property_id: propertyId,
+                tenant_user_id: this.user.id,
+                requested_date: this.appointmentForm.requested_date,
+                status: 'Pending'
+            };
+            axios.post('/api/properties/appointment', form)
+                .then(response => {
+                    this.emmiter.emit('show_notification', {
+                        title: 'Success',
+                        message: `Appointment requested successfully! Check the status in <a href="/appointments" class="text-green-700 underline">Appointments</a>.`,
+                        type: 'success'
+                    });
+                    this.scheduleAppointment = false;
+                })
+                .catch(error => {
+                    console.error("Error applying to listing:", error.response?.data || error);
+                    this.emmiter.emit('show_notification', {
+                        title: 'Error',
+                        message: "Failed to apply. Please try again.",
+                        type: 'error'
+                    });
+                });
+        },
+        checkDisabledDate(selectedDate) {
+            const selectedDateObj = new Date(selectedDate);
+            const selectedDateTijuana = new Date(
+                selectedDateObj.toLocaleString("en-US", { timeZone: "America/Tijuana" })
+            );
+
+            this.isDateDisabled = this.selectedProperty.appointments.some((appointment) => {
+                const appointmentDateObj = new Date(
+                    new Date(appointment).toLocaleString("en-US", { timeZone: "America/Tijuana" })
+                );
+
+                const diffInMs = Math.abs(selectedDateTijuana - appointmentDateObj);
+                const diffInMinutes = diffInMs / (1000 * 60);
+
+                return diffInMinutes < 60;
+            });
+        }
     },
     watch: {
         showDetails(newVal) {
@@ -449,7 +475,7 @@ export default {
                 this.filterProperties();
             }
         },
-        'propertiesSpecifications.selectedZone': function() {
+        'propertiesSpecifications.selectedZone': function () {
             if (!this.isRefreshing) {
                 this.filterProperties();
             }
@@ -467,6 +493,7 @@ export default {
     },
     mounted() {
         this.getProperties();
+        this.user = usePage().props.auth.user;
     }
 };
 </script>
@@ -478,7 +505,7 @@ input[type="range"]::-webkit-slider-thumb {
     height: 20px;
     width: 20px;
     border-radius: 50%;
-    background-color: #10b981; 
+    background-color: #10b981;
     border: 2px solid #10b981;
     cursor: pointer;
     transition: transform 0.2s ease-in-out;

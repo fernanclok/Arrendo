@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users');
             $table->dateTime('requested_date');
             $table->enum('status', ['Pending', 'Approved', 'Rejected']);
-            $table->dateTime('confirmation_date');
+            $table->dateTime('confirmation_date')->nullable();
             $table->timestamps();
         });
     }
