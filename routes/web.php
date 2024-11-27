@@ -57,6 +57,14 @@ Route::get('/contracts', function () {
     return Inertia::render('Contracts/showContract');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('contracts');
 
+Route::get('/TrackRequest', function () {
+    return Inertia::render('TrackRequest');
+})->middleware(['auth', 'verified', 'role:Tenant'])->name('TrackRequest');
+
+Route::get('/EvaluateRequest', function () {
+    return Inertia::render('EvaluateRequest');
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('EvaluateRequest');
+
 Route::middleware('auth')->group(function () {
     Route::get('/contracts/all', [ContractController::class, 'index'])->name('contracts.index');
     Route::post('/contract', [ContractController::class, 'store'])->name('contracts.store');

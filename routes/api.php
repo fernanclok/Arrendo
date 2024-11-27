@@ -7,6 +7,9 @@ use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ZoneController;
 use App\Http\Controllers\PropertyController;
 
+use App\Http\Controllers\RentalApplicationController;
+
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -32,3 +35,10 @@ Route::prefix('properties')->group(function () {
     Route::get('/filter', [PropertyController::class, 'getFilteredProperties']);
     Route::get('/getProperties', [PropertyController::class, 'getProperties']);
 });
+
+Route::prefix('rental-applications')->group(function(){
+    Route::get('/', [RentalApplicationController::class, 'index']);
+    Route::post('/{id}/approve', [RentalApplicationController::class, 'approve']);
+    Route::post('/{id}/reject', [RentalApplicationController::class, 'reject']);
+});
+
