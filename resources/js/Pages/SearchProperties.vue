@@ -157,43 +157,92 @@ import { Head, usePage } from '@inertiajs/vue3';
                 </div>
             </div>
 
-            <div class="absolute top-0 right-0 h-full w-full md:w-1/4 bg-gray-100 p-4 overflow-y-auto transition-transform duration-300 transform"
-                :class="{ 'translate-x-full': !showDetails, 'translate-x-0': showDetails }">
-                <h2 class="text-2xl font-bold mb-4">{{ selectedProperty.street }}, {{ selectedProperty.number }}</h2>
-                <p class="text-gray-600">
-                    Zona: {{ selectedProperty.zone_name }}, {{ selectedProperty.city }}, {{ selectedProperty.state }} -
-                    CP {{ selectedProperty.postal_code }}
-                </p>
+            <div v-if="showDetails" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title"
+                role="dialog" aria-modal="true">
+                <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+                    <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75 backdrop-blur-sm"
+                        aria-hidden="true" @click="showDetails = false"></div>
 
-                <!-- Especificaciones clave -->
-                <div class="mt-4">
-                    <p><strong>Precio:</strong> ${{ selectedProperty.property_price }}</p>
-                    <p><strong>Habitaciones:</strong> {{ selectedProperty.total_rooms }}</p>
-                    <p><strong>Baños:</strong> {{ selectedProperty.total_bathrooms }}</p>
-                    <p><strong>Metros cuadrados:</strong> {{ selectedProperty.total_m2 }}</p>
-                    <p><strong>Estacionamiento:</strong> {{ selectedProperty.have_parking ? "Sí" : "No" }}</p>
-                    <p><strong>Acepta mascotas:</strong> {{ selectedProperty.accept_mascots ? "Sí" : "No" }}</p>
-                </div>
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-                <!-- Detalles adicionales -->
-                <div class="mt-4">
-                    <h3 class="text-lg font-bold">Detalles:</h3>
-                    <p class="text-gray-700">{{ selectedProperty.property_details }}</p>
-                </div>
+                    <div
+                        class="inline-block w-full max-w-4xl overflow-hidden text-left align-bottom transition-all transform bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg shadow-2xl sm:my-8 sm:align-middle sm:w-full animate-modal-appear">
+                        <div class="px-4 pt-5 pb-4 bg-opacity-30 sm:p-6 sm:pb-4">
+                            <div class="sm:flex sm:items-start">
+                                <div class="w-full mt-3 text-center sm:mt-0 sm:text-left">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <h3 class="text-2xl font-bold leading-6 text-white" id="modal-title">
+                                            {{ selectedProperty.street }}, {{ selectedProperty.number }}
+                                        </h3>
+                                        <button @click="showDetails = false"
+                                            class="text-gray-400 transition-colors duration-200 hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                                            <span class="sr-only">Close</span>
+                                            <i class="text-2xl mdi mdi-close" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                    <p class="mb-4 text-sm text-gray-300">
+                                        <i class="mr-2 mdi mdi-map-marker"></i>
+                                        {{ selectedProperty.zone_name }}, {{ selectedProperty.city }}, {{
+                                        selectedProperty.state }} - CP {{ selectedProperty.postal_code }}
+                                    </p>
 
-                <!-- Galería de fotos -->
-                <div v-if="selectedProperty.property_photos_path" class="mt-4">
-                    <h3 class="text-lg font-bold">Fotos:</h3>
-                    <img v-for="(url, key) in selectedProperty.property_photos_path" :key="key" :src="url"
-                        alt="Property photo" class="w-full h-auto mb-2 rounded" />
-                </div>
+                                    <div class="grid grid-cols-1 gap-6 mb-6 md:grid-cols-2">
+                                        <div class="p-4 bg-gray-700 bg-opacity-50 rounded-lg">
+                                            <h4 class="mb-2 text-lg font-semibold text-white">Key Specifications</h4>
+                                            <ul class="space-y-2 text-gray-300">
+                                                <li><i class="mr-2 mdi mdi-currency-usd"></i><strong>Price:</strong> ${{
+                                                    selectedProperty.property_price }}</li>
+                                                <li><i class="mr-2 mdi mdi-bed"></i><strong>Rooms:</strong> {{
+                                                    selectedProperty.total_rooms }}</li>
+                                                <li><i class="mr-2 mdi mdi-shower"></i><strong>Bathrooms:</strong> {{
+                                                    selectedProperty.total_bathrooms }}</li>
+                                                <li><i class="mr-2 mdi mdi-ruler"></i><strong>Square Meters:</strong> {{
+                                                    selectedProperty.total_m2 }}</li>
+                                                <li><i class="mr-2 mdi mdi-car"></i><strong>Parking:</strong> {{
+                                                    selectedProperty.have_parking ? "Yes" : "No" }}</li>
+                                                <li><i class="mr-2 mdi mdi-paw"></i><strong>Pets Allowed:</strong> {{
+                                                    selectedProperty.accept_mascots ? "Yes" : "No" }}</li>
+                                            </ul>
+                                        </div>
+                                        <div class="p-4 bg-gray-700 bg-opacity-50 rounded-lg">
+                                            <h4 class="mb-2 text-lg font-semibold text-white">Details</h4>
+                                            <p class="text-gray-300">{{ selectedProperty.property_details }}</p>
+                                        </div>
+                                    </div>
 
-                <!-- Botones -->
-                <div class="mt-4 flex justify-between">
-                    <CustomButton @click="showDetails = false">Close</CustomButton>
-                    <CustomButton type="primary" @click="applyToListing(selectedProperty.id)">Apply to this Listing
-                    </CustomButton>
-                    <CustomButton @click="scheduleAppointment = true" type="primary">Schedule a Visit</CustomButton>
+                                    <div v-if="selectedProperty.property_photos_path" class="mb-6">
+                                        <h4 class="mb-2 text-lg font-semibold text-white">Photos</h4>
+                                        <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+                                            <div v-for="(url, key) in selectedProperty.property_photos_path" :key="key"
+                                                class="relative overflow-hidden rounded-lg group aspect-w-16 aspect-h-9">
+                                                <img :src="url" :alt="`Property photo ${key + 1}`"
+                                                    class="object-cover w-full h-full transition-transform duration-300 transform group-hover:scale-110" />
+                                                <div
+                                                    class="absolute inset-0 transition-opacity duration-300 bg-black bg-opacity-0 group-hover:bg-opacity-50">
+                                                </div>
+                                                <div
+                                                    class="absolute inset-0 flex items-center justify-center transition-opacity duration-300 opacity-0 group-hover:opacity-100">
+                                                    <i class="text-3xl text-white mdi mdi-magnify"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-4 py-3 bg-gray-700 bg-opacity-50 sm:px-6 sm:flex sm:flex-row-reverse">
+                            <button type="button"
+                                class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white transition-colors duration-200 bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
+                                @click="applyToListing(selectedProperty.id)">
+                                <i class="mr-2 mdi mdi-check"></i> Apply to this Listing
+                            </button>
+                            <button type="button"
+                                class="inline-flex justify-center w-full px-4 py-2 mt-3 text-base font-medium text-gray-700 transition-colors duration-200 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                                @click="scheduleAppointment = true">
+                                <i class="mr-2 mdi mdi-calendar"></i> Schedule a Visit
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
