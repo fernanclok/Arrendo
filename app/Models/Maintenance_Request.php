@@ -19,16 +19,19 @@ class Maintenance_request extends Model
         'priority', //Low, Medium, High
         'status', //Pending, In Progress, Completed
         'evidence',
+        'owner_note',
+        'maintenance_cost',
+        'date_review',
     ];
 
     public function property()
     {
-        return $this->belongsTo(Property::class, 'id');
+        return $this->belongsTo(Property::class, 'property_id');
     }
 
     public function tenantUser()
     {
-        return $this->belongsTo(User::class, 'id');
+        return $this->belongsTo(User::class, 'tenant_user_id');
     }
 
     public function validatePriority(array $attributes)
