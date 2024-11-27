@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Contract;
 use App\Models\User;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class ContractController extends Controller
 {
@@ -41,7 +41,10 @@ class ContractController extends Controller
                     $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                     $extension = $file->getClientOriginalExtension();
                     $timestamp = now()->format('YmdHis');
-                    $newName = "{$originalName}_{$timestamp}.{$extension}";
+
+                    // Reemplazar espacios por guiones bajos o quitarlos
+                    $sanitizedOriginalName = preg_replace('/\s+/', '_', $originalName);
+                    $newName = "{$sanitizedOriginalName}_{$timestamp}.{$extension}";
                     $destinationPath = public_path('contracts_files');
 
                     // Crear la carpeta si no existe
@@ -50,7 +53,7 @@ class ContractController extends Controller
                     }
 
                     $file->move($destinationPath, $newName);
-                    $files[] = "contracts/{$newName}";
+                    $files[] = "contracts_files/{$newName}";
                 }
                 $contract->contract_path = json_encode($files);
             }
@@ -61,8 +64,7 @@ class ContractController extends Controller
             $contract->save();
 
             // Devolver una respuesta JSON de éxito
-
-            return redirect()->route('/contracts')->with('success', 'Contract created successfully');
+            return response()->json(['message' => 'Contract created successfully'], 201);
         } catch (\Exception $e) {
             // Devolver una respuesta JSON de error
             return response()->json(['success' => false, 'message' => $e,], 500);
@@ -85,24 +87,22 @@ class ContractController extends Controller
     }
     public function getTenantUsers()
     {
-        // Obtener todos los usuarios con el rol de 'Tenant'
-        $tenantUsers = User::where('role', 'Tenant')->get();
-        // Devolver una respuesta JSON de éxito
-        return response()->json($tenantUsers);
-    }
-    // crear una funcion para actualizar  el status del contrato a Pending Renewal cuando la fecha de termino del contrato sea igual a la fecha actual
-    public function updateStatus()
-    {
-        // Obtener todos los contratos que tengan la fecha de termino igual a la fecha actual
-        $contracts = Contract::where('end_date', now()->format('Y-m-d'))
-            ->where('status', 'Active')
-            ->get();
-        // Actualizar el status de los contratos a 'Pending Renewal'
-        foreach ($contracts as $contract) {
-            $contract->status = 'Pending Renewal';
-            $contract->save();
+        try {
+            $tenantUsers = User::where('role', 'Tenant')->get(); // Devolver una respuesta JSON de éxito
+            // Devolver una respuesta JSON de éxito
+            return response()->json($tenantUsers);
+        } catch (\Exception $e) {
+            // Registrar el error y devolver una respuesta JSON de error
+            Log::error('Error fetching tenant users: ' . $e->getMessage());
+            return response()->json(['error' => 'Error fetching tenant users'], 500);
         }
+    }
+
+    public function getContract($id)
+    {
+        // Obtener un contrato por su ID con sus relaciones
+        $contract = Contract::where('id', $id)->with('property', 'tenantUser')->first();
         // Devolver una respuesta JSON de éxito
-        return response()->json(['success' => true]);
+        return response()->json($contract);
     }
 }

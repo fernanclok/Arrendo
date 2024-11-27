@@ -6,13 +6,17 @@ use App\Models\Comment;
 use Illuminate\Http\Request;
 use App\Models\Property;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+
+use App\Models\Appoinment;
+use App\Models\Rental_application;
 
 class PropertyController extends Controller
 {
     public function getProperties() {
         $properties = Property::join('zones', 'zones.id', '=', 'properties.zone_id')
             ->where('availability', 'Available')
-            ->select('properties.*', 'zones.name as zone_name')
             ->get()
             ->map(function ($property) {
                 $photos = $property->property_photos_path ? json_decode($property->property_photos_path, true) : [];
@@ -68,24 +72,67 @@ class PropertyController extends Controller
         ]);
     }
 
-    public function getFilteredProperties(Request $request) {
+    public function show($id)
+    {
+        $property = Property::findOrFail($id);
+        return response()->json($property);    
+    }
+
+    public function destroy($id)
+    {
+        $property = Property::findOrFail($id);
+        $property->delete();
+
+        return response()->json(['message' => 'Property deleted successfully']);
+    }
+
+      public function getPropertyDetails($id)
+    {
+        // Validar que el ID de la propiedad sea un entero y exista en la base de datos
+        $property = Property::join('zones', 'zones.id', '=', 'properties.zone_id')
+            ->select('properties.*', 'zones.name as zone_name')
+            ->where('properties.id', $id)
+            ->firstOrFail();
+
+        $photos = $property->property_photos_path ? json_decode($property->property_photos_path, true) : [];
+        $property->property_photos_path = is_array($photos)
+            ? array_map(fn($photo) => asset($photo), $photos)
+            : [];
+
+        // Obtener las citas relacionadas con la propiedad
+        $appointments = Appoinment::where('property_id', $id)
+            ->select('requested_date')
+            ->get()
+            ->map(function ($appointment) {
+                return $appointment->requested_date; // Solo devolver las fechas
+            });
+
+        // Agregar las citas al resultado de la propiedad
+        $property->appointments = $appointments;
+
+        return response()->json($property);
+    }
+
+    public function getFilteredProperties(Request $request)
+    {
         $params = $request->all();
-    
+
         $params['allowPets'] = $params['allowPets'] === 'true';
         $params['parking'] = $params['parking'] === 'true';
-    
-        $filteredParams = array_filter($params, function($param) {
+
+        $filteredParams = array_filter($params, function ($param) {
             return $param !== null && $param !== false && $param !== '';
         });
-    
+
         $properties = $this->formatQuery($filteredParams);
 
         return response()->json($properties);
     }
-    
-    public function formatQuery($params) {
+
+    public function formatQuery($params)
+    {
         $query = Property::query();
-    
+
         if (isset($params['maxPrice'])) {
             if ($params['maxPrice'] === '+10000') {
                 $query->where('property_price', '>=', 0)
@@ -95,18 +142,18 @@ class PropertyController extends Controller
                     ->where('availability', 'Available');
             }
         }
-    
+
         $query->join('zones', 'zones.id', '=', 'properties.zone_id')
-              ->select('properties.*', 'zones.name as zone_name');
-    
+            ->select('properties.*', 'zones.name as zone_name');
+
         if (isset($params['selectedZone'])) {
             $query->where('zones.name', 'like', '%' . $params['selectedZone'] . '%');
         }
-    
+
         if (isset($params['allowPets'])) {
             $query->where('allow_pets', $params['allowPets']);
         }
-    
+
         if (isset($params['parking'])) {
             $query->where('have_parking', $params['parking']);
         }
@@ -114,11 +161,11 @@ class PropertyController extends Controller
         if (isset($params['bedrooms'])) {
             $query->where('total_rooms', '>=', $params['bedrooms']);
         }
-    
+
         if (isset($params['bathrooms'])) {
             $query->where('total_bathrooms', '>=', $params['bathrooms']);
         }
-    
+
         if (isset($params['m2'])) {
             $query->where('total_m2', '>=', $params['m2']);
         }
@@ -126,16 +173,16 @@ class PropertyController extends Controller
         $properties = $query->get()
             ->map(function ($property) {
                 $photos = $property->property_photos_path ? json_decode($property->property_photos_path, true) : [];
-                $property->property_photos_path = is_array($photos) 
-                    ? array_map(fn($photo) => asset($photo), $photos) 
+                $property->property_photos_path = is_array($photos)
+                    ? array_map(fn($photo) => asset($photo), $photos)
                     : [];
                 return $property;
             });
-    
+
         return $properties;
     }
-    
-   
+
+
     public function get(Request $request)
     {
         $request->validate([
@@ -144,8 +191,8 @@ class PropertyController extends Controller
 
         $properties = Property::where('owner_user_id', $request->user_id)->get()->map(function ($property) {
             $photos = $property->property_photos_path ? json_decode($property->property_photos_path, true) : [];
-            $property->property_photos_path = is_array($photos) 
-                ? array_map(fn($photo) => asset($photo), $photos) 
+            $property->property_photos_path = is_array($photos)
+                ? array_map(fn($photo) => asset($photo), $photos)
                 : [];
             return $property;
         });
@@ -163,7 +210,7 @@ class PropertyController extends Controller
             'state' => 'required|string|max:100',
             'postal_code' => 'required|string|max:20',
             'availability' => 'required|string',
-            'total_bathrooms' => 'required|numeric',
+            'total_bathrooms' => 'required|integer',
             'total_rooms' => 'required|integer',
             'total_m2' => 'required|integer',
             'have_parking' => 'required|boolean',
@@ -171,6 +218,17 @@ class PropertyController extends Controller
             'property_price' => 'required|numeric',
             'property_details' => 'required|string',
             'zone_id' => 'required|integer|exists:zones,id',
+
+            'colony' => 'nullable|string|max:100',
+            'half_bathrooms' => 'nullable|integer',
+            'surface_built' => 'nullable|integer',
+            'total_surface' => 'nullable|integer',
+            'antiquity' => 'nullable|integer',
+            'maintenance' => 'nullable|numeric',
+            'state_conservation' => 'nullable|string|max:50',
+            'wineries' => 'nullable|integer',
+            'closets' => 'nullable|integer',
+            'levels' => 'nullable|integer',
             'property_photos.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
 
@@ -190,6 +248,19 @@ class PropertyController extends Controller
         $property->property_details = $validatedData['property_details'];
         $property->zone_id = $validatedData['zone_id'];
         $property->owner_user_id = $request->user_id;
+
+        $property->colony = $validatedData['colony'];
+        $property->half_bathrooms = $validatedData['half_bathrooms'];
+        $property->surface_built = $validatedData['surface_built'];
+        $property->total_surface = $validatedData['total_surface'];
+        $property->antiquity = $validatedData['antiquity'];
+        $property->maintenance = $validatedData['maintenance'];
+        $property->state_conservation = $validatedData['state_conservation'];
+        $property->wineries = $validatedData['wineries'];
+        $property->closets = $validatedData['closets'];
+        $property->levels = $validatedData['levels'];
+
+
 
         // Guardar las fotos de la propiedad
         if ($request->hasFile('property_photos')) {
@@ -212,5 +283,124 @@ class PropertyController extends Controller
             'status' => 'success',
             'message' => 'Property created successfully'
         ]);
+    }
+
+
+public function update(Request $request, $id)
+{
+    $validatedData = $request->validate([
+        'street' => 'required|string|max:255',
+        'number' => 'required|string|max:10',
+        'city' => 'required|string|max:100',
+        'state' => 'required|string|max:100',
+        'postal_code' => 'required|string|max:20',
+        'availability' => 'required|string',
+        'total_bathrooms' => 'required|integer',
+        'total_rooms' => 'required|integer',
+        'total_m2' => 'required|integer',
+        'have_parking' => 'required|boolean',
+        'accept_mascots' => 'required|boolean',
+        'property_price' => 'required|numeric',
+        'property_details' => 'required|string',
+
+        'colony' => 'nullable|string|max:100',
+        'half_bathrooms' => 'nullable|integer',
+        'surface_built' => 'nullable|integer',
+        'total_surface' => 'nullable|integer',
+        'antiquity' => 'nullable|integer',
+        'maintenance' => 'nullable|numeric',
+        'state_conservation' => 'nullable|string|max:50',
+        'wineries' => 'nullable|integer',
+        'closets' => 'nullable|integer',
+        'levels' => 'nullable|integer',
+    ]);
+
+    $property = Property::findOrFail($id);
+    $property->update($validatedData);
+
+    return response()->json($property);
+}
+
+    public function getAllApplications()
+    {
+        //$application = Rental_application::all();
+
+        $application = DB::table('rental_applications')->get();
+
+        $data = [
+            'applications' => $application,
+            'status' => 200
+        ];
+
+        return response()->json($data);
+    }
+
+    public function createApplication(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'property_id' => 'required',
+            'tenant_user_id' => 'required',
+            'application_date' => 'required',
+            'status' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            $data = [
+                'message' => 'Error en la validacion de los datos',
+                'error' => $validator->errors(),
+                'status' => 200
+            ];
+
+            return response()->json($data, 400);
+        }
+
+        // $exists = Rental_application::where('property_id', $request->property_id)
+        // ->where('tenant_user_id', $request->tenant_user_id)
+        // ->exists();
+
+        // if ($exists) {
+        //     return response()->json(['message' => 'You have already applied to this property'], 409);
+        // }
+
+        // $application = Rental_application::create([
+        //     'property_id' => $request->property_id,
+        //     'tenant_user_id' => $request->tenant_user_id,
+        //     'application_date' => $request->application_date,
+        //     'status' => $request->status
+        // ]);
+
+        // Verificar si ya existe una aplicación con los mismos datos
+        $exists = DB::table('rental_applications')
+            ->where('property_id', $request->property_id)
+            ->where('tenant_user_id', $request->tenant_user_id)
+            ->exists();
+
+        if ($exists) {
+            return response()->json(['message' => 'You have already applied to this property'], 409);
+        }
+
+        $application = DB::table('rental_applications')->insert([
+            'property_id' => $request->property_id,
+            'tenant_user_id' => $request->tenant_user_id,
+            'application_date' => $request->application_date,
+            'status' => $request->status
+        ]);
+
+        if (!$application) {
+            $data = [
+                'message' => 'Error creating the application',
+                'status' => 500
+            ];
+
+            return response()->json($data);
+        }
+
+        $data = [
+            'application' => $application,
+            'status' => 201
+        ];
+
+        return response()->json($data);
     }
 }
