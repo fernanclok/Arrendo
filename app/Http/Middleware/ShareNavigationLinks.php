@@ -25,7 +25,7 @@ class ShareNavigationLinks
                     ['route' => 'searchProperties', 'label' => 'Properties', 'icon' => 'home'],
                     ['route' => 'appointments', 'label' => 'Appointments', 'icon' => 'calendar'],
                     ['route' => 'maintenance','label' => 'Maintenance','icon'=> 'hammer-wrench'],
-                    ['route' => 'TrackRequest', 'label' => 'Request', 'icon' => 'account-question']
+                    ['route' => 'TrackRequest', 'label' => 'Request', 'icon' => 'account-question'],
                     ['route' => 'tenantRequest', 'label' => 'My Properties', 'icon' => 'application-edit'],
                 ],
             ];
