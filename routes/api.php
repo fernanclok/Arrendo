@@ -36,12 +36,19 @@ Route::prefix('contracts')->group(function () {
 // zones
 Route::get('/zones', [ZoneController::class, 'getZones']);
 
+//Comments
+Route::prefix('comments')->group(function () {
+    Route::get('/{propertyId}', [PropertyController::class, 'getComments']);
+    Route::post('/', [PropertyController::class, 'createComment']);
+});
+
 // properties
 Route::prefix('properties')->group(function () {
     Route::get('/', [PropertyController::class, 'get']);
     Route::post('/create', [PropertyController::class, 'create']);
     Route::get('/filter', [PropertyController::class, 'getFilteredProperties']);
     Route::get('/getProperties', [PropertyController::class, 'getProperties']);
+    Route::get('/featuredProperties', [PropertyController::class, 'featuredProperties']);
 
     Route::get('/getPropertyDetails/{id}', [PropertyController::class, 'getPropertyDetails']);
     Route::post('/appointment', [AppointmentController::class, 'createAppoinment']);
