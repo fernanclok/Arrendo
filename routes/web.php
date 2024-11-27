@@ -36,7 +36,7 @@ Route::middleware(['auth', 'verified', 'role:Owner'])->group(function () {
 
     Route::get('/dashboard/settings', function () {
         return Inertia::render('Dashboard', [
-            'auth' => Auth::user(), // Pasa los datos de autenticación
+            'auth' => Auth::user(),
             'childComponent' => 'Settings',
         ]);
     })->name('dashboard.settings');
@@ -47,9 +47,9 @@ Route::get('/properties', function () {
     return Inertia::render('Properties');
 })->name('properties');
 
-Route::get('/detailprop', function () {
-    return Inertia::render('DetailPropertie');
-})->name('detailproperties');
+// Route::get('/detailprop', function () {
+//     return Inertia::render('DetailPropertie');  ---que show con esto al que le toco
+// })->name('detailproperties');
 
 //my properties
 Route::get('/my-properties', function () {
@@ -82,13 +82,27 @@ Route::get('/all-contracts', function () {
     return Inertia::render('Contracts/allContract');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('AllContracts');
 
-//appoinments
-Route::get('/appoinments', function () {
-    return Inertia::render('Appoinments');
-})->middleware(['auth', 'verified', 'role:admin,Tenant,Owner'])->name('appoinments');
+// rental applications
+Route::get('/TrackRequest', function () {
+    return Inertia::render('TrackRequest');
+})->middleware(['auth', 'verified', 'role:Tenant'])->name('TrackRequest');
 
+Route::get('/EvaluateRequest', function () {
+    return Inertia::render('EvaluateRequest');
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('EvaluateRequest');
 
-require __DIR__ . '/auth.php';
+Route::middleware('auth')->group(function () {
+    Route::get('/contracts/all', [ContractController::class, 'index'])->name('contracts.index');
+    Route::post('/contract', [ContractController::class, 'store'])->name('contracts.store');
+});
+
+//appointments
+Route::get('/appointments', function () {
+    return Inertia::render('Appointments', [
+        'user' => auth()->user()
+    ]);
+})->middleware(['auth', 'verified', 'role:admin,Tenant,Owner'])->name('appointments');
+
 
 //Maintenance
 Route::get('/maintenance', function () {
@@ -108,5 +122,6 @@ Route::get('/maintenance/{id}', [MaintenanceController::class, 'show'])
 Route::get('/registro-propiedad', function () {
     return Inertia::render('RegistroPropiedad'); // Nombre del componente Vue 
 })->name('registro.propiedad');
+
 
 require __DIR__ . '/auth.php';
