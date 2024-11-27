@@ -48,6 +48,10 @@ Route::prefix('properties')->group(function () {
     Route::post('/applicate', [PropertyController::class, 'createApplication']);
 });
 
+Route::get('/properties/{id}', [PropertyController::class, 'show']);
+Route::put('/properties/{id}', [PropertyController::class, 'update']);
+Route::delete('/properties/{id}', [PropertyController::class, 'destroy']);
+
 // appointments
 Route::prefix('appointments')->group(function () {
     Route::get('/',[AppointmentController::class, 'getUserAppointments']);
