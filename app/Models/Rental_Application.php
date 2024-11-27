@@ -11,6 +11,8 @@ class Rental_application extends Model
 {
     use HasFactory;
 
+    protected $table = "rental_application";
+
     protected $fillable = [
         'property_id',
         'tenant_user_id',
@@ -20,13 +22,15 @@ class Rental_application extends Model
 
     public function property()
     {
-        return $this->belongsTo(Property::class, 'id');
+        return $this->belongsTo(Property::class, 'property_id'); // Usar 'property_id' como clave foránea
     }
-
+    
     public function tenantUser()
     {
-        return $this->belongsTo(User::class, 'id');
+        return $this->belongsTo(User::class, 'tenant_user_id'); // Usar 'tenant_user_id' como clave foránea
     }
+    
+    
 
     public function validateStatus(array $attributes)
     {
