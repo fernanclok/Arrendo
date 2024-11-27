@@ -21,28 +21,18 @@ class CheckRole
         }
 
         $allowedRoutes = [
-            'Owner' => ['dashboard', 'my-properties', 'contracts', 'dashboard/settings','tenant-requests'],
-            'Tenant' => ['dashboard','search-properties','appointments', 'maintenance/create'],
+            'Owner' => ['dashboard', 'my-properties', 'contracts', 'dashboard/settings', 'tenant-requests'],
+            'Tenant' => ['dashboard', 'search-properties', 'appointments', 'maintenance/create'],
         ];
 
         $currentPath = $request->path();
 
-        foreach ($roles as $role) {
-            if (isset($allowedRoutes[$role])) {
-                foreach ($allowedRoutes[$role] as $allowedRoute) {
-                    if (strpos($allowedRoute, '{employee}') !== false) {
-                        $pattern = str_replace('{employee}', '[0-9]+', $allowedRoute);
-
-                        if (preg_match("#^$pattern$#", $currentPath)) {
-                            return $next($request);
-                        }
-                    } elseif ($currentPath === $allowedRoute) {
-                        return $next($request);
-                    }
-                }
-            }
+        // Verificar si la ruta actual está permitida para el rol del usuario
+        if (isset($allowedRoutes[$user->role]) && in_array($currentPath, $allowedRoutes[$user->role])) {
+            return $next($request);
         }
 
-        return redirect('/');
+        // Redirigir al usuario si no tiene permiso para acceder a la ruta
+        return redirect('/dashboard');
     }
 }
