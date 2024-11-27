@@ -52,7 +52,7 @@
                         </td>
                         <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                             <span v-if="request.status" :class="getPaymentStatusClasses(request.status)">
-                                <i class="fas" :class="getPaymentIcon(request.status)"></i>
+                                <i class="mdi" :class="getPaymentIcon(request.status)"></i>
                                 {{ request.status }}
                             </span>
                         </td>
@@ -89,11 +89,11 @@ export default {
         getPaymentIcon(status) {
             switch (status) {
                 case "Resolved":
-                    return "fa-check-circle";
+                    return "mdi-check-circle";
                 case "In Progress":
-                    return "fa-spinner fa-spin";
+                    return "mdi-refresh";
                 case "Pending":
-                    return "fa-hourglass-half";
+                    return "mdi-timer-sand-paused";
                 default:
                     return "";
             }

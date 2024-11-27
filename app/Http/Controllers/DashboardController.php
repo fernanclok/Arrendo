@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Maintenance_Request;
+use App\Models\Payment_history;
 use Illuminate\Support\Facades\DB;
 use App\Models\Property;
+use Illuminate\Http\Request;
+use App\Models\User;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
 
         $requests = Maintenance_Request::orderBy('report_date', 'desc')->take(10)->get();
@@ -34,12 +37,16 @@ class DashboardController extends Controller
             )
             ->groupBy('month')
             ->orderBy('month')
+            ->where('owner_user_id', auth()->id())
             ->get();
 
-        $activeProperties = DB::table('properties')->count();
+        $activeProperties = DB::table('properties')
+        ->where('owner_user_id', auth()->id())
+        ->where('availability', 'Available')
+        ->count();
 
         // Tasa de ocupación
-        $occupiedUnits = DB::table('properties')->where('availability', 'Not Available')->count();
+        $occupiedUnits = DB::table('properties')->where('availability', 'Not Available')->where('owner_user_id',auth()->id())->count();
         $occupancyRate = $activeProperties > 0
             ? round(($occupiedUnits / $activeProperties) * 100, 2)
             : 0;
@@ -63,7 +70,7 @@ class DashboardController extends Controller
                 'statPercent' => '5', // Porcentaje de cambio mensual, puedes calcularlo dinámicamente si tienes datos históricos
                 'statPercentColor' => 'text-emerald-500',
                 'statDescripiron' => 'Change since last month',
-                'statIconName' => 'fas fa-home',
+                'statIconName' => 'mdi mdi-home',
                 'statIconColor' => 'bg-blue-500',
             ],
             [
@@ -73,7 +80,7 @@ class DashboardController extends Controller
                 'statPercent' => '10',
                 'statPercentColor' => 'text-emerald-500',
                 'statDescripiron' => 'Compared to last month',
-                'statIconName' => 'fas fa-chart-line',
+                'statIconName' => 'mdi mdi-chart-line',
                 'statIconColor' => 'bg-green-500',
             ],
             [
@@ -83,22 +90,22 @@ class DashboardController extends Controller
                 'statPercent' => '15',
                 'statPercentColor' => 'text-emerald-500',
                 'statDescripiron' => 'Estimated this month',
-                'statIconName' => 'fas fa-dollar-sign',
+                'statIconName' => 'mdi mdi-currency-usd',
                 'statIconColor' => 'bg-yellow-500',
             ],
             [
-                'statSubtitle' => 'Pending Payments',
-                'statTitle' => $pendingPayments,
+                'statSubtitle' => 'Maintenance Payments',
+                'statTitle' => "$" . number_format($pendingPayments, 2),
                 'statArrow' => 'down',
                 'statPercent' => '20',
                 'statPercentColor' => 'text-red-500',
                 'statDescripiron' => 'Overdue payments',
-                'statIconName' => 'fas fa-exclamation-circle',
+                'statIconName' => 'mdi mdi-currency-usd-off',
                 'statIconColor' => 'bg-red-500',
             ],
         ];
 
-        // Consultar propiedades con relaciones
+
         // Consultar propiedades con relaciones
         $properties = DB::table('properties as p')
             ->select(
@@ -120,13 +127,11 @@ class DashboardController extends Controller
             ->leftJoin('contracts as c', 'p.id', '=', 'c.property_id')
             ->leftJoin('users as u', 'c.tenant_user_id', '=', 'u.id')
             ->whereIn('c.status', ['Active', 'Pending Renewal', 'Terminated'])
+            ->where('p.owner_user_id', auth()->id())
             ->get();
 
-
-
-
         return inertia('Dashboard', [
-            'childComponent' => 'Charts',
+            'childComponent' => $request->routeIs('dashboard.settings') ? 'Settings' : 'Charts',
             'monthlyIncome' => $monthlyIncome,
             'occupancyData' => $occupancy,
             'cardStats' => $cardStats,
@@ -134,5 +139,64 @@ class DashboardController extends Controller
             'requests' => $requests,
             'user' => auth()->user(),
         ]);
+    }
+
+    public function getPaymentHistory($tenantUserId)
+    {
+        try {
+            $history = DB::table('users as u')
+                ->join('contracts as c', 'u.id', '=', 'c.tenant_user_id')
+                ->join('invoices as i', 'c.id', '=', 'i.contract_id')
+                ->leftJoin('payment_histories as p', 'i.id', '=', 'p.invoice_id')
+                ->select(
+                    'u.id as tenant_user_id',
+                    DB::raw("CONCAT(u.first_name, ' ', u.last_name) as tenant_name"),
+                    'c.id as contract_id',
+                    'i.id as invoice_id',
+                    'i.issue_date as invoice_date',
+                    'i.total_amount as invoice_total',
+                    'i.payment_status',
+                    'p.payment_date',
+                    'p.amount_paid'
+                )
+                ->where('c.tenant_user_id', $tenantUserId)
+                ->orderBy('i.issue_date', 'DESC')
+                ->orderBy('p.payment_date', 'DESC')
+                ->get();
+
+            return response()->json($history, 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error retrieving payment history', 'details' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getRentedProperty($tenantUserId)
+    {
+
+
+        $property = DB::table('contracts')
+            ->join('properties', 'contracts.property_id', '=', 'properties.id')
+            ->select(
+                'properties.id as property_id',
+
+                DB::raw("
+                CONCAT(
+                    properties.street, ', ',
+                    properties.number, ', ',
+                    properties.city, ', ',
+                    properties.state, ', ',
+                    properties.postal_code
+                ) as property_address
+            "),
+                'properties.rental_rate',
+                'contracts.start_date',
+                'contracts.end_date',
+                'contracts.status'
+            )
+            ->where('contracts.tenant_user_id', $tenantUserId)
+            ->where('contracts.status', 'Active')
+            ->first();
+
+        return response()->json($property);
     }
 }

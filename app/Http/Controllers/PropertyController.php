@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Comment;
 use Illuminate\Http\Request;
 use App\Models\Property;
 use Illuminate\Support\Facades\Log;
@@ -13,20 +14,75 @@ use App\Models\Rental_application;
 
 class PropertyController extends Controller
 {
-    public function getProperties()
-    {
+    public function getProperties() {
         $properties = Property::join('zones', 'zones.id', '=', 'properties.zone_id')
             ->select('properties.*', 'zones.name as zone_name')
+            ->where('availability', 'Available')
             ->get()
             ->map(function ($property) {
                 $photos = $property->property_photos_path ? json_decode($property->property_photos_path, true) : [];
-                $property->property_photos_path = is_array($photos)
-                    ? array_map(fn($photo) => asset($photo), $photos)
+                $property->property_photos_path = is_array($photos) 
+                    ? array_map(fn($photo) => asset($photo), $photos) 
                     : [];
                 return $property;
             });
 
         return response()->json($properties);
+    }
+
+    public function featuredProperties() {
+        $properties = Property::join('zones', 'zones.id', '=', 'properties.zone_id')
+            ->select('properties.*', 'zones.name as zone_name')
+            ->where('availability', 'Available')
+            ->orderBy('rental_rate', 'asc')
+            ->limit(3)
+            ->get()
+            ->map(function ($property) {
+                $photos = $property->property_photos_path ? json_decode($property->property_photos_path, true) : [];
+                $property->property_photos_path = is_array($photos) 
+                    ? array_map(fn($photo) => asset($photo), $photos) 
+                    : [];
+                return $property;
+            });
+
+        return response()->json($properties);
+    }
+
+    public function getComments(Request $request){
+
+        $comments = Comment::where('property_id', $request->id)
+            ->join('users', 'users.id', '=', 'comments.user_id')
+            ->orderBy('comments.created_at', 'desc')
+            ->select('comments.*', 'users.name as user_name')
+            ->get();
+
+        return response()->json($comments);
+    }
+
+    public function createComment(Request $request){
+        $comment = new Comment();
+        $comment->comment = $request->comment;
+        $comment->comment_rate = $request->comment_rate;
+        $comment->property_id = $request->property_id;
+        $comment->user_id = $request->user_id;
+        $comment->save();
+    //
+        $comments = Comment::where('property_id', $request->property_id)->get();
+        $total = 0;
+        foreach ($comments as $comment) {
+            $total += $comment->comment_rate;
+        }
+
+        $property = Property::find($request->property_id);
+
+        $property->rental_rate = $total / count($comments);
+
+        $property->save();
+    //
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Comment created successfully'
+        ]);
     }
 
     public function show($id)
@@ -92,9 +148,11 @@ class PropertyController extends Controller
 
         if (isset($params['maxPrice'])) {
             if ($params['maxPrice'] === '+10000') {
-                $query->where('property_price', '>', 0);
+                $query->where('property_price', '>=', 0)
+                    ->where('availability', 'Available');
             } else {
-                $query->where('property_price', '<=', $params['maxPrice']);
+                $query->where('property_price', '<=', $params['maxPrice'])
+                    ->where('availability', 'Available');
             }
         }
 
@@ -112,9 +170,9 @@ class PropertyController extends Controller
         if (isset($params['parking'])) {
             $query->where('have_parking', $params['parking']);
         }
-
-        if (isset($params['rooms'])) {
-            $query->where('total_rooms', '>=', $params['rooms']);
+    
+        if (isset($params['bedrooms'])) {
+            $query->where('total_rooms', '>=', $params['bedrooms']);
         }
 
         if (isset($params['bathrooms'])) {
@@ -274,8 +332,6 @@ public function update(Request $request, $id)
     $property->update($validatedData);
 
     return response()->json($property);
-}
-
 }
 
     public function getAllApplications()

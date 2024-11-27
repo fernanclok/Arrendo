@@ -16,6 +16,7 @@ return new class extends Migration
             $table->text('comment');
             $table->decimal('comment_rate', 8, 2);
             $table->foreignId('property_id')->constrained('properties');
+            $table->foreignId('user_id')->constrained('users');
             $table->timestamps();
         });
     }
