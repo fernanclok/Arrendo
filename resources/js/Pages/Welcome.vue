@@ -45,8 +45,8 @@ import TextInput from '@/Components/TextInput.vue';
       <section class="bg-gradient-to-r bg-primary text-white py-20">
         <div class="container mx-auto px-4 text-center">
           <h1 class="text-4xl md:text-6xl font-bold mb-4">Find your ideal home</h1>
-          <p class="text-xl md:text-2xl mb-8">Thousands of houses for rent awaiting you!</p>
-          <div class="max-w-4xl mx-auto bg-secondary rounded-lg p-4 shadow-lg">
+          <p class="text-xl md:text-2xl">Thousands of houses for rent awaiting you!</p>
+          <!-- <div class="max-w-4xl mx-auto bg-secondary rounded-lg p-4 shadow-lg">
             <div class="flex flex-col md:flex-row gap-4">
               <select class="w-full md:w-[180px] text-black">
                 <option v-for="type in propertyTypes" :key="type.value" :value="type.value" class="text-black">
@@ -58,7 +58,7 @@ import TextInput from '@/Components/TextInput.vue';
                 Buscar
               </CustomButton>
             </div>
-          </div>
+          </div> -->
         </div>
       </section>
 
@@ -68,19 +68,59 @@ import TextInput from '@/Components/TextInput.vue';
           <h2 class="text-3xl font-bold text-center mb-12">Featured Properties</h2>
           <!-- propiedades destacadas -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div v-for="property in featuredProperties" :key="property.title" class="bg-white rounded-lg shadow-lg">
-              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s"
-                alt="Property" class="w-full h-48 object-cover rounded-t-lg" />
-              <div class="p-4">
-                <h3 class="text-xl font-bold">{{ property.title }}</h3>
-                <p class="text-gray-500">{{ property.location }}</p>
-                <p class="text-lg font-bold mt-2">${{ property.price }}</p>
-                <p class="text-sm text-gray-500">{{ property.type }}</p>
-              </div>
+            <div
+                v-if="properties && properties.length > 0"
+                v-for="property in properties"
+                :key="property.id"
+                :class="[
+                    'bg-white shadow-md rounded-lg overflow-hidden h-full md:h-auto transform transition duration-300',
+                    { 'scale-105 shadow-xl': activePropertyId === property.id }
+                ]"
+            >
+                <img :src="property.property_photos_path[0]" alt="Property Photo"
+                    class="w-full h-48 object-cover" v-if="property.property_photos_path.length" />
+                <div class="p-4">
+                    <h2 class="text-xl font-bold mb-2">{{ property.zone_name }}</h2>
+                    <p class="text-gray-600 mb-2">{{ property.city }} {{ property.state }} , {{ property.street }}, {{ property.number }}</p>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="flex items-center">
+                            <!-- SVG Icon for rooms -->
+                            <icon class="mdi mdi-bed mr-2"></icon>
+                            {{ property.total_rooms }} rooms
+                        </span>
+                        <span class="flex items-center">
+                            <!-- SVG Icon for bathrooms -->
+                            <icon class="mdi mdi-toilet mr-2"></icon>
+                            {{ property.total_bathrooms }} bathrooms
+                        </span>
+                        <span v-if="property.rental_rate != null" class="flex items-center">
+                            <!-- SVG Icon for bathrooms -->
+                            <icon class="mdi mdi-star mr-2"></icon>
+                            {{ property.rental_rate }}
+                        </span>
+                        <span v-else class="flex items-center">
+                            <!-- SVG Icon for bathrooms -->
+                            <icon class="mdi mdi-star"></icon>
+                            No rated yet
+                        </span>
+                    </div>
+                </div>
+                <div class="bg-gray-100 px-4 py-3 flex justify-between items-center">
+                    <span class="text-lg font-bold flex items-center">
+                      <icon class="mdi mdi-cash mr-2"></icon>
+                        ${{ property.property_price }}
+                    </span>
+                    <!-- <CustomButton v-if="property.id != activePropertyId" type="primary" @click="toggleDetails(property.id)">
+                        View Details
+                    </CustomButton>
+                    <CustomButton v-else type="primary" @click="showDetails = false">
+                        Hide Details
+                    </CustomButton> -->
+                </div>
             </div>
           </div>
           <div class="text-center mt-8">
-            <a href="/" class="hover:underline">
+            <a href="/properties" class="hover:underline">
               See all properties
               <ArrowRight class="ml-2 h-4 w-4" />
             </a>
@@ -161,37 +201,58 @@ import TextInput from '@/Components/TextInput.vue';
 </template>
 
 <script>
+export default {
+  data() {
+    return {
+      properties: [],
+    }
+  },
+  methods: {
+    getFeaturedProperties() {
+      axios.get('/api/properties/featuredProperties')
+          .then(response => {
+              this.properties = response.data.reverse();
+          })
+          .catch(error => {
+              console.error(error);
+          });
+    },
+  },
+  mounted() {
+    this.getFeaturedProperties();
+  }
+}
 const navItems = [
   { href: '/', label: 'Inicio' },
   { href: '/properties', label: 'Properties' },
-  { href: '/propietarios', label: 'Para propietarios' },
+  { href: '/propietarios', label: 'For Owners' },
   { href: '/contact', label: 'Contact' },
 ]
 
-const propertyTypes = [
-  { value: 'House', label: 'House' },
-  { value: 'Department', label: 'Department' },
-  { value: 'All', label: 'All' },
-]
+// const propertyTypes = [
+//   { value: 'House', label: 'House' },
+//   { value: 'Department', label: 'Department' },
+//   { value: 'All', label: 'All' },
+// ]
 
-const featuredProperties = [
-  { title: "Apartamento moderno", location: "Centro de la ciudad", price: "10,000", type: "Departamento" },
-  { title: "Casa familiar", location: "Zona residencial", price: "15,000", type: "Casa" },
-  { title: "Loft industrial", location: "Distrito artístico", price: "8,500", type: "Departamento" },
-]
+// const featuredProperties = [
+//   { title: "Apartamento moderno", location: "Centro de la ciudad", price: "10,000", type: "Departamento" },
+//   { title: "Casa familiar", location: "Zona residencial", price: "15,000", type: "Casa" },
+//   { title: "Loft industrial", location: "Distrito artístico", price: "8,500", type: "Departamento" },
+// ]
 
 const features = [
-  { title: "Amplia selección", description: "Miles de propiedades verificadas para elegir" },
-  { title: "Proceso sencillo", description: "Búsqueda, visita y renta en pocos pasos" },
-  { title: "Soporte 24/7", description: "Estamos aquí para ayudarte en todo momento" },
+  { title: "Wide selection", description: "Thousands of verified properties to choose from" },
+  { title: "Simple process", description: "Search, visit, and rent in a few steps" },
+  { title: "24/7 support", description: "We're here to help you anytime" },
 ]
 
 const testimonials = [
-  { name: "María García", content: "Encontré mi departamento ideal en cuestión de días. ¡El proceso fue muy fácil!" },
-  { name: "Juan Pérez", content: "Excelente atención al cliente. Resolvieron todas mis dudas rápidamente." },
-  { name: "Ana Martínez", content: "Las fotos y descripciones son muy precisas. No tuve sorpresas al mudarme." },
-  { name: "Carlos López", content: "¡Recomiendo Arrendo a todos mis amigos! ¡Es la mejor plataforma para encontrar tu hogar!" },
-  { name: "Sofía Rodríguez", content: "¡Gracias a Arrendo encontré la casa de mis sueños! ¡No puedo estar más feliz!" },
-  { name: "Pedro Sánchez", content: "¡El proceso de renta fue muy rápido y sencillo! ¡Gracias Arrendo!" },
+  { name: "María García", content: "I found my ideal apartment in a matter of days. The process was very easy!" },
+  { name: "Juan Pérez", content: "Excellent customer service. They answered all my questions quickly." },
+  { name: "Ana Martínez", content: "The photos and descriptions are very accurate. I had no surprises when I moved in." },
+  { name: "Carlos López", content: "I recommend Arrendo to all my friends! It's the best platform to find your home!" },
+  { name: "Sofía Rodríguez", content: "Thanks to Arrendo, I found the house of my dreams! I couldn't be happier!" },
+  { name: "Pedro Sánchez", content: "The rental process was very quick and easy! Thank you, Arrendo!" },
 ]
 </script>

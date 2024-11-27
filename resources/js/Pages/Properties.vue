@@ -4,71 +4,6 @@ import TextInput from '@/Components/TextInput.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import axios from 'axios';
 import { ref } from 'vue';
-
-// Datos falsos para las propiedades
-// const properties = ref([
-//     {
-//         id: 1,
-//         title: 'Beautiful Family House',
-//         description: 'A beautiful house located in a serene environment.',
-//         price: 1200,
-//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-//         address: '123 Main St',
-//         rooms: 3,
-//         bathrooms: 2,
-//     },
-//     {
-//         id: 2,
-//         title: 'Modern Apartment',
-//         description: 'A modern apartment with all the amenities you need.',
-//         price: 900,
-//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-//         address: '456 Elm St',
-//         rooms: 2,
-//         bathrooms: 1,
-//     },
-//     {
-//         id: 3,
-//         title: 'Cozy Cottage',
-//         description: 'A cozy cottage perfect for a small family.',
-//         price: 700,
-//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-//         address: '789 Oak St',
-//         rooms: 2,
-//         bathrooms: 1,
-//     },
-//     {
-//         id: 4,
-//         title: 'Cozy Cottage',
-//         description: 'A cozy cottage perfect for a small family.',
-//         price: 700,
-//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-//         address: '789 Oak St',
-//         rooms: 2,
-//         bathrooms: 1,
-//     },
-//     {
-//         id: 5,
-//         title: 'Cozy Cottage',
-//         description: 'A cozy cottage perfect for a small family.',
-//         price: 700,
-//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-//         address: '789 Oak St',
-//         rooms: 2,
-//         bathrooms: 1,
-//     },
-//     {
-//         id: 6,
-//         title: 'Cozy Cottage',
-//         description: 'A cozy cottage perfect for a small family.',
-//         price: 700,
-//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-//         address: '789 Oak St',
-//         rooms: 2,
-//         bathrooms: 1,
-//     },
-// ]);
-
 </script>
 
 <template>
@@ -188,6 +123,14 @@ import { ref } from 'vue';
                     </transition>
                 </div>
 
+                <div v-if="!hasInitialFilterChanged">
+                    <div class="bg-white shadow-md rounded-lg overflow-hidden h-full md:h-auto transform transition duration-300 mb-6">
+                        <div class="p-2 text-center">
+                            <h2 class="text-xl font-bold mb-2">No filters applied</h2>
+                            <p class="text-gray-600 mb-2">You are currently watching all the properties.</p>
+                        </div>
+                    </div>
+                </div>
                 <!-- Sección de tarjetas de propiedades con scroll interno en móviles -->
                 <div
                     class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 h-full overflow-y-auto md:h-auto md:overflow-visible">
@@ -205,34 +148,29 @@ import { ref } from 'vue';
                             <div class="flex justify-between items-center mb-2">
                                 <span class="flex items-center">
                                     <!-- SVG Icon for rooms -->
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8 10h.01M12 10h.01M16 10h.01M9 16h6M4 6h16M4 6a2 2 0 012-2h12a2 2 0 012 2M4 6v12a2 2 0 002 2h12a2 2 0 002-2V6">
-                                        </path>
-                                    </svg>
+                                    <icon class="mdi mdi-bed mr-2"></icon>
                                     {{ property.total_rooms }} rooms
                                 </span>
                                 <span class="flex items-center">
                                     <!-- SVG Icon for bathrooms -->
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8c-1.657 0-3 1.343-3 3v4h6v-4c0-1.657-1.343-3-3-3zM5 20h14a2 2 0 002-2v-5a2 2 0 00-2-2H5a2 2 0 00-2 2v5a2 2 0 002 2z">
-                                        </path>
-                                    </svg>
+                                    <icon class="mdi mdi-toilet mr-2"></icon>
                                     {{ property.total_bathrooms }} bathrooms
+                                </span>
+                                <span v-if="property.rental_rate != null" class="flex items-center">
+                                    <!-- SVG Icon for bathrooms -->
+                                    <icon class="mdi mdi-star mr-2"></icon>
+                                    {{ property.rental_rate }}
+                                </span>
+                                <span v-else class="flex items-center">
+                                    <!-- SVG Icon for bathrooms -->
+                                    <icon class="mdi mdi-star mr-2"></icon>
+                                    No rated yet
                                 </span>
                             </div>
                         </div>
                         <div class="bg-gray-100 px-4 py-3 flex justify-between items-center">
                             <span class="text-lg font-bold flex items-center">
-                                <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8c-1.657 0-3 1.343-3 3v4h6v-4c0-1.657-1.343-3-3-3zM5 20h14a2 2 0 002-2v-5a2 2 0 00-2-2H5a2 2 0 00-2 2v5a2 2 0 002 2z">
-                                    </path>
-                                </svg>
+                                <icon class="mdi mdi-cash mr-2"></icon>
                                 ${{ property.property_price }}
                             </span>
                             <CustomButton v-if="property.id != activePropertyId" type="primary"
@@ -244,7 +182,7 @@ import { ref } from 'vue';
                             </CustomButton>
                         </div>
                     </div>
-                    <div v-else class="text-center text-gray-500 col-span-3">
+                    <div v-else class="text-center text-gray-500 col-span-3 mt-60">
                         <p>No properties found with the applied filters.</p>
                     </div>
                 </div>
@@ -331,13 +269,14 @@ import { ref } from 'vue';
 const navItems = [
     { href: '/', label: 'Home' },
     { href: '/properties', label: 'Properties' },
-    { href: '/propietarios', label: 'Para propietarios' },
+    { href: '/propietarios', label: 'For Owners' },
     { href: '/contact', label: 'Contact' },
 ]
 
 export default {
     data() {
         return {
+            hasInitialFilterChanged: false,
             showDetails: false,
             showFilters: false,
             activePropertyId: null,
@@ -399,6 +338,8 @@ export default {
                 });
         },
         filterProperties() {
+            this.hasInitialFilterChanged = true;
+
             var selectedZoneName = this.zones.find(zone => zone.id == this.propertiesSpecifications.selectedZone);
 
             var filters = {
@@ -435,6 +376,7 @@ export default {
 
             setTimeout(() => {
                 this.isRefreshing = false;
+                this.hasInitialFilterChanged = false;
             }, 0); 
         },
     },
@@ -446,11 +388,13 @@ export default {
         },
         selectedPrice(newVal) {
             if (!this.isRefreshing) {
+                this.hasInitialFilterChanged = true;
                 this.filterProperties();
             }
         },
         'propertiesSpecifications.selectedZone': function() {
             if (!this.isRefreshing) {
+                this.hasInitialFilterChanged = true;
                 this.filterProperties();
             }
         },
