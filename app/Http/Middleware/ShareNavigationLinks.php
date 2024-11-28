@@ -14,12 +14,12 @@ class ShareNavigationLinks
         Inertia::share('navLinks', function () {
             $allowedRoutes = [
                 'Owner' => [
-                    ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'monitor-dashboard'],
-                    ['route' => 'AllContracts', 'label' => 'contracts', 'icon' => 'file'],
-                    ['route' => 'appointments', 'label' => 'Appointments', 'icon' => 'calendar'],
+                    ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'monitor-dashboard'], 
                     ['route' => 'myProperties', 'label' => 'My Properties', 'icon' => 'home'],
+                    ['route' => 'appointmentRequest', 'label' => 'Appointments', 'icon' => 'calendar'],
+                    ['route' => 'AllContracts', 'label' => 'contracts', 'icon' => 'file'], 
+                    ['route' => 'EvaluateRequest', 'label' => 'Request', 'icon' => 'account-question'],
                     ['route' => 'maintenanceOwner','label' => 'Maintenance','icon'=> 'hammer-wrench'],
-                    ['route' => 'EvaluateRequest', 'label' => 'Request', 'icon' => 'account-question']
                 ],
                 'Tenant' => [
                     ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'monitor-dashboard'],
