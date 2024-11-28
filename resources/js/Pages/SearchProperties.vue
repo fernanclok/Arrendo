@@ -239,6 +239,7 @@ import { Head, usePage } from '@inertiajs/vue3';
                                 </div>
                             </div>
                         </div>
+
                         <div class="px-4 py-3 bg-gray-200 bg-opacity-50 sm:px-6 sm:flex sm:flex-row-reverse">
                             <CustomButton v-if="!hasAppointment" type="primary" class="py-2"
                                 @click="scheduleAppointment = true">
