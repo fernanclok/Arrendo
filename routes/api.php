@@ -68,12 +68,15 @@ Route::delete('/properties/{id}', [PropertyController::class, 'destroy']);
 // appointments
 Route::prefix('appointments')->group(function () {
     Route::get('/',[AppointmentController::class, 'getUserAppointments']);
+    Route::get('/requests', [AppointmentController::class, 'getOwnerRequests']);
+    Route::put('/update', [AppointmentController::class, 'updateAppointment']);
 });
 
 // dashboard
 Route::get('/payment-history/{tenantUserId}', [DashboardController::class, 'getPaymentHistory']);
 Route::get('/rented-property/{tenantUserId}', [DashboardController::class, 'getRentedProperty']);
 
+// rental application
 Route::prefix('rental-applications')->group(function(){
     Route::get('/', [RentalApplicationController::class, 'index']);
     Route::post('/{id}/approve', [RentalApplicationController::class, 'approve']);
@@ -92,6 +95,5 @@ Route::prefix('maintenanceOwner')->group(function () {
     Route::get('/properties', [MaintenanceController::class, 'getProperties']); // Listar propiedades
     Route::get('/maintenancesReq', [MaintenanceController::class, 'getRequestsByProperty']); // Listar solicitudes por propiedad
     Route::put('/maintenancesReq/{id}', [MaintenanceController::class, 'updateRequest']);
-  
 });
 
