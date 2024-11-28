@@ -231,11 +231,11 @@ import { Head, usePage } from '@inertiajs/vue3';
                             </div>
                         </div>
                         <div class="px-4 py-3 bg-gray-700 bg-opacity-50 sm:px-6 sm:flex sm:flex-row-reverse">
-                            <button type="button"
+                            <!-- <button type="button"
                                 class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white transition-colors duration-200 bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
                                 @click="applyToListing(selectedProperty.id)">
                                 <i class="mr-2 mdi mdi-check"></i> Apply to this Listing
-                            </button>
+                            </button> -->
                             <button type="button"
                                 class="inline-flex justify-center w-full px-4 py-2 mt-3 text-base font-medium text-gray-700 transition-colors duration-200 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                                 @click="scheduleAppointment = true">

@@ -11,6 +11,7 @@ use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\RentalApplicationController;
 use App\Http\Controllers\AppointmentController;
 use App\Models\Appoinment;
+use App\Models\Rental_application;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,6 +57,8 @@ Route::prefix('properties')->group(function () {
     Route::post('/appointment', [AppointmentController::class, 'createAppoinment']);
     Route::get('/applications', [PropertyController::class, 'getAllApplications']);
     Route::post('/applicate', [PropertyController::class, 'createApplication']);
+    Route::post('/document-application', [RentalApplicationController::class, 'uploadDocument']);
+    Route::get('/last', [RentalApplicationController::class, 'lastApplicationCreated']);
 });
 
 Route::get('/properties/{id}', [PropertyController::class, 'show']);
@@ -91,5 +94,4 @@ Route::prefix('maintenanceOwner')->group(function () {
     Route::put('/maintenancesReq/{id}', [MaintenanceController::class, 'updateRequest']);
   
 });
-
 
