@@ -14,9 +14,10 @@ class Appoinment extends Model
     protected $fillable = [
         'property_id',
         'user_id',
-        'request_date',
+        'requested_date',
         'status',
         'confirmation_date',
+        'rejected_reason',
     ];
 
     public function property()
@@ -35,7 +36,7 @@ class Appoinment extends Model
         $validator = Validator::make($attributes, [
             'status' => [
                 'required',
-                Rule::in(['Pending', 'Confirmed', 'Rejected']),
+                Rule::in(['Pending', 'Approved', 'Rejected']),
             ],
         ]);
 

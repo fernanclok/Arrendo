@@ -66,6 +66,7 @@ Route::delete('/properties/{id}', [PropertyController::class, 'destroy']);
 Route::prefix('appointments')->group(function () {
     Route::get('/',[AppointmentController::class, 'getUserAppointments']);
     Route::get('/requests', [AppointmentController::class, 'getOwnerRequests']);
+    Route::put('/update', [AppointmentController::class, 'updateAppointment']);
 });
 
 // dashboard

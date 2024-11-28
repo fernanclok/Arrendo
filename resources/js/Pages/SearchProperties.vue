@@ -95,66 +95,69 @@ import { Head, usePage } from '@inertiajs/vue3';
                     </transition>
                 </div>
 
-                <!-- Sección de tarjetas de propiedades con scroll interno en móviles -->
-                <div
-                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 h-full overflow-y-auto md:h-auto md:overflow-visible">
-                    <div v-if="properties && properties.length > 0" v-for="property in properties" :key="property.id"
-                        :class="[
-                            'bg-white shadow-md rounded-lg overflow-hidden h-full md:h-auto transform transition duration-300',
-                            { 'scale-105 shadow-xl': activePropertyId === property.id }
-                        ]">
-                        <img :src="property.property_photos_path[0]" alt="Property Photo"
-                            class="w-full h-48 object-cover" v-if="property.property_photos_path.length" />
-                        <div class="p-4">
-                            <h2 class="text-xl font-bold mb-2">{{ property.zone_name }}</h2>
-                            <p class="text-gray-600 mb-2">{{ property.city }} {{ property.state }} , {{ property.street
-                                }}, {{ property.number }}</p>
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="flex items-center">
-                                    <!-- SVG Icon for rooms -->
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8 10h.01M12 10h.01M16 10h.01M9 16h6M4 6h16M4 6a2 2 0 012-2h12a2 2 0 012 2M4 6v12a2 2 0 002 2h12a2 2 0 002-2V6">
-                                        </path>
-                                    </svg>
-                                    {{ property.total_rooms }} rooms
-                                </span>
-                                <span class="flex items-center">
-                                    <!-- SVG Icon for bathrooms -->
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8c-1.657 0-3 1.343-3 3v4h6v-4c0-1.657-1.343-3-3-3zM5 20h14a2 2 0 002-2v-5a2 2 0 00-2-2H5a2 2 0 00-2 2v5a2 2 0 002 2z">
-                                        </path>
-                                    </svg>
-                                    {{ property.total_bathrooms }} bathrooms
-                                </span>
-                            </div>
-                        </div>
-                        <div class="bg-gray-100 px-4 py-3 flex justify-between items-center">
-                            <span class="text-lg font-bold flex items-center">
-                                <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8c-1.657 0-3 1.343-3 3v4h6v-4c0-1.657-1.343-3-3-3zM5 20h14a2 2 0 002-2v-5a2 2 0 00-2-2H5a2 2 0 00-2 2v5a2 2 0 002 2z">
-                                    </path>
-                                </svg>
-                                ${{ property.property_price }}
-                            </span>
-                            <CustomButton v-if="property.id != activePropertyId" type="primary"
-                                @click="toggleDetails(property.id)">
-                                View Details
-                            </CustomButton>
-                            <CustomButton v-else type="primary" @click="showDetails = false">
-                                Hide Details
-                            </CustomButton>
-                        </div>
-                    </div>
-                    <div v-else class="text-center text-gray-500 col-span-3">
-                        <p>No properties found with the applied filters.</p>
-                    </div>
-                </div>
+                <<div
+  class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
+  <div 
+    v-if="properties && properties.length > 0" 
+    v-for="property in properties" 
+    :key="property.id"
+    class="bg-white shadow-md rounded-lg flex flex-col justify-between h-full transform transition duration-300"
+    :class="{ 'scale-105 shadow-xl': activePropertyId === property.id }">
+    
+    <!-- Imagen de la propiedad -->
+    <img 
+      :src="property.property_photos_path[0]" 
+      alt="Property Photo"
+      class="w-full h-48 object-cover"
+      v-if="property.property_photos_path.length" />
+    
+    <!-- Contenido -->
+    <div class="p-4 flex-grow">
+      <h2 class="text-xl font-bold mb-2">{{ property.zone_name }}</h2>
+      <p class="text-gray-600 mb-2">
+        {{ property.city }} {{ property.state }}, {{ property.street }}, {{ property.number }}
+      </p>
+      <div class="flex justify-between items-center mb-2">
+        <span class="flex items-center">
+          <!-- Icono de habitaciones -->
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16h6M4 6h16M4 6a2 2 0 012-2h12a2 2 0 012 2M4 6v12a2 2 0 002 2h12a2 2 0 002-2V6"></path>
+          </svg>
+          {{ property.total_rooms }} rooms
+        </span>
+        <span class="flex items-center">
+          <!-- Icono de baños -->
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 1.343-3 3v4h6v-4c0-1.657-1.343-3-3-3zM5 20h14a2 2 0 002-2v-5a2 2 0 00-2-2H5a2 2 0 00-2 2v5a2 2 0 002 2z"></path>
+          </svg>
+          {{ property.total_bathrooms }} bathrooms
+        </span>
+      </div>
+    </div>
+    
+    <!-- Pie de tarjeta -->
+    <div class="bg-gray-100 px-4 py-3 flex justify-between items-center">
+      <span class="text-lg font-bold flex items-center">
+        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 1.343-3 3v4h6v-4c0-1.657-1.343-3-3-3zM5 20h14a2 2 0 002-2v-5a2 2 0 00-2-2H5a2 2 0 00-2 2v5a2 2 0 002 2z"></path>
+        </svg>
+        ${{ property.property_price }}
+      </span>
+      <CustomButton v-if="property.id != activePropertyId" type="primary" @click="toggleDetails(property.id)">
+        View Details
+      </CustomButton>
+      <CustomButton v-else type="primary" @click="showDetails = false">
+        Hide Details
+      </CustomButton>
+    </div>
+  </div>
+  
+  <!-- Si no hay propiedades -->
+  <div v-else class="text-center text-gray-500 col-span-3">
+    <p>No properties found with the applied filters.</p>
+  </div>
+</div>
+
             </div>
 
             <div v-if="showDetails" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title"
@@ -237,9 +240,14 @@ import { Head, usePage } from '@inertiajs/vue3';
                             </div>
                         </div>
                         <div class="px-4 py-3 bg-gray-200 bg-opacity-50 sm:px-6 sm:flex sm:flex-row-reverse">
-                            <CustomButton type="primary" class="py-2" @click="scheduleAppointment = true">
+                            <CustomButton v-if="!hasAppointment" type="primary" class="py-2"
+                                @click="scheduleAppointment = true">
                                 <i class="mr-2 mdi mdi-calendar"></i> Schedule a Visit
                             </CustomButton>
+                            <p v-else class="text-gray-500 text-sm mt-2">
+                                You already have a visit request for this property. You can view it in <a
+                                    href="/appointments" class="text-green-700 underline">Appointments</a>.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -323,6 +331,7 @@ export default {
             minDate, // Fecha mínima
             maxDate: maxDateString,
             user: null,
+            hasAppointment: false,
             zones: [],
             propertiesSpecifications: {
                 selectedZone: '',
@@ -355,11 +364,15 @@ export default {
                     this.selectedProperty = response.data;
                     this.activePropertyId = propertyId;
                     this.showDetails = true;
+                    this.checkUserAppointment();
                 } catch (error) {
                     console.error("Error fetching property details:", error);
                     alert("Failed to fetch property details. Please try again.");
                 }
             }
+        },
+        checkUserAppointment() {
+            this.hasAppointment = this.selectedProperty.appointments.some(appointment => appointment.user.id === this.user.id);
         },
         toggleFilters() {
             this.showFilters = !this.showFilters;
@@ -445,9 +458,11 @@ export default {
                 });
         },
         clearAppointmentForm() {
-            this.appointmentForm.date = '';
-            this.appointmentForm.time = '';
-            this.appointmentForm.requested_date = '';
+            this.appointmentForm = {
+                date: '',
+                time: '',
+                requested_date: '',
+            }
         },
         loadAvailableHours(date) {
             const timeZone = "America/Tijuana";
@@ -462,7 +477,7 @@ export default {
             const bookedHours = this.selectedProperty.appointments
                 .filter((appointment) => {
                     const appointmentDate = formatInTimeZone(
-                        new Date(appointment),
+                        new Date(appointment.requested_date),
                         timeZone,
                         "yyyy-MM-dd"
                     );
@@ -470,7 +485,7 @@ export default {
                 })
                 .map((appointment) => {
                     return formatInTimeZone(
-                        new Date(appointment),
+                        new Date(appointment.requested_date),
                         timeZone,
                         "HH:mm" // Solo la hora en formato 24h
                     );

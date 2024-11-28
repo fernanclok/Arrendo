@@ -65,4 +65,39 @@ class AppointmentController extends Controller
 
         return response()->json($appointments);
     }
+
+    public function updateAppointment(Request $request)
+    {
+        $request->validate([
+            'appointment_id' => 'required',
+            'status' => 'required',
+            'rejected_reason' => 'nullable|string',
+        ]);
+
+        $appointment = Appoinment::find($request->appointment_id);
+        if (!$appointment) {
+            return response()->json(['message' => 'Appointment not found'], 404);
+        }
+
+        $appointment->status = $request->status;
+
+        // Agregar la fecha y hora de confirmación si el estado es "Approved"
+        if ($request->status === 'Approved') {
+            $appointment->confirmation_date = now();
+            $appointment->rejected_reason = null; // Limpiar el motivo de rechazo si está aprobado
+        } elseif ($request->status === 'Rejected') {
+            $appointment->rejected_reason = $request->rejected_reason;
+            $appointment->confirmation_date = now(); // Limpiar la fecha de confirmación si está rechazado
+        } else {
+            $appointment->confirmation_date = null; // Limpiar la fecha de confirmación si no está aprobado
+            $appointment->rejected_reason = null; // Limpiar el motivo de rechazo si no está rechazado
+        }
+
+        $appointment->save();
+
+        return response()->json([
+            'message' => 'Appointment updated successfully',
+            'data' => $appointment
+        ]);
+    }
 }
