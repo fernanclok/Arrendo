@@ -14,7 +14,8 @@ import { Head } from '@inertiajs/vue3';
                     <div class="p-6">
                         <h1 class="text-2xl font-semibold text-gray-900 mb-6">Your Appointments</h1>
 
-                        <div v-if="appointments.length === 0" class="flex items-center justify-center h-64 text-gray-600 text-lg">
+                        <div v-if="appointments.length === 0"
+                            class="flex items-center justify-center h-64 text-gray-600 text-lg">
                             You have no appointments scheduled.
                         </div>
 
@@ -29,7 +30,8 @@ import { Head } from '@inertiajs/vue3';
                                             <p class="font-medium text-gray-900">
                                                 {{ formatDateTime(appointment.requested_date) }}
                                             </p>
-                                            <p class="text-sm text-gray-600">Property: {{ appointment.property.street }}, {{ appointment.property.city }}, {{ appointment.property.state }}
+                                            <p class="text-sm text-gray-600">Property: {{ appointment.property.street
+                                                }}, {{ appointment.property.city }}, {{ appointment.property.state }}
                                             </p>
                                         </div>
                                     </div>
@@ -59,8 +61,10 @@ import { Head } from '@inertiajs/vue3';
                                 <div v-if="appointment.isOpen" class="mt-4 text-gray-700">
                                     <p><strong>Requested Date:</strong> {{ formatDateTime(appointment.requested_date) }}
                                     </p>
-                                    <p><strong>Confirmation Date:</strong> {{
-                                        formatDateTime(appointment.confirmation_date) }}</p>
+                                    <p v-if="appointment.confirmation_date"><strong>Owner approved your appointment
+                                            at:</strong> {{
+                                                formatDateTime(appointment.confirmation_date)
+                                            }}</p>
                                     <p><strong>Status:</strong> {{ appointment.status }}</p>
                                     <p class="text-lg font-medium mt-4">Property Details</p>
                                     <ul class="list-disc ml-6 space-y-1">
