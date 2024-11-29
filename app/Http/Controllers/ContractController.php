@@ -78,12 +78,23 @@ class ContractController extends Controller
         $request->validate([
             'user_id' => 'required|integer|exists:users,id',
         ]);
-        //obtener todos los contratos del usuario autenticado con sus relaciones
+
+        // Obtener todos los contratos del usuario autenticado con sus relaciones
         $contracts = Contract::where('owner_user_id', $request->user_id)
             ->with('property', 'tenantUser')
-            // Ordenar los contratos por los que esten por vencer
+            // Ordenar los contratos por los que estén por vencer
             ->orderBy('end_date', 'asc')
             ->get();
+
+        // Si no existe el id en owner_user_id buscar con tenant_user_id
+        if ($contracts->isEmpty()) {
+            $contracts = Contract::where('tenant_user_id', $request->user_id)
+                ->with('property', 'tenantUser')
+                // Ordenar los contratos por los que esten y sigan vigentes
+                ->orderBy('end_date', 'desc')
+                ->get();
+        }
+
         // Devolver una respuesta JSON de éxito
         return response()->json($contracts);
     }

@@ -153,7 +153,9 @@ const terminateContract = async (contractId) => {
         message: `Contracts Terminated successfully!`,
         type: 'success'
         });
+        closeTerminateModal();
         getContracts();
+
     } catch (error) {
         console.error(error);
     }
@@ -170,17 +172,17 @@ onMounted(() => {
     <DashboardLayout>
       <div class="p-6">
        <!-- Filtros -->
-       <div class="block justify-between items-center mb-6">
-          <h1 class="text-2xl font-bold text-gray-800 mb-3">Owner's Contracts</h1>
-          <div class="flex justify-center items-center space-x-4 w-full">
-            <select id="property_id" v-model="filterProperty" @change="filter(filterProperty)" class="w-full rounded-lg border-gray-300 text-black">
+       <div  class="block justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-4">Owner's Contracts</h1>  
+        <div class="grid grid-cols-3 justify-center items-center text-center gap-8 w-full">
+            <select id="property_id" v-model="filterProperty" @change="filter(filterProperty)" class="w-full rounded-lg col-span-2 border-gray-300 text-black">
               <option value="">Please select one</option>
               <option v-for="property in properties" :key="property.id" :value="property.id" class="text-black">
                 {{ property.street }}, {{ property.city }}, {{ property.state }}
               </option>
             </select>
             <Link href="/contracts">
-              <CustomButton><i class="mdi mdi-file-edit text-base"></i></CustomButton>
+              <CustomButton class="w-full"><i class="mdi mdi-file-edit text-xl"></i> <span class="text-sm">Create Contract</span></CustomButton>
             </Link>
           </div>
         </div>
@@ -195,7 +197,7 @@ onMounted(() => {
                 <th class="px-6 py-4 font-semibold">Start Date</th>
                 <th class="px-6 py-4 font-semibold">End Date</th>
                 <th class="px-6 py-4 font-semibold">Renewal Amount</th>
-                <th class="px-6 py-4 font-semibold">Accions</th>
+                <th class="px-6 py-4 font-semibold flex justify-center items-center text-center ">Accions</th>
               </tr>
             </thead>
             <tbody class="text-sm text-gray-700">
@@ -229,6 +231,7 @@ onMounted(() => {
                       <SecondaryButton>Details</SecondaryButton>
                     </Link>
                     <CustomButton @click="openRenewalModal(contract.id)" :key="contract.id" class="bg-yellow-500 hover:bg-yellow-700">Renewal</CustomButton>
+                    <CustomButton @click="openTerminateModal(contract.id)" class="bg-red-500 hover:bg-red-700 text-white">Terminate</CustomButton>
                 </td>
                     <!-- Modal -->
         
@@ -247,7 +250,7 @@ onMounted(() => {
       <!-- Modal para renovar contrato -->
         <Modal :show="isRenewalModalOpen" @close="closeRenewalModal">
           <template #default>
-            <nav class="p-8 bg-gray-800">
+            <nav class="p-8 bg-gray-800 shadow-lg rounded-lg">
               <div class="flex justify-between items-center">
                 <h1 class="text-2xl font-bold text-white">Renewal Contracts</h1>
               </div>

@@ -71,6 +71,10 @@ Route::get('/all-contracts', function () {
     return Inertia::render('Contracts/allContract');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('AllContracts');
 
+Route::get('/all-contracts/tenant', function () {
+    return Inertia::render('Contracts/tenantContracts');
+})->middleware(['auth', 'verified', 'role:Tenant'])->name('TenantContracts');
+
 // rental applications
 Route::get('/TrackRequest', function () {
     return Inertia::render('TrackRequest');

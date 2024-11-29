@@ -1,17 +1,16 @@
 <script setup>
 import CustomButton from '@/Components/CustomButton.vue';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import { ref, onMounted } from 'vue';
 // Detalles de contrato
 
 // Fecha de inicio y fin de contrato y nombre del tenant de contrato
 // Informacion de la propiedad     ||    Informacion del Tenant
 // Imagenes y Documentos subidos
-
+const user = usePage().props.auth.user;
 const contract = ref({});
 const loading = ref(true);
-console.log(contract)
 // Obtener el id del contrato de la URL
 const getContractIdFromUrl = () => {
     const pathSegments = window.location.pathname.split('/');
@@ -130,7 +129,7 @@ onMounted(() => {
             <div>
               <p class="font-medium text-gray-700">Emergency Contact</p>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-gray-500">
-                <p><strong>Nombre:</strong> {{ contract.tenant_user.emergency_contact_name }}</p>
+                <p><strong>Name:</strong> {{ contract.tenant_user.emergency_contact_name }}</p>
                 <p><i class="mdi mdi-phone px-2" />{{ contract.tenant_user.emergency_contact_phone }}</p>
               </div>
             </div>
@@ -140,25 +139,32 @@ onMounted(() => {
         <!-- Contract Files -->
         <section>
           <div class="bg-primary text-white text-xl font-bold p-4 rounded-lg shadow-lg mb-4">
-            <h2>Archivos del Contrato</h2>
+            <h2>Contracts Files</h2>
           </div>
           <div class="flex flex-wrap justify-center gap-6">
             <div v-for="(file, index) in contract.contract_path" :key="index" class="bg-white shadow-lg rounded-lg p-6 w-64 border border-gray-200">
               <div v-if="isImage(file)" class="flex flex-col items-center">
                 <img :src="`/${file}`" alt="Contract Image" class="w-full h-40 object-cover rounded-lg shadow-md mb-4" />
-                <a :href="`/${file}`" target="_blank" class="text-primary font-medium hover:underline">Ver Imagen</a>
+                <a :href="`/${file}`" target="_blank" class="text-primary font-medium hover:underline">Show Image</a>
               </div>
               <div v-else-if="isPDF(file)" class="flex flex-col items-center">
                 <i class="mdi mdi-file-pdf-box text-red-600 text-9xl mb-4"></i>
-                <a :href="`/${file}`" target="_blank" class="text-primary font-medium hover:underline">Ver Contrato</a>
+                <a :href="`/${file}`" target="_blank" class="text-primary font-medium hover:underline">Show Contract</a>
               </div>
             </div>
           </div>
         </section>
   
         <!-- Go Back Button -->
-        <div class="mt-8 flex justify-center">
+        <div v-if="(user.role == 'Owner')" class="mt-8 flex justify-center">
         <Link  href="/all-contracts">
+            <CustomButton class="bg-primary text-white py-3 px-8 rounded-lg shadow-md hover:bg-green-600 transition">
+            <p class="font-semibold">Back to Contracts</p>
+          </CustomButton>
+        </Link>
+        </div>
+        <div v-else class="mt-8 flex justify-center">
+        <Link  href="/all-contracts/tenant">
             <CustomButton class="bg-primary text-white py-3 px-8 rounded-lg shadow-md hover:bg-green-600 transition">
             <p class="font-semibold">Back to Contracts</p>
           </CustomButton>
