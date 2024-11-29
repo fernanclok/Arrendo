@@ -80,7 +80,7 @@ const saveChanges = async () => {
     <DashboardLayout>
         <Head title="Maintenance Requests" />
         <section class="p-8">
-            <h1 class="text-2xl font-bold mb-4">Your Maintenance Requests</h1>
+            <h1 class="text-2xl font-bold mb-4">Your Maintenance Requests Tenant</h1>
             <!-- Botón para nueva solicitud -->
             <div class="flex justify-end mb-7">
                 <CustomButton @click="newMaintenance">
@@ -116,19 +116,19 @@ const saveChanges = async () => {
             </div>
            <!-- Solicitudes -->
             <div v-if="maintenanceRequests.length === 0" class="text-center text-gray-500">
-                No maintenance requests found.
+                No maintenance requests found, please had an active contract.
             </div>
             <div v-else class="bg-gray-100 shadow-md rounded-lg p-6">
                 <!-- Contenedor de tarjetas -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div 
-                        v-for="request in filteredRequests" 
-                        :key="request.id" 
-                        class="bg-white shadow-md rounded-lg p-4 flex flex-col justify-between"
-                    >
+                        v-for="request in filteredRequests" :key="request.id" class="bg-white shadow-md rounded-lg p-4 flex flex-col justify-between">
                         <div>
                             <div class="flex justify-center items-center mb-2">
-                                <h2 class="text-lg font-bold">Request Number:{{ request.id }}</h2>
+                                <h2 class="text-lg font-bold">Type: {{ request.type }}</h2>
+                            </div>
+                            <div class="flex justify-center items-center mb-2">
+                                <h2 class="text-sm text-gray-600 mb-2">{{ request.description }}</h2>
                             </div>
              
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -199,6 +199,9 @@ const saveChanges = async () => {
                             <p class="text-sm text-gray-600">
                                 <strong class="block text-gray-800">Property:</strong> 
                                 {{ selectedRequest?.property?.street || 'N/A' }}
+                                {{ selectedRequest?.property?.number || 'N/A' }}
+                                {{ selectedRequest?.property?.city || 'N/A' }}
+                                {{ selectedRequest?.property?.state || 'N/A' }}
                             </p>
                         </div>
                         <div class="text-right" >

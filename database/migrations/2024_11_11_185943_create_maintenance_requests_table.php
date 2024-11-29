@@ -15,11 +15,15 @@ return new class extends Migration
             $table->id();
             $table->foreignId('property_id')->constrained('properties');
             $table->foreignId('tenant_user_id')->constrained('users');
+            $table->text('type');
             $table->text('description');
             $table->date('report_date');
             $table->enum('priority', ['Low', 'Medium', 'High']);
             $table->enum('status', ['Pending', 'In Progress', 'Completed']);
             $table->string('evidence');
+            $table->text('owner_note')->nullable(); // Nota del owner
+            $table->decimal('maintenance_cost', 10, 2)->nullable(); // Costo de mantenimiento
+            $table->timestamp('date_review')->nullable(); // Fecha de revisión automática
             $table->timestamps();
         });
     }

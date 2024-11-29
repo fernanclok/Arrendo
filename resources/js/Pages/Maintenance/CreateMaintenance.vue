@@ -11,6 +11,7 @@ const user = usePage().props.auth.user;
 
 const form = ref({
     tenant_user_id: user.id,
+    type: '',
     description: '',
     priority: '',
     evidence: null,
@@ -22,7 +23,7 @@ const fileInput = ref(null);
 
 // Estado de las notificaciones
 const notification = ref({
-    type: '', // 'success' o 'error'
+    type1: '', // 'success' o 'error'
     message: '',
     visible: false,
 });
@@ -95,6 +96,7 @@ const submitForm = async () => {
     const formData = new FormData();
     formData.append('property_id', property.value.id);
     formData.append('tenant_user_id', form.value.tenant_user_id);
+    formData.append('type', form.value.type);
     formData.append('description', form.value.description);
     formData.append('priority', form.value.priority);
     if (form.value.evidence) {
@@ -131,11 +133,24 @@ const submitForm = async () => {
                 <div v-if="property && property.id" class="flex items-center gap-2">
                     <label class="text-gray-1000">My property:</label>
                     <p class="text-gray-500">
-                        {{ property.street }}{{ property.number }}, {{ property.city }}, {{ property.state }}
+                        {{ property.street }},{{ property.number }}, {{ property.city }}, {{ property.state }}
                     </p>
                 </div>
                 <div v-else>
                     <p class="text-red-500">No property available for your account.</p>
+                </div>
+                <!-- Type -->
+                <div>
+                    <label for="type" class="block text-gray-1000">Type of problem</label>
+                    <select id="type" v-model="form.type"class="w-full border-gray-300 focus:border-green-700 focus:ring-green-700 rounded-md">        
+                        <option value="" disabled>Select Type of problem</option>
+                        <option value="Electrical">Electrical</option>
+                        <option value="Flooring">Flooring</option>
+                        <option value="Plumbing">Plumbing</option>
+                        <option value="Pest Control">Pest Control</option>
+                        <option value="Roofing">Roofing</option>
+                        <option value="Structural">Structural</option>
+                    </select>
                 </div>
                 <!-- Descripción -->
                 <div>

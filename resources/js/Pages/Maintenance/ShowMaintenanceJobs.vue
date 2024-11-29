@@ -31,7 +31,7 @@ const fetchProperties = () => {
 const fetchMaintenanceRequests = (propertyId) => {
     selectedProperty.value = properties.value.find((prop) => prop.id === propertyId); // Guardar propiedad seleccionada
     axios
-        .get('/api/maintenanceOwner/maintenancesReq', { params: { property_id: propertyId } })
+        .get('/api/maintenance/maintenancesReqOwner', { params: { property_id: propertyId } })
         .then((response) => {
             maintenanceRequests.value = response.data;
         })
@@ -61,7 +61,7 @@ const saveChanges = () => {
         maintenance_cost: selectedRequest.value.maintenance_cost, // Costo de mantenimiento
     };
     axios
-        .put(`/api/maintenanceOwner/maintenancesReq/${selectedRequest.value.id}`, updatedData)
+        .put(`/api/maintenance/maintenancesReqOwner/${selectedRequest.value.id}`, updatedData)
         .then(() => {
             // Actualizar la lista de solicitudes después de guardar
             fetchMaintenanceRequests(selectedProperty.value.id);
@@ -91,7 +91,7 @@ const filterRequests = (filter) => {
     <DashboardLayout>
         <Head title="Maintenance Requests Jobs" />
         <section class="p-8">
-            <h1 class="text-2xl font-bold mb-4">Properties with Maintenance Jobs</h1>
+            <h1 class="text-2xl font-bold mb-4">Properties with Maintenance Jobs Owner</h1>
             <!-- Botones de filtro -->
             <div class="flex justify-center text-sm w-full text-gray-500 mb-4">
                 <button
@@ -127,7 +127,7 @@ const filterRequests = (filter) => {
                 <div v-for="property in properties":key="property.id"class="bg-white shadow-md rounded-lg overflow-hidden h-full flex flex-col" >
                     <div class="p-4 flex-grow">
                         <div class="flex justify-between items-center mb-2">
-                                        <h2 class="text-xl font-semibold">{{ property.street }}, {{ property.city }}
+                                        <h2 class="text-xl font-semibold">{{ property.street }}, {{ property.number }}, {{ property.city }}, {{ property.state}}
                                         </h2>
                                         <div :class="{
                                             'px-2 py-1 text-xs font-semibold rounded-full': true,
@@ -173,28 +173,65 @@ const filterRequests = (filter) => {
                     <div
                         v-for="request in filteredRequests"
                         :key="request.id"
-                        class="bg-white shadow-md rounded-lg p-4"
+                        class="bg-white shadow-md rounded-lg p-4 flex flex-col justify-between"
                     >
-                        <div class="flex justify-between items-center mb-2">
-                            <h3 class="text-lg font-semibold">Request Number: {{ request.id }}</h3>
-                            <p
+                        <div>
+                            <div class="flex justify-center items-center mb-2">
+                                <h2 class="text-lg font-bold">Type: {{ request.type }}</h2>
+                            </div>
+                            <div class="flex justify-center items-center mb-2">
+                                <h2 class="text-sm text-gray-600 mb-2">{{ request.description }}</h2>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-sm text-gray-600 mb-2">
+                                        <strong class="block text-gray-800">Reported Date:</strong>
+                                        {{ new Date(request.report_date).toLocaleDateString() || 'N/A' }}
+                                    </p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm text-gray-600">
+                                        <strong class="block text-gray-800">Dispatch Date:</strong>
+                                        {{ request.date_review ? new Date(request.date_review).toLocaleDateString() : 'Not dispatched yet' }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600 mb-1">
+                                        <strong class="block text-gray-800">Maintenance Cost:</strong>
+                                        <span class="font-semibold text-green-700">
+                                            {{ request.maintenance_cost ? `$${parseFloat(request.maintenance_cost).toFixed(2)}` : 'N/A' }}
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-gray-600 text-sm mb-2">
+                                        <strong class="block text-gray-800 mb-2">Priority:</strong>
+                                        <span
+                                            :class="{ 
+                                                'text-white px-1 py-1 rounded': true, 
+                                                'bg-red-400': request.priority === 'High',
+                                                'bg-yellow-300': request.priority === 'Medium', 
+                                                'bg-green-300': request.priority === 'Low',
+                                            }"
+                                        >
+                                            {{ request.priority }}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center mt-4">
+                            <p 
                                 :class="{
                                     'text-sm font-bold px-4 py-1 rounded-md': true,
                                     'bg-yellow-100 text-yellow-800': request.status === 'Pending',
                                     'bg-green-100 text-green-800': request.status === 'In Progress',
-                                    'bg-red-100 text-red-800': request.status === 'Completed'
+                                    'bg-red-100 text-red-800': request.status === 'Completed',
                                 }"
                             >
-                                {{ request.status }}
+                                <strong>Status:</strong> {{ request.status }}
                             </p>
-                        </div>
-                        <div class="text-gray-600 space-y-2">
-                            <p><span class="font-bold">Description:</span> {{ request.description }}</p>
-                            <p><span class="font-bold">Reported by:</span> {{ request.tenant_user.first_name }} {{ request.tenant_user.last_name }}</p>
-                            <p><span class="font-bold">Priority:</span> {{ request.priority }}</p>
-                        </div>
-                        <div class="flex justify-end mt-4">
-                            <SecondaryButton @click="openDetails(request)" type="primary">
+                            <SecondaryButton @click="openDetails(request)">
                                 View Details
                             </SecondaryButton>
                         </div>
@@ -205,15 +242,49 @@ const filterRequests = (filter) => {
             <Modal :show="isModalOpen" @close="closeModal">
                 <template #default>
                     <div class="p-6">
-                        <h2 class="text-xl font-bold mb-4">Request Details</h2>
-                        <p><strong>Property:</strong> {{ selectedProperty.street }}, {{ selectedProperty.number }}, {{ selectedProperty.postal_code }},{{ selectedProperty.city }} </p>
-                        <p><strong>Reported by:</strong> {{ selectedRequest?.tenant_user?.first_name }} {{ selectedRequest?.tenant_user?.last_name }}</p>
-                        <p><strong>Description:</strong> {{ selectedRequest?.description }}</p>
-                        <p><strong>Report Date:</strong> {{ selectedRequest?.report_date }}</p>
-                        <p><strong>Priority:</strong> {{ selectedRequest?.priority }}</p>
+                        <h2 class="text-xl font-bold mb-6 text-center">Request Details</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <p class="text-sm text-gray-600">
+                                    <strong class="block text-gray-800">Property:</strong> 
+                                    {{ selectedProperty.street }}, {{ selectedProperty.number }}, {{ selectedProperty.postal_code }}, {{ selectedProperty.city }}
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm text-gray-600">
+                                    <strong class="block text-gray-800">Reported by:</strong> 
+                                    {{ selectedRequest?.tenant_user?.first_name }} {{ selectedRequest?.tenant_user?.last_name }}
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">
+                                    <strong class="block text-gray-800">Report Date:</strong>
+                                    {{ new Date(selectedRequest?.report_date).toLocaleDateString() || 'No report date' }}
+                                </p>
+                            </div>
+                            <div class="text-right mb-4">
+                                <p class="text-sm text-gray-600">
+                                    <strong class="block text-gray-800">Priority:</strong>
+                                    <span 
+                                        :class="{ 
+                                            'text-white px-1 py-1 rounded': true, 
+                                            'bg-red-400': selectedRequest?.priority === 'High',
+                                            'bg-yellow-300': selectedRequest?.priority === 'Medium', 
+                                            'bg-green-300': selectedRequest?.priority === 'Low',
+                                        }"
+                                    >
+                                        {{ selectedRequest?.priority }}
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
                         <div class="mb-4">
                             <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
-                            <select id="status"  v-model="selectedRequest.status"class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" >
+                            <select 
+                                id="status" 
+                                v-model="selectedRequest.status" 
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                            >
                                 <option value="Pending">Pending</option>
                                 <option value="In Progress">In Progress</option>
                                 <option value="Completed">Completed</option>

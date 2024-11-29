@@ -14,6 +14,7 @@ class Maintenance_request extends Model
     protected $fillable = [
         'property_id',
         'tenant_user_id',
+        'type',
         'description',
         'report_date',
         'priority', //Low, Medium, High

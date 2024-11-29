@@ -11,27 +11,6 @@ use App\Models\Property;
 
 class MaintenanceController extends Controller
 {
-    public function create()
-    {
-        $contract = Contract::with('Property')
-            ->where('tenant_user_id', auth()->id())
-            ->where('status', 'Active')
-            ->first();
-    
-        if (!$contract || !$contract->Property) {
-            return redirect()->back()->withErrors([
-                'error' => !$contract ? 'No active contract found.' : 'No property associated with this contract.',
-            ]);
-        }
-    
-        return Inertia::render('Maintenance/CreateMaintenance', [
-            'Property' => [
-                'id' => $contract->Property->id,
-                'street' => $contract->Property->street,
-            ],
-        ]);
-    }
-    
     public function store(Request $request)
     {
         try {
@@ -39,6 +18,7 @@ class MaintenanceController extends Controller
             $validated = $request->validate([
                 'property_id' => 'required|exists:properties,id',
                 'tenant_user_id' => 'required|exists:users,id',
+                'type' => 'required|string|max:1000',
                 'description' => 'required|string|max:1000',
                 'priority' => 'required|in:Low,Medium,High',
                 'evidence' => 'nullable|file|mimes:jpg,jpeg,png,gif|max:10048',
@@ -66,6 +46,7 @@ class MaintenanceController extends Controller
             $maintenanceRequest = Maintenance_request::create([
                 'tenant_user_id' => $validated['tenant_user_id'],
                 'property_id' => $validated['property_id'],
+                'type' => $validated['type'],
                 'description' => $validated['description'],
                 'priority' => $validated['priority'],
                 'report_date' => now(),
@@ -142,15 +123,13 @@ class MaintenanceController extends Controller
             'property' => [
                 'id' => $contract->Property->id,
                 'street' => $contract->Property->street,
+                'number' => $contract->Property->number,
                 'city' => $contract->Property->city,
                 'state' => $contract->Property->state,
             ],
         ], 200);
     }
-    public function destroy($id)
-    {
-       
-    }
+   
 //Function for my owner in Maintenance
     public function getRequestsByProperty(Request $request)
     {
