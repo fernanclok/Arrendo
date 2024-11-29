@@ -170,65 +170,61 @@
 
     <!-- Comments section-->
     <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-        <!-- {{ this.auth?.user }} -->
-        <h3 class="text-lg font-semibold text-gray-700 mb-4">Comments</h3>
-        <div class="flex items-center justify-between mb-4">
-            <input 
-                type="text" 
-                class="w-full border border-gray-300 rounded p-2" 
-                placeholder="Add a comment..." 
-                v-model="newComment"
-            >
-            <div class="flex items-center ml-4">
-                <button 
-                    v-for="n in 5" 
-                    :key="n" 
-                    @click="setRating(n)" 
-                    class="text-gray-400 hover:text-yellow-500"
-                >
-                    <icon :class="n <= rating ? 'mdi mdi-star' : 'mdi mdi-star-outline'"></icon>
-                </button>
-            </div>
+    <h3 class="text-lg font-semibold text-gray-700 mb-4">Comments</h3>
+
+    <!-- Input para agregar comentario -->
+    <div class="flex items-center space-x-4 mb-6">
+        <input 
+            type="text" 
+            class="flex-1 border border-gray-300 rounded-lg p-2 focus:ring focus:ring-green-500 focus:outline-none" 
+            placeholder="Leave a comment..." 
+            v-model="newComment"
+        >
+        <div class="flex items-center space-x-1">
             <button 
-                class="bg-primary text-white px-4 py-2 rounded ml-4" 
-                @click="addComment"
-                :disabled="!newComment || !rating"
+                v-for="n in 5" 
+                :key="n" 
+                @click="setRating(n)" 
+                :class="n <= rating ? 'text-yellow-500' : 'text-gray-400 hover:text-yellow-500'"
             >
-                <i class="mdi mdi-send"></i>
+                <icon :class="n <= rating ? 'mdi mdi-star' : 'mdi mdi-star-outline'"></icon>
             </button>
         </div>
-        <div class="overflow-y-auto max-h-40">
-            <table class="w-full table-auto text-left">
-                <thead>
-                    <tr>
-                        <th class="px-4 py-2 text-sm font-medium text-gray-500">Date</th>
-                        <th class="px-4 py-2 text-sm font-medium text-gray-500">Comment</th>
-                        <th class="px-4 py-2 text-sm font-medium text-gray-500">User</th>
-                        <th class="px-4 py-2 text-sm font-medium text-gray-500">Rating</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="comment in comments" :key="comment.id" class="hover:bg-gray-100">
-                        <td class="px-4 py-2 text-sm text-gray-700">{{ comment.date }}</td>
-                        <td class="px-4 py-2 text-sm text-gray-700 max-w-60 whitespace-normal break-words">
-                            {{ comment.comment }}
-                        </td>
-                        <td class="px-4 py-2 text-sm text-gray-700">{{ comment.user }}</td>
-                        <td class="px-4 py-2 text-sm text-gray-700">
-                            <div class="flex">
-                                <icon 
-                                    v-for="n in 5" 
-                                    :key="n"
-                                    :class="n <= comment.rating ? 'mdi mdi-star' : 'mdi mdi-star-outline'" 
-                                    class="text-yellow-500"
-                                ></icon>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <button 
+            class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50" 
+            @click="addComment"
+            :disabled="!newComment || !rating"
+        >
+            <i class="mdi mdi-send"></i>
+        </button>
+    </div>
+
+    <!-- Contenedor de comentarios -->
+    <div class="space-y-4 overflow-y-auto max-h-60">
+        <div 
+            v-for="comment in comments" 
+            :key="comment.id" 
+            class="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm"
+        >
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm font-medium text-gray-700">{{ comment.user }}</span>
+                    <span class="text-xs text-gray-500">{{ comment.date }}</span>
+                </div>
+                <div class="flex">
+                    <icon 
+                        v-for="n in 5" 
+                        :key="n"
+                        :class="n <= comment.rating ? 'mdi mdi-star text-yellow-500' : 'mdi mdi-star-outline text-gray-400'" 
+                        class="text-lg"
+                    ></icon>
+                </div>
+            </div>
+            <p class="text-gray-600 whitespace-normal break-words">{{ comment.comment }}</p>
         </div>
     </div>
+</div>
+
 </div>
     </div>
 </template>
