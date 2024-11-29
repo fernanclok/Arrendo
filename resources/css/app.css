@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+#logo-sidebar {
+    transition: transform 0.3s ease-in-out;
+}
+#contenido {
+    transition: transform 0.3s ease-in-out;
+}
+
+.section-background {
+    background-color: #fc3b3b;
+    height: 20%;
+}
+
+/* Para navegadores basados en Webkit (Chrome, Safari, Edge, Opera) */
+::-webkit-scrollbar {
+    width: 4px; /* Ancho de la barra de desplazamiento */
+    height: 8px; /* Altura de la barra en caso de ser horizontal */
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Color de fondo de la pista */
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888; /* Color del "pulgar" de la barra de desplazamiento */
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Color cuando se pasa el cursor por encima */
+}
