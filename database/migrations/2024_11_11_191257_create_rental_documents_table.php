@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('application_id')->constrained('rental_applications');
             $table->string('document_type');
-            $table->string('document_path');
+            $table->json('document_path');
             $table->date('upload_date');
             $table->enum('document_status', ['Pending', 'Approved', 'Rejected']);
             $table->timestamps();

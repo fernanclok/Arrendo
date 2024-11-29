@@ -18,6 +18,7 @@ return new class extends Migration
             $table->dateTime('requested_date');
             $table->enum('status', ['Pending', 'Approved', 'Rejected']);
             $table->dateTime('confirmation_date')->nullable();
+            $table->text('rejected_reason')->nullable();
             $table->timestamps();
         });
     }
