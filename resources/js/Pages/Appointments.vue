@@ -138,17 +138,8 @@ import { usePage } from '@inertiajs/vue3';
                                                         </div>
                                                     </div>
                                                 </div>
-
-                                                <Identity />
-                                            
-                                            </div>
-                                            <div
-                                                class="px-4 py-3  bg-opacity-50 sm:px-6 sm:flex sm:flex-row-reverse">
-                                                <button type="button"
-                                                    class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white transition-colors duration-200 bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
-                                                    @click="applyToListing(selectedProperty.id)">
-                                                    <i class="mr-2 mdi mdi-check"></i> Apply to this Listing
-                                                </button>
+                                                <!-- {{ console.log({id: selectedAppointment.property.id}) }} -->
+                                                <Identity :propertyId="selectedAppointment.property.id" />
                                             </div>
                                         </div>
                                     </div>
@@ -171,6 +162,7 @@ export default {
     data() {
         return {
             appointments: [],
+            propertyId : '',
             showDetails: false, // estado del modal
             selectedAppointment: null, // para almacenar la cita seleccionada
             form: {
@@ -207,7 +199,8 @@ export default {
             })
                 .then((response) => {
                     this.appointments = response.data;
-                    console.log(response.data);
+
+                    // console.log(response.data);
                 })
                 .catch((error) => {
                     console.error(error);
@@ -221,36 +214,6 @@ export default {
         },
         formatDateTime(date) {
             return new Date(date).toLocaleString();
-        },
-        handleFileUpload(event) {
-            const files = event.target.files;
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.form.contract_files.push({ file: file, preview: e.target.result });
-                };
-                reader.readAsDataURL(file);
-            }
-        },
-        removeFile(index) {
-            this.form.contract_files.splice(index, 1);
-        },
-        async submitFiles() {
-            const formData = new FormData();
-            this.form.contract_files.forEach((fileObj) => {
-                formData.append("contract_files[]", fileObj.file);
-            });
-
-            try {
-                await this.$axios.post("/api/upload-files", formData, {
-                    headers: { "Content-Type": "multipart/form-data" },
-                });
-                alert("Files uploaded successfully!");
-                this.showDetails = false;
-            } catch (error) {
-                console.error("File upload failed", error.response.data);
-            }
         }
     },
     mounted() {
