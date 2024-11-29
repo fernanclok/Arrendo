@@ -236,7 +236,7 @@ import { Head, usePage } from '@inertiajs/vue3';
                                                 <h3 class="text-lg font-semibold text-gray-700 mb-2">Comments ({{ selectedProperty.comments.length }})</h3>
                                                 <div v-if="selectedProperty.comments && selectedProperty.comments.length > 0" class="space-y-4 overflow-y-auto max-h-40">
                                                     <div 
-                                                        v-for="comment in selectedProperty.comments" 
+                                                        v-for="comment in [...selectedProperty.comments].reverse()" 
                                                         :key="comment.id" 
                                                         class="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm"
                                                     >

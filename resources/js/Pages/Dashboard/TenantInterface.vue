@@ -206,19 +206,19 @@
             :key="comment.id" 
             class="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm"
         >
-            <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center space-x-2">
-                    <span class="text-sm font-medium text-gray-700">{{ comment.user }}</span>
-                    <span class="text-xs text-gray-500">{{ comment.date }}</span>
-                </div>
-                <div class="flex">
-                    <icon 
-                        v-for="n in 5" 
-                        :key="n"
-                        :class="n <= comment.rating ? 'mdi mdi-star text-yellow-500' : 'mdi mdi-star-outline text-gray-400'" 
-                        class="text-lg"
-                    ></icon>
-                </div>
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-gray-500">{{ new Date(comment.created_at).toLocaleDateString() }}</span>
+            <div class="flex">
+                <icon 
+                    v-for="n in 5" 
+                    :key="n"
+                    :class="n <= comment.comment_rate ? 'mdi mdi-star' : 'mdi mdi-star-outline'" 
+                    class="text-yellow-500 text-lg"
+                ></icon>
+            </div>
+            </div>
+            <div class="mb-2">
+                <p class="text-gray-700 font-medium">{{ comment.first_name }} {{ comment.last_name }}</p>
             </div>
             <p class="text-gray-600 whitespace-normal break-words">{{ comment.comment }}</p>
         </div>
@@ -261,10 +261,7 @@ export default {
         return {
             newComment: '',
             rating: 0, 
-            comments: [
-                { id: 1, date: '2024-11-01', comment: 'Great property!', user: 'John Doe', rating: 4 },
-                { id: 2, date: '2024-11-02', comment: 'Needs improvement.', user: 'Jane Smith', rating: 2 }
-            ],
+            comments: [],
             currentPage: 1,
             rowsPerPage: 10,
             selectedPayment: null,
@@ -378,21 +375,37 @@ export default {
         },
     },
     methods: {
+        getComments() {
+            axios.get(`/api/comments/2`)
+                .then(response => {
+                    this.comments = response.data;
+                })
+                .catch(error => {
+                    console.error('Error fetching comments:', error);
+                });
+        },
         setRating(star) {
             this.rating = star;
         },
         addComment() {
             if (this.newComment && this.rating > 0) {
                 const newComment = {
-                    id: this.comments.length + 1, 
-                    date: new Date().toISOString().split('T')[0], 
                     comment: this.newComment,
-                    user: 'Current User', 
-                    rating: this.rating
+                    rating: this.rating,
+                    property_id : this.property.property_id,
+                    user_id: this.auth.user.id, 
                 };
-                this.comments.push(newComment); 
-                this.newComment = ''; 
-                this.rating = 0; 
+
+                axios.post('/api/comments', newComment)
+                .then(response => {
+                    this.comments = response.data.reverse();
+                    this.newComment = ''; 
+                    this.rating = 0; 
+
+                })
+                .catch(error => {
+                    console.error('Error adding comment:', error);
+                });
             }
         },
         formatDate(date) {
@@ -502,6 +515,7 @@ export default {
         this.refreshInterval = setInterval(this.fetchPayments, 30000);
         this.fetchContracts();
         this.fetchProperty();
+        this.getComments();
     },
 };
 </script>
