@@ -400,14 +400,15 @@ class PropertyController extends Controller
             return response()->json(['message' => 'You have already applied to this property'], 409);
         }
 
-        $application = DB::table('rental_applications')->insert([
+        // Insertar la nueva aplicación y obtener su ID
+        $applicationId = DB::table('rental_applications')->insertGetId([
             'property_id' => $request->property_id,
             'tenant_user_id' => $request->tenant_user_id,
             'application_date' => $request->application_date,
-            'status' => $request->status
+            'status' => $request->status,
         ]);
 
-        if (!$application) {
+        if (!$applicationId) {
             $data = [
                 'message' => 'Error creating the application',
                 'status' => 500
@@ -417,7 +418,8 @@ class PropertyController extends Controller
         }
 
         $data = [
-            'application' => $application,
+            'message' => 'Application created succesfully',
+            'application' => $applicationId,
             'status' => 201
         ];
 
