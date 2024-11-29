@@ -18,3 +18,4 @@ yarn-error.log
 /.vscode
 /public/properties_photos/*
 /public/contracts_files/*
+/public/application_files
