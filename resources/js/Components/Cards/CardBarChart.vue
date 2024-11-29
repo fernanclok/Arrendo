@@ -43,8 +43,8 @@ export default {
 
 
             const labels = this.occupancyData.map((item) => monthNames[item.month - 1]);
-            const notAvailableData = this.occupancyData.map((item) => item.available);
-            const availableData = this.occupancyData.map((item) => item.not_available);
+            const notAvailableData = this.occupancyData.map((item) => item.not_available);
+            const availableData = this.occupancyData.map((item) => item.available);
 
             const config = {
                 type: "bar",
@@ -59,7 +59,7 @@ export default {
                             barThickness: 8,
                         },
                         {
-                            label: "Not Available",
+                            label: "Rented",
                             backgroundColor: "#f44336",
                             borderColor: "#f44336",
                             data: notAvailableData,

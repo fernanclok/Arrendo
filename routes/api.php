@@ -33,6 +33,7 @@ Route::prefix('contracts')->group(function () {
     Route::get('{id}', [ContractController::class, 'getContract']);
     Route::post('/create', [ContractController::class, 'store']);
     Route::get('/get/user_tenant', [ContractController::class, 'getTenantUsers']);
+    Route::get('/tenant/{id}', [ContractController::class, 'getTenantContract']);
 });
 
 // zones
@@ -70,6 +71,9 @@ Route::prefix('appointments')->group(function () {
 // dashboard
 Route::get('/payment-history/{tenantUserId}', [DashboardController::class, 'getPaymentHistory']);
 Route::get('/rented-property/{tenantUserId}', [DashboardController::class, 'getRentedProperty']);
+Route::get('/notifications/{userId}', [DashboardController::class, 'getNotifications']);
+Route::put('/notifications/{id}/read', [DashboardController::class, 'markAsRead']);
+Route::put('/notifications/{id}/unread', [DashboardController::class, 'markAsUnread']);
 
 Route::prefix('rental-applications')->group(function(){
     Route::get('/', [RentalApplicationController::class, 'index']);
@@ -89,7 +93,7 @@ Route::prefix('maintenanceOwner')->group(function () {
     Route::get('/properties', [MaintenanceController::class, 'getProperties']); // Listar propiedades
     Route::get('/maintenancesReq', [MaintenanceController::class, 'getRequestsByProperty']); // Listar solicitudes por propiedad
     Route::put('/maintenancesReq/{id}', [MaintenanceController::class, 'updateRequest']);
-  
+
 });
 
 
