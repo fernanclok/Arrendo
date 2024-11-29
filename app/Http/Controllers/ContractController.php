@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Contract;
+use App\Models\Contract_renewal;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class ContractController extends Controller
 {
@@ -104,5 +106,83 @@ class ContractController extends Controller
         $contract = Contract::where('id', $id)->with('property', 'tenantUser')->first();
         // Devolver una respuesta JSON de éxito
         return response()->json($contract);
+    }
+    // Method to check and update contract statuses
+    public function checkAndUpdateContractStatuses()
+    {
+        try {
+            // Obtener todos los contratos cuya fecha de finalización ha pasado y cuyo estado no es 'pending renewal'
+            $contracts = Contract::where('end_date', '<', Carbon::now())
+                ->where('status', '!=', 'Pending Renewal')
+                ->get();
+
+            foreach ($contracts as $contract) {
+                $contract->status = 'Pending Renewal';
+                $contract->save();
+            }
+
+            // Devolver una respuesta JSON de éxito
+            return response()->json(['message' => 'Contract statuses updated successfully'], 200);
+        } catch (\Exception $e) {
+            // Registrar el error y devolver una respuesta JSON de error
+            Log::error('Error updating contract statuses: ' . $e->getMessage());
+            return response()->json(['error' => 'Error updating contract statuses'], 500);
+        }
+    }
+    // Method  to renew a contract
+    public function renewContract(Request $request, $id)
+    {
+        // insertat en la tabla de contracts_renewals y actualizar el status del contrato a Active
+        try {
+            // Validar los datos del formulario
+            $validatedData = $request->validate([
+                'contract_id' => 'required|exists:contracts,id',
+                'renewal_start_date' => 'required|date',
+                'renewal_end_date' => 'required|date|after:renewal_start_date',
+                'renewal_rental_amount' => 'required|numeric',
+                'renewal_status' => 'required',
+            ]);
+            // Crear un nuevo contrato de renovación
+            $contractRenewal = new Contract_renewal();
+            $contractRenewal->contract_id = $validatedData['contract_id'];
+            $contractRenewal->renewal_start_date = $validatedData['renewal_start_date'];
+            $contractRenewal->renewal_end_date = $validatedData['renewal_end_date'];
+            $contractRenewal->renewal_rental_amount = $validatedData['renewal_rental_amount'];
+            $contractRenewal->renewal_status = $validatedData['renewal_status'];
+            $contractRenewal->save();
+
+            // Actualizar el contrato original
+            $originalContract = Contract::find($id);
+            if ($originalContract) {
+                $originalContract->status = 'Active';
+                $originalContract->save();
+            } else {
+                return response()->json(['success' => false, 'message' => 'Original contract not found'], 404);
+            }
+
+            // Devolver una respuesta JSON de éxito
+            return response()->json(['message' => 'Contract renewed successfully'], 201);
+        } catch (\Exception $e) {
+            // Registrar el error y devolver una respuesta JSON de error
+            Log::error('Error renewing contract: ' . $e->getMessage());
+            return response()->json(['error' => 'Error renewing contract', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    // Meethod to terminate a contract
+    public function terminateContract($id)
+    {
+        // Actualizar el estado del contrato a Terminated
+        try {
+            $contract = Contract::find($id);
+            $contract->status = 'Terminated';
+            $contract->save();
+
+            // Devolver una respuesta JSON de éxito
+            return response()->json(['message' => 'Contract terminated successfully'], 200);
+        } catch (\Exception $e) {
+            // Devolver una respuesta JSON de error
+            return response()->json(['success' => false, 'message' => $e,], 500);
+        }
     }
 }

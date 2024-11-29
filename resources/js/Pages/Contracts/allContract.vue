@@ -1,16 +1,38 @@
 <script setup>
 import CustomButton from '@/Components/CustomButton.vue';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
-import { Head, Link, usePage } from '@inertiajs/vue3';
-import { ref, onMounted, computed } from 'vue';
+import Notification from '@/Components/NotificationCard.vue';
 import axios from 'axios';
-// import SecondaryButton from '@/Components/SecondaryButton.vue';
-// import Modal from '@/Components/Modal.vue'; 
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import TextInput from '@/Components/TextInput.vue';
+import Modal from '@/Components/Modal.vue'; 
+import { Head, Link, usePage, useForm } from '@inertiajs/vue3';
+import { ref, onMounted, computed } from 'vue';
 
 const user = usePage().props.auth.user;
 const contracts = ref([]);
 const properties = ref([]);
+const isRenewalModalOpen = ref(false);
+const isTerminateModalOpen = ref(false);
 const filterProperty = ref(''); 
+const selectedContractId = ref(null);
+
+const notification = ref({
+  show: false,
+  type: '',
+  title: '',
+  message: '',
+});
+
+const showNotification = (data) => {
+  notification.value = { ...data, show: true };
+};
+
+const closeNotification = () => {
+  notification.value.show = false;
+};
 
 // obtener las propiedades
 const getProperties = () => {
@@ -42,6 +64,7 @@ const getContracts = async () => {
     }
 };
 
+
 // Filtrar contratos por propiedad
 const filteredContracts = computed(() => {
     if (filterProperty.value === '') {
@@ -55,27 +78,85 @@ const filter = (propertyId) => {
     filterProperty.value = propertyId;
 };
 
-// Modal
-// const openDetails = (request) => {
-//     selectedRequest.value = {...request}; 
-//     isModalOpen.value = true;
-// };
-// const closeModal = () => {
-//     isModalOpen.value = false; 
-// };
-// Renovar contrato
-// const renewalContract = async (contractId) => {
-//     try {
-//         const response = await axios.post(`/api/contracts/${contractId}/renewal`);
-//         // Actualizar la lista de contratos
-//         getContracts();
-//     } catch (error) {
-//         console.error(error);
-//     }
-// };
+// Abrir modal de renovación
+const openRenewalModal = (contractId) => {
+   selectedContractId.value = contractId;
+   isRenewalModalOpen.value = true;
+};
 
-const renewalContract = (contractId) => {
-    console.log(contractId);
+// Cerrar modal de renovación
+const closeRenewalModal = () => {
+    isRenewalModalOpen.value = false;
+    selectedContractId.value = null;
+};
+
+// Abrir modal de terminación
+const openTerminateModal = (contractId) => {
+    selectedContractId.value = contractId;
+    isTerminateModalOpen.value = true;
+};
+
+// Cerrar modal de terminación
+const closeTerminateModal = () => {
+    isTerminateModalOpen.value = false;
+    selectedContractId.value = null;
+};
+
+const emit = defineEmits(['show_notification']); // Definimos el evento a emitir
+const form = useForm({
+  contract_id: '',
+  renewal_start_date: '',
+  renewal_end_date: '',
+  renewal_rental_amount: '2500',
+  renewal_status: 'Active',
+});
+// Renovar contrato
+const renewalContract = async (contractId) => {
+  const formData = new FormData();
+  formData.append('contract_id', contractId);
+  formData.append('renewal_start_date', form.renewal_start_date);
+  formData.append('renewal_end_date', form.renewal_end_date);
+  formData.append('renewal_rental_amount', form.renewal_rental_amount);
+  formData.append('renewal_status', form.renewal_status);
+
+  try {
+    const response = await axios.post(`/api/contracts/${contractId}/renew`, formData);
+    // Actualizar la lista de contratos
+    showNotification({
+      title: 'Success',
+      message: `Contract renewal successfully!`,
+      type: 'success'
+    });
+    getContracts();
+    //resetear formulario
+    form.renewal_start_date = '';
+    form.renewal_end_date = '';
+    form.renewal_rental_amount = '2500';
+    closeRenewalModal();
+  } catch (error) {
+    console.error(error);
+    showNotification({
+      title: 'Error',
+      message: `Contract renewal requested Fails! Try again later.`,
+      type: 'error'
+    });
+  }
+};
+
+// Terminar contrato
+const terminateContract = async (contractId) => {
+    try {
+        const response = await axios.put(`/api/contracts/terminate/${contractId}`);
+        // Actualizar la lista de contratos
+        showNotification({
+        title: 'Success',
+        message: `Contracts Terminated successfully!`,
+        type: 'success'
+        });
+        getContracts();
+    } catch (error) {
+        console.error(error);
+    }
 };
 // Llamar a getContracts cuando el componente se monte
 onMounted(() => {
@@ -133,28 +214,114 @@ onMounted(() => {
                 <td class="px-6 py-4">${{ contract.rental_amount }} MXN</td>
                 <td v-if="(contract.status == 'Active' )" class="px-6 py-4 flex justify-center items-center space-x-2">
                     <Link :href="`/contracts-details/${contract.id}`">
-                    <CustomButton>Details</CustomButton>
+                      <SecondaryButton>Details</SecondaryButton>
                     </Link>
-                    <CustomButton>Terminate</CustomButton>
+                    <CustomButton @click="openTerminateModal(contract.id)" class="bg-red-500 hover:bg-red-700 text-white">Terminate</CustomButton>
                 </td>
                 <td v-else-if="(contract.status == 'Terminated')" class="px-6 py-4 space-x-2 flex justify-center items-center">
                     <Link :href="`/contracts-details/${contract.id}`">
-                    <CustomButton>Details</CustomButton>
+                      <SecondaryButton>Details</SecondaryButton>
                     </Link>
                    
                 </td>
                 <td v-else-if="(contract.status == 'Pending Renewal')" class="px-6 py-4 space-x-2 flex justify-center items-center">
                     <Link :href="`/contracts-details/${contract.id}`">
-                    <CustomButton>Details</CustomButton>
+                      <SecondaryButton>Details</SecondaryButton>
                     </Link>
-                    <CustomButton @click="renewalContract(contract.id)" :key="contract.id">Renewal</CustomButton>
+                    <CustomButton @click="openRenewalModal(contract.id)" :key="contract.id" class="bg-yellow-500 hover:bg-yellow-700">Renewal</CustomButton>
                 </td>
+                    <!-- Modal -->
+        
               </tr>
             </tbody>
           </table>
         </div>
       </div>
- 
+      <Notification class="absolute bottom-4 right-4"
+                v-if="notification.show"
+                :type="notification.type"
+                :title="notification.title"
+                :message="notification.message"
+                @close="closeNotification"
+                />
+      <!-- Modal para renovar contrato -->
+        <Modal :show="isRenewalModalOpen" @close="closeRenewalModal">
+          <template #default>
+            <nav class="p-8 bg-gray-800">
+              <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-white">Renewal Contracts</h1>
+              </div>
+              <div class="">
+                <form  @submit.prevent="renewalContract(selectedContractId)" class="mt-2 space-y-4 p-8 rounded-lg">
+                  <nav class="flex justify-center space-x-2 w-full">
+                        <div class="flex flex-col justify-start items-start text-start w-full">
+                        <InputLabel for="renewal_start_date" value="New Start Date" class="text-white"/>
+                        <TextInput
+                            id="renewal_start_date"
+                            type="date"
+                            class="w-full rounded-lg border-gray-300 text-black"
+                            v-model="form.renewal_start_date"
+                            required
+                            autofocus
+                            autocomplete="start_date"
+                        />
+                        <InputError class="mt-2" :message="form.errors.renewal_start_date" />
+                        </div>
+                        <div class="flex flex-col justify-start items-start text-start w-full">
+                        <InputLabel for="renewal_end_date" value="New End Date" class="text-white"/> 
+                        <TextInput
+                            id="renewal_end_date"
+                            type="date"
+                            class="w-full rounded-lg border-gray-300 text-black"
+                            v-model="form.renewal_end_date"
+                            required
+                            autofocus
+                            autocomplete="end_date"
+                        />
+                        <InputError class="mt-2" :message="form.errors.renewal_end_date" />
+                        </div>
+                    </nav>
+                    <div class="flex flex-col justify-start items-start text-start">
+                        <InputLabel for="renewal_rental_amount" value="New Rental Amount" class="text-white" />
+                        <input
+                        id="renewal_rental_amount"
+                        type="number"
+                        class="mt-1 block w-full rounded-lg border-gray-300 text-black"
+                        v-model="form.renewal_rental_amount"
+                        required
+                        autofocus
+                        autocomplete="rental_amount"
+                        @input="form.renewal_rental_amount = String($event.target.value)"
+                        />
+                        <InputError class="mt-2" :message="form.errors.renewal_rental_amount" />
+                    </div>
+                    <div class="flex justify-end items-center space-x-4 mt-6">
+                      <SecondaryButton @click="closeRenewalModal">Cancel</SecondaryButton>
+                      <CustomButton  :class="{ 'opacity-25': form.processing, 'bg-yellow-500 text-white': true }" :disabled="form.processing">Renewal</CustomButton>
+                    </div>
+                </form>
+              </div>
+            </nav>
+          </template>
+        </Modal>
+
+      <!-- Modal para terminar contrato -->
+        <Modal :show="isTerminateModalOpen" @close="closeTerminateModal">
+          <template #default>
+            <nav class="p-8 bg-gray-800">
+              <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-white">Terminate Contract</h1>
+              </div>
+              <div class="p-6">
+                <p class="text-red-300">Are you sure you want to end this contract?</p>
+                <div class="flex justify-end items-center space-x-4 mt-6">
+                  <SecondaryButton @click="closeTerminateModal">Cancel</SecondaryButton>
+                  <CustomButton @click="terminateContract(selectedContractId)" class="bg-red-500 hover:bg-red-700 text-white">Terminate</CustomButton>
+                </div>
+              </div>
+            </nav>
+          </template>
+        </Modal>
     </DashboardLayout>
   </template>
   

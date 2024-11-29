@@ -30,8 +30,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // contracts
 Route::prefix('contracts')->group(function () {
     Route::get('/', [ContractController::class, 'index']);
-    Route::get('{id}', [ContractController::class, 'getContract']);
+    Route::get('/{id}', [ContractController::class, 'getContract']);
     Route::post('/create', [ContractController::class, 'store']);
+    Route::put('/terminate/{id}', [ContractController::class, 'terminateContract']);
+    Route::post('/{id}/renew', [ContractController::class, 'renewContract']);
     Route::get('/get/user_tenant', [ContractController::class, 'getTenantUsers']);
 });
 
@@ -64,14 +66,14 @@ Route::delete('/properties/{id}', [PropertyController::class, 'destroy']);
 
 // appointments
 Route::prefix('appointments')->group(function () {
-    Route::get('/',[AppointmentController::class, 'getUserAppointments']);
+    Route::get('/', [AppointmentController::class, 'getUserAppointments']);
 });
 
 // dashboard
 Route::get('/payment-history/{tenantUserId}', [DashboardController::class, 'getPaymentHistory']);
 Route::get('/rented-property/{tenantUserId}', [DashboardController::class, 'getRentedProperty']);
 
-Route::prefix('rental-applications')->group(function(){
+Route::prefix('rental-applications')->group(function () {
     Route::get('/', [RentalApplicationController::class, 'index']);
     Route::post('/{id}/approve', [RentalApplicationController::class, 'approve']);
     Route::post('/{id}/reject', [RentalApplicationController::class, 'reject']);
@@ -81,7 +83,7 @@ Route::prefix('rental-applications')->group(function(){
 Route::prefix('maintenance')->group(function () {
     Route::get('/', [MaintenanceController::class, 'index']);
     Route::post('/store', [MaintenanceController::class, 'store']);
-    Route::patch('/{id}',[MaintenanceController::class, 'update']);
+    Route::patch('/{id}', [MaintenanceController::class, 'update']);
     Route::get('/getPropertyByTenant', [MaintenanceController::class, 'getPropertyByTenant']);
 });
 //MaintenaceOwner
@@ -89,7 +91,4 @@ Route::prefix('maintenanceOwner')->group(function () {
     Route::get('/properties', [MaintenanceController::class, 'getProperties']); // Listar propiedades
     Route::get('/maintenancesReq', [MaintenanceController::class, 'getRequestsByProperty']); // Listar solicitudes por propiedad
     Route::put('/maintenancesReq/{id}', [MaintenanceController::class, 'updateRequest']);
-  
 });
-
-

@@ -62,9 +62,6 @@ Route::get('/contracts', function () {
     return Inertia::render('Contracts/showContract');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('contracts');
 
-Route::get('/manage/contracts', function () {
-    return Inertia::render('Contracts/manageContracts');
-})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('manageContracts');
 
 Route::get('/contracts-details/{id}', function ($id) {
     return Inertia::render('Contracts/detailsContract');
