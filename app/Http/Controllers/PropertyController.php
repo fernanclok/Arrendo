@@ -125,6 +125,7 @@ class PropertyController extends Controller
             ->map(function ($appointment) {
                 return [
                     'requested_date' => $appointment->requested_date,
+                    'appointment_status' => $appointment->status,
                     'user' => $appointment->user
                 ];
             });

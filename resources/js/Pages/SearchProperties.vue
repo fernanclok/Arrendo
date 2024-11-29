@@ -94,7 +94,7 @@ import { Head, usePage } from '@inertiajs/vue3';
                         </div>
                     </transition>
                 </div>
-
+                
                 <div
                     class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
                     <div 
@@ -170,6 +170,7 @@ import { Head, usePage } from '@inertiajs/vue3';
                         <p>No properties found with the applied filters.</p>
                     </div>
                 </div>
+            
             </div>
 
             <div v-if="showDetails" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title"
@@ -418,7 +419,9 @@ export default {
             }
         },
         checkUserAppointment() {
-            this.hasAppointment = this.selectedProperty.appointments.some(appointment => appointment.user.id === this.user.id);
+            this.hasAppointment = this.selectedProperty.appointments.some(appointment => {
+                return appointment.user.id === this.user.id && appointment.appointment_status !== 'Rejected';
+            });
         },
         toggleFilters() {
             this.showFilters = !this.showFilters;
