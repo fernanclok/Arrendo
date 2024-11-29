@@ -19,6 +19,7 @@ class PropertyController extends Controller
         $properties = Property::join('zones', 'zones.id', '=', 'properties.zone_id')
             ->select('properties.*', 'zones.name as zone_name')
             ->where('availability', 'Available')
+            ->with('comments')
             ->get()
             ->map(function ($property) {
                 $photos = $property->property_photos_path ? json_decode($property->property_photos_path, true) : [];
@@ -109,6 +110,7 @@ class PropertyController extends Controller
         $property = Property::join('zones', 'zones.id', '=', 'properties.zone_id')
             ->select('properties.*', 'zones.name as zone_name')
             ->where('properties.id', $id)
+            ->with('comments.user')
             ->firstOrFail();
 
         $photos = $property->property_photos_path ? json_decode($property->property_photos_path, true) : [];
@@ -165,7 +167,8 @@ class PropertyController extends Controller
         }
 
         $query->join('zones', 'zones.id', '=', 'properties.zone_id')
-            ->select('properties.*', 'zones.name as zone_name');
+            ->select('properties.*', 'zones.name as zone_name')
+            ->with('comments');
 
         if (isset($params['selectedZone'])) {
             $query->where('zones.name', 'like', '%' . $params['selectedZone'] . '%');
