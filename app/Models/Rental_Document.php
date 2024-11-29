@@ -9,12 +9,11 @@ class Rental_document extends Model
 {
     use HasFactory;
 
+    protected $table = 'rental_documents_application';
+
     protected $fillable = [
         'application_id',
-        'document_type',
         'document_path',
-        'upload_date',
-        'document_status',
     ];
 
     public function application()

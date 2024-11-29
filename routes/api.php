@@ -57,8 +57,7 @@ Route::prefix('properties')->group(function () {
     Route::post('/appointment', [AppointmentController::class, 'createAppoinment']);
     Route::get('/applications', [PropertyController::class, 'getAllApplications']);
     Route::post('/applicate', [PropertyController::class, 'createApplication']);
-    Route::post('/document-application', [RentalApplicationController::class, 'uploadDocument']);
-    Route::get('/last', [RentalApplicationController::class, 'lastApplicationCreated']);
+    Route::post('/document-application', [RentalApplicationController::class, 'storeAppDocuments']);
 });
 
 Route::get('/properties/{id}', [PropertyController::class, 'show']);
