@@ -11,6 +11,7 @@ use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\RentalApplicationController;
 use App\Http\Controllers\AppointmentController;
 use App\Models\Appoinment;
+use App\Models\Rental_application;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,6 +58,8 @@ Route::prefix('properties')->group(function () {
     Route::post('/appointment', [AppointmentController::class, 'createAppoinment']);
     Route::get('/applications', [PropertyController::class, 'getAllApplications']);
     Route::post('/applicate', [PropertyController::class, 'createApplication']);
+    Route::post('/document-application', [RentalApplicationController::class, 'uploadDocument']);
+    Route::get('/last', [RentalApplicationController::class, 'lastApplicationCreated']);
 });
 
 Route::get('/properties/{id}', [PropertyController::class, 'show']);
@@ -66,6 +69,8 @@ Route::delete('/properties/{id}', [PropertyController::class, 'destroy']);
 // appointments
 Route::prefix('appointments')->group(function () {
     Route::get('/',[AppointmentController::class, 'getUserAppointments']);
+    Route::get('/requests', [AppointmentController::class, 'getOwnerRequests']);
+    Route::put('/update', [AppointmentController::class, 'updateAppointment']);
 });
 
 // dashboard
@@ -75,6 +80,7 @@ Route::get('/notifications/{userId}', [DashboardController::class, 'getNotificat
 Route::put('/notifications/{id}/read', [DashboardController::class, 'markAsRead']);
 Route::put('/notifications/{id}/unread', [DashboardController::class, 'markAsUnread']);
 
+// rental application
 Route::prefix('rental-applications')->group(function(){
     Route::get('/', [RentalApplicationController::class, 'index']);
     Route::post('/{id}/approve', [RentalApplicationController::class, 'approve']);
@@ -93,7 +99,5 @@ Route::prefix('maintenanceOwner')->group(function () {
     Route::get('/properties', [MaintenanceController::class, 'getProperties']); // Listar propiedades
     Route::get('/maintenancesReq', [MaintenanceController::class, 'getRequestsByProperty']); // Listar solicitudes por propiedad
     Route::put('/maintenancesReq/{id}', [MaintenanceController::class, 'updateRequest']);
-
 });
-
 
