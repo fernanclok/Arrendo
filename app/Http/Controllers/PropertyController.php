@@ -171,7 +171,7 @@ class PropertyController extends Controller
         }
 
         if (isset($params['allowPets'])) {
-            $query->where('allow_pets', $params['allowPets']);
+            $query->where('accept_mascots', $params['allowPets']);
         }
 
         if (isset($params['parking'])) {
@@ -183,7 +183,7 @@ class PropertyController extends Controller
         }
 
         if (isset($params['bathrooms'])) {
-            $query->where('total_bathrooms', '>=', $params['bathrooms']);
+            $query->whereRaw('total_bathrooms + half_bathrooms >= ?', [$params['bathrooms']]);
         }
 
         if (isset($params['m2'])) {

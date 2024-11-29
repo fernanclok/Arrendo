@@ -25,10 +25,6 @@ import { ref } from 'vue';
                     </nav>
 
                     <div class="flex items-center space-x-2">
-                        <Link href="registro-propiedad"
-                            class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-white text-gray-800 hover:bg-gray-100 focus:bg-gray-100 active:bg-gray-200 focus:ring-gray-300">
-                        Publicar
-                        </Link>
                         <Link href="/login"
                             class="inline-flex items-center px-3 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-primary text-white hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:ring-blue-500">
                         Log In
@@ -44,7 +40,11 @@ import { ref } from 'vue';
             <div :class="{ 'w-full': !showDetails, 'w-full md:w-3/4': showDetails }" class="p-4 h-full overflow-y-auto">
                 <h1 class="text-3xl font-bold mb-6">Properties in Rent</h1>
                 <div class="mb-6">
+                    
                     <div class="flex gap-2 mt-1">
+                        <CustomButton @click="refreshFilters" type="primary" class="py-2 w-32">
+                            <i class="mdi mdi-refresh mr-2"></i> REFRESH FILTERS 
+                        </CustomButton>
                         <select id="zoneSelect" v-model="propertiesSpecifications.selectedZone"
                             class="flex-[3] px-3 py-2 border-gray-300 focus:border-green-700 focus:ring-green-700 rounded-md shadow-sm">
                             <option value="" disabled>Select a Location</option>
@@ -110,9 +110,6 @@ import { ref } from 'vue';
                                     </div>
 
                                     <div class="col-span-1 flex flex-col items-center justify-center space-y-4">
-                                        <CustomButton @click="refreshFilters" type="primary" class="py-2 w-32">
-                                            <i class="mdi mdi-refresh mr-2"></i> REFRESH FILTERS 
-                                        </CustomButton>
                                         <CustomButton @click="filterProperties" type="primary" class="py-2 w-32">
                                             <i class="mdi mdi-magnify mr-2"></i> SEARCH
                                         </CustomButton>
@@ -151,7 +148,12 @@ import { ref } from 'vue';
                                     <icon class="mdi mdi-bed mr-2"></icon>
                                     {{ property.total_rooms }} rooms
                                 </span>
-                                <span class="flex items-center">
+                                <span v-if="property.half_bathrooms > 0" class="flex items-center">
+                                    <!-- SVG Icon for bathrooms -->
+                                    <icon class="mdi mdi-toilet mr-2"></icon>{{ property.total_bathrooms }} bathrooms +
+                                    {{ property.half_bathrooms }} (<icon class="mdi mdi-fraction-one-half mr-1">)</icon>bathrooms
+                                </span>
+                                <span v-else class="flex items-center">
                                     <!-- SVG Icon for bathrooms -->
                                     <icon class="mdi mdi-toilet mr-2"></icon>
                                     {{ property.total_bathrooms }} bathrooms
@@ -269,8 +271,8 @@ import { ref } from 'vue';
 const navItems = [
     { href: '/', label: 'Home' },
     { href: '/properties', label: 'Properties' },
-    { href: '/propietarios', label: 'For Owners' },
-    { href: '/contact', label: 'Contact' },
+    // { href: '/propietarios', label: 'For Owners' },
+    { href: '/contact', label: 'Contact Us' },
 ]
 
 export default {
@@ -281,7 +283,7 @@ export default {
             showFilters: false,
             activePropertyId: null,
             priceOptions: ["5000", "7000", "10000", "+10000"],
-            selectedPrice: 0,
+            selectedPrice: 3,
             isRefreshing: false,
             selectedProperty: {},
             properties: [],
@@ -370,7 +372,7 @@ export default {
                 allowPets: false,
                 parking: false,
             };
-            this.selectedPrice = 0;
+            this.selectedPrice = 3;
 
             this.getProperties();
 
