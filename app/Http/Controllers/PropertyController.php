@@ -51,13 +51,13 @@ class PropertyController extends Controller
         return response()->json($properties);
     }
 
-    public function getComments(Request $request)
+    public function getComments($id)
     {
 
-        $comments = Comment::where('property_id', $request->id)
+        $comments = Comment::where('property_id', $id)
             ->join('users', 'users.id', '=', 'comments.user_id')
             ->orderBy('comments.created_at', 'desc')
-            ->select('comments.*', 'users.name as user_name')
+            ->select('comments.*', 'users.first_name as first_name', 'users.last_name as last_name')
             ->get();
 
         return response()->json($comments);
@@ -67,13 +67,14 @@ class PropertyController extends Controller
     {
         $comment = new Comment();
         $comment->comment = $request->comment;
-        $comment->comment_rate = $request->comment_rate;
+        $comment->comment_rate = $request->rating;
         $comment->property_id = $request->property_id;
         $comment->user_id = $request->user_id;
         $comment->save();
         //
         $comments = Comment::where('property_id', $request->property_id)->get();
         $total = 0;
+        
         foreach ($comments as $comment) {
             $total += $comment->comment_rate;
         }
@@ -84,10 +85,7 @@ class PropertyController extends Controller
 
         $property->save();
         //
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Comment created successfully'
-        ]);
+        return response()->json($comments);
     }
 
     public function show($id)
