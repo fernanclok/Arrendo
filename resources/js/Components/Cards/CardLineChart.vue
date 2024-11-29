@@ -30,7 +30,7 @@ export default {
             required: true,
         },
     },
-    
+
     mounted() {
         this.$nextTick(() => {
             // Etiquetas de los meses (siempre estarán en este orden)
@@ -53,10 +53,16 @@ export default {
             // Combinar los datos base con los datos del backend
             const completeData = [...baseData(previousYear), ...baseData(currentYear)];
 
+            // console.log(completeData, 'completeData');
             this.monthlyIncome.forEach(item => {
-                const match = completeData.find(data => data.year === item.year && data.month === item.month);
+                const match = completeData.find(data =>
+                    Number(data.year) === Number(item.year) &&
+                    Number(data.month) === Number(item.month)
+                );
                 if (match) {
-                    match.total_income = item.total_income; // Actualizar con el dato real
+                    match.total_income = item.total_income;
+                } else {
+                    console.warn('No match found for:', item);
                 }
             });
 
@@ -125,8 +131,6 @@ export default {
             const ctx = document.getElementById("line-chart").getContext("2d");
             window.myLine = new Chart(ctx, config);
         });
-
-        console.log(this.monthlyIncome,'monthlyIncome');
     },
 };
 

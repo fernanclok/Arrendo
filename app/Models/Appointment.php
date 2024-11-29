@@ -7,16 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
-class Appoinment extends Model
+class Appointment extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'property_id',
         'user_id',
-        'request_date',
+        'requested_date',
         'status',
         'confirmation_date',
+        'rejected_reason',
     ];
 
     public function property()
@@ -26,7 +27,7 @@ class Appoinment extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     //status: Pending, Confirmed, Rejected
@@ -35,7 +36,7 @@ class Appoinment extends Model
         $validator = Validator::make($attributes, [
             'status' => [
                 'required',
-                Rule::in(['Pending', 'Confirmed', 'Rejected']),
+                Rule::in(['Pending', 'Approved', 'Rejected']),
             ],
         ]);
 
