@@ -8,8 +8,6 @@ import TenantInterface from './Dashboard/TenantInterface.vue';
 
 const { props } = usePage();
 
-console.log(props.auth.user.role);
-
 const isOwner = computed(() => {
     return props.auth.user.role === 'Owner';
 });
