@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
-class Appoinment extends Model
+class Appointment extends Model
 {
     use HasFactory;
 

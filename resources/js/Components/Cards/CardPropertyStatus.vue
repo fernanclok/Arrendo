@@ -51,7 +51,7 @@
                         <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                             <div class="flex items-center">
                                 <i class="mdi mdi-account-circle mr-2 text-gray-400"></i>
-                                {{ property.tenant_name || 'No tenant' }}
+                                {{ property.tenant_name && property.tenant_name.trim() !== '' ? property.tenant_name : 'No tenant' }}
                             </div>
                         </td>
                         <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
@@ -69,7 +69,7 @@
                             <div class="flex flex-col gap-2">
                                 <span :class="getStatusClasses(property.contract_status)">
                                     <i class="mdi" :class="getStatusIcon(property.contract_status)"></i>
-                                    {{ property.contract_status }}
+                                    {{ property.contract_status || 'For Rent'}}
                                 </span>
                             </div>
                         </td>
@@ -245,6 +245,8 @@ export default {
             }
             this.closeModal(); // Cierra el modal
         },
+    }, mounted() {
+        
     }
 }
 </script>

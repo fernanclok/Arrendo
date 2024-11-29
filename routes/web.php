@@ -111,9 +111,9 @@ Route::get('/maintenanceOwner', function () {
     return Inertia::render('Maintenance/ShowMaintenanceJobs');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('maintenanceOwner');
 
-//Registro propiedades
-Route::get('/registro-propiedad', function () {
-    return Inertia::render('RegistroPropiedad'); // Nombre del componente Vue
-})->name('registro.propiedad');
+// invoices
+Route::get('/my-invoices', function () {
+    return Inertia::render('invoice/MyInvoices');
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('myInvoices');
 
 require __DIR__ . '/auth.php';

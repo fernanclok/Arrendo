@@ -20,6 +20,7 @@ class ShareNavigationLinks
                     ['route' => 'AllContracts', 'label' => 'contracts', 'icon' => 'file'], 
                     ['route' => 'EvaluateRequest', 'label' => 'Request', 'icon' => 'account-question'],
                     ['route' => 'maintenanceOwner','label' => 'Maintenance','icon'=> 'hammer-wrench'],
+                    ['route' => 'myInvoices', 'label' => 'Invoices', 'icon' => 'receipt-text'],
                 ],
                 'Tenant' => [
                     ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'monitor-dashboard'],

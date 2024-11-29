@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-use App\Models\Appoinment;
+use App\Models\Appointment;
 use App\Models\Rental_application;
 
 class PropertyController extends Controller
@@ -117,7 +117,7 @@ class PropertyController extends Controller
             : [];
 
         // Obtener las citas relacionadas con la propiedad
-        $appointments = Appoinment::where('property_id', $id)
+        $appointments = Appointment::where('property_id', $id)
             ->with('user:id,first_name,last_name,email') // Incluir solo los campos necesarios del usuario
             ->get()
             ->map(function ($appointment) {
@@ -171,7 +171,7 @@ class PropertyController extends Controller
         }
 
         if (isset($params['allowPets'])) {
-            $query->where('allow_pets', $params['allowPets']);
+            $query->where('accept_mascots', $params['allowPets']);
         }
 
         if (isset($params['parking'])) {
@@ -183,7 +183,7 @@ class PropertyController extends Controller
         }
 
         if (isset($params['bathrooms'])) {
-            $query->where('total_bathrooms', '>=', $params['bathrooms']);
+            $query->whereRaw('total_bathrooms + half_bathrooms >= ?', [$params['bathrooms']]);
         }
 
         if (isset($params['m2'])) {
