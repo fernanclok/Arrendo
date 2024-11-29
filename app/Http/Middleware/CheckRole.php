@@ -33,6 +33,22 @@ class CheckRole
             return $next($request);
         }
 
+        foreach ($roles as $role) {
+            if (isset($allowedRoutes[$role])) {
+                foreach ($allowedRoutes[$role] as $allowedRoute) {
+                    if (strpos($allowedRoute, '{contracts}') !== false) {
+                        $pattern = str_replace('{contracts}', '[0-9]+', $allowedRoute);
+
+                        if (preg_match("#^$pattern$#", $currentPath)) {
+                            return $next($request);
+                        }
+                    } elseif ($currentPath === $allowedRoute) {
+                        return $next($request);
+                    }
+                }
+            }
+        }
+
         // Redirigir al usuario si no tiene permiso para acceder a la ruta
         return redirect('/dashboard');
     }

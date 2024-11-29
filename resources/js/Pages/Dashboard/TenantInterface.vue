@@ -1,5 +1,9 @@
 <template>
-    <div class="container mx-auto px-6 py-8">
+
+    <div class="container mx-auto px-6 py-2">
+        <div class='py-2'>
+            <h1 class="text-3xl font-bold mb-6">Dashboard</h1>
+        </div>
         <!-- Header -->
         <div class="bg-primary text-white p-6 rounded-lg shadow-lg mb-5">
             <h1 class="text-2xl font-bold">Payment Summary</h1>
@@ -122,75 +126,75 @@
             </div>
         </div>
 
-       <!-- Contratos y Comentarios organizados -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-5">
-    <!-- Contract Table -->
-    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-        <h3 class="text-lg font-semibold text-gray-700 mb-4 flex justify-between">Contracts</h3>
-        <div class="overflow-x-auto">
-            <table class="w-full table-auto text-left">
-                <thead>
-                    <tr>
-                        <th class="px-4 py-2 text-sm font-medium text-gray-500">Contract ID</th>
-                        <th class="px-4 py-2 text-sm font-medium text-gray-500">Property</th>
-                        <th class="px-4 py-2 text-sm font-medium text-gray-500">Status</th>
-                        <th class="px-4 py-2 text-sm font-medium text-gray-500">Start Date</th>
-                        <th class="px-4 py-2 text-sm font-medium text-gray-500">End Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="contract in paginatedContracts" :key="contract.id" class="hover:bg-gray-100">
-                        <td class="px-4 py-2 text-sm text-gray-700">{{ contract.id }}</td>
-                        <td class="px-4 py-2 text-sm text-gray-700">{{ contract.property }}</td>
-                        <td class="px-4 py-2 text-sm">
-                            <span :class="getStatusClasses(contract.status)">
-                                <i class="mdi" :class="getStatusIcon(contract.status)"></i>
-                                {{ contract.status }}
-                            </span>
-                        </td>
-                        <td class="px-4 py-2 text-sm text-gray-700">{{ formatDate(contract.startDate) }}</td>
-                        <td class="px-4 py-2 text-sm text-gray-700">{{ formatDate(contract.endDate) }}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <!-- Pagination Controls -->
-        <div class="mt-4 flex justify-between items-center">
-            <button @click="previousContractPage" :disabled="currentContractPage <= 1"
-                class="bg-primary text-white px-4 py-2 rounded disabled:opacity-50">
-                Previous
-            </button>
-            <span>Page {{ currentContractPage }} of {{ totalContractPages }}</span>
-            <button @click="nextContractPage" :disabled="currentContractPage >= totalContractPages"
-                class="bg-primary text-white px-4 py-2 rounded disabled:opacity-50">
-                Next
-            </button>
-        </div>
-    </div>
+        <!-- Contratos y Comentarios organizados -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-5">
+            <!-- Contract Table -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4 flex justify-between">Contracts</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full table-auto text-left">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-2 text-sm font-medium text-gray-500">Contract ID</th>
+                                <th class="px-4 py-2 text-sm font-medium text-gray-500">Property</th>
+                                <th class="px-4 py-2 text-sm font-medium text-gray-500">Status</th>
+                                <th class="px-4 py-2 text-sm font-medium text-gray-500">Start Date</th>
+                                <th class="px-4 py-2 text-sm font-medium text-gray-500">End Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="contract in paginatedContracts" :key="contract.id" class="hover:bg-gray-100">
+                                <td class="px-4 py-2 text-sm text-gray-700">{{ contract.id }}</td>
+                                <td class="px-4 py-2 text-sm text-gray-700">{{ contract.property }}</td>
+                                <td class="px-4 py-2 text-sm">
+                                    <span :class="getStatusClasses(contract.status)">
+                                        <i class="mdi" :class="getStatusIcon(contract.status)"></i>
+                                        {{ contract.status }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-2 text-sm text-gray-700">{{ formatDate(contract.startDate) }}</td>
+                                <td class="px-4 py-2 text-sm text-gray-700">{{ formatDate(contract.endDate) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination Controls -->
+                <div class="mt-4 flex justify-between items-center">
+                    <button @click="previousContractPage" :disabled="currentContractPage <= 1"
+                        class="bg-primary text-white px-4 py-2 rounded disabled:opacity-50">
+                        Previous
+                    </button>
+                    <span>Page {{ currentContractPage }} of {{ totalContractPages }}</span>
+                    <button @click="nextContractPage" :disabled="currentContractPage >= totalContractPages"
+                        class="bg-primary text-white px-4 py-2 rounded disabled:opacity-50">
+                        Next
+                    </button>
+                </div>
+            </div>
 
-    <!-- Comments section-->
-    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-        <h3 class="text-lg font-semibold text-gray-700 mb-4">Comments</h3>
-        <div class="overflow-x-auto">
-            <table class="w-full table-auto text-left">
-                <thead>
-                    <tr>
-                        <th class="px-4 py-2 text-sm font-medium text-gray-500">Date</th>
-                        <th class="px-4 py-2 text-sm font-medium text-gray-500">Comment</th>
-                        <th class="px-4 py-2 text-sm font-medium text-gray-500">User</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="comment in comments" :key="comment.id" class="hover:bg-gray-100">
-                        <td class="px-4 py-2 text-sm text-gray-700">{{ comment.date }}</td>
-                        <td class="px-4 py-2 text-sm text-gray-700">{{ comment.comment }}</td>
-                        <td class="px-4 py-2 text-sm text-gray-700">{{ comment.user }}</td>
-                    </tr>
-                </tbody>
-            </table>
+            <!-- Comments section-->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Comments</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full table-auto text-left">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-2 text-sm font-medium text-gray-500">Date</th>
+                                <th class="px-4 py-2 text-sm font-medium text-gray-500">Comment</th>
+                                <th class="px-4 py-2 text-sm font-medium text-gray-500">User</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="comment in comments" :key="comment.id" class="hover:bg-gray-100">
+                                <td class="px-4 py-2 text-sm text-gray-700">{{ comment.date }}</td>
+                                <td class="px-4 py-2 text-sm text-gray-700">{{ comment.comment }}</td>
+                                <td class="px-4 py-2 text-sm text-gray-700">{{ comment.user }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
     </div>
 </template>
 
