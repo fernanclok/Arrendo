@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Appoinment;
+use App\Models\Appointment;
 use App\Models\User;
 use App\Models\Property;
 
@@ -18,7 +18,7 @@ class AppointmentController extends Controller
             'status' => 'required',
         ]);
 
-        $appoinment = new Appoinment();
+        $appoinment = new Appointment();
         $appoinment->property_id = $request->property_id;
         $appoinment->user_id = $request->tenant_user_id;
         $appoinment->requested_date = $request->requested_date;
@@ -39,7 +39,7 @@ class AppointmentController extends Controller
         }
 
         //verificar que el user existe y tiene rol de tenant
-        $appoinments = Appoinment::where('user_id', $request->user_id)
+        $appoinments = Appointment::where('user_id', $request->user_id)
             ->with('property') // Cargar la propiedad relacionada
             ->get();
 
@@ -58,7 +58,7 @@ class AppointmentController extends Controller
         $properties = Property::where('owner_user_id', $request->user_id)->pluck('id');
 
         // Obtener todas las citas para las propiedades del propietario
-        $appointments = Appoinment::whereIn('property_id', $properties)
+        $appointments = Appointment::whereIn('property_id', $properties)
             ->with('user') // Cargar el usuario relacionado
             ->with('property') // Cargar la propiedad relacionada
             ->get();
@@ -74,7 +74,7 @@ class AppointmentController extends Controller
             'rejected_reason' => 'nullable|string',
         ]);
 
-        $appointment = Appoinment::find($request->appointment_id);
+        $appointment = Appointment::find($request->appointment_id);
         if (!$appointment) {
             return response()->json(['message' => 'Appointment not found'], 404);
         }

@@ -18,7 +18,7 @@ const isOwner = computed(() => {
 
     <Head title="Dashboard" />
     <DashboardLayout>
-        <div class="relative md:ml- bg-blueGray-100">
+        <div class="relative">
 
             <OwnerInterface v-if="isOwner" v-bind="props" />
 

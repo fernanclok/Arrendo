@@ -16,11 +16,11 @@ import { usePage } from '@inertiajs/vue3';
     <Head title="Appointments" />
 
     <DashboardLayout>
-        <div class="py-12">
+        <div class="py-2">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="overflow-hidden">
                     <div class="p-6">
-                        <h1 class="text-2xl font-semibold text-gray-900 mb-6">Your Appointments</h1>
+                        <h1 class="text-3xl font-bold mb-6">Your Appointments</h1>
 
                         <div v-if="appointments.length === 0"
                             class="flex items-center justify-center h-64 text-gray-600 text-lg">
