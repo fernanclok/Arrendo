@@ -170,21 +170,60 @@
 
     <!-- Comments section-->
     <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <!-- {{ this.auth?.user }} -->
         <h3 class="text-lg font-semibold text-gray-700 mb-4">Comments</h3>
-        <div class="overflow-x-auto">
+        <div class="flex items-center justify-between mb-4">
+            <input 
+                type="text" 
+                class="w-full border border-gray-300 rounded p-2" 
+                placeholder="Add a comment..." 
+                v-model="newComment"
+            >
+            <div class="flex items-center ml-4">
+                <button 
+                    v-for="n in 5" 
+                    :key="n" 
+                    @click="setRating(n)" 
+                    class="text-gray-400 hover:text-yellow-500"
+                >
+                    <icon :class="n <= rating ? 'mdi mdi-star' : 'mdi mdi-star-outline'"></icon>
+                </button>
+            </div>
+            <button 
+                class="bg-primary text-white px-4 py-2 rounded ml-4" 
+                @click="addComment"
+                :disabled="!newComment || !rating"
+            >
+                <i class="mdi mdi-send"></i>
+            </button>
+        </div>
+        <div class="overflow-y-auto max-h-40">
             <table class="w-full table-auto text-left">
                 <thead>
                     <tr>
                         <th class="px-4 py-2 text-sm font-medium text-gray-500">Date</th>
                         <th class="px-4 py-2 text-sm font-medium text-gray-500">Comment</th>
                         <th class="px-4 py-2 text-sm font-medium text-gray-500">User</th>
+                        <th class="px-4 py-2 text-sm font-medium text-gray-500">Rating</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="comment in comments" :key="comment.id" class="hover:bg-gray-100">
                         <td class="px-4 py-2 text-sm text-gray-700">{{ comment.date }}</td>
-                        <td class="px-4 py-2 text-sm text-gray-700">{{ comment.comment }}</td>
+                        <td class="px-4 py-2 text-sm text-gray-700 max-w-60 whitespace-normal break-words">
+                            {{ comment.comment }}
+                        </td>
                         <td class="px-4 py-2 text-sm text-gray-700">{{ comment.user }}</td>
+                        <td class="px-4 py-2 text-sm text-gray-700">
+                            <div class="flex">
+                                <icon 
+                                    v-for="n in 5" 
+                                    :key="n"
+                                    :class="n <= comment.rating ? 'mdi mdi-star' : 'mdi mdi-star-outline'" 
+                                    class="text-yellow-500"
+                                ></icon>
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -224,6 +263,12 @@ export default {
     },
     data() {
         return {
+            newComment: '',
+            rating: 0, 
+            comments: [
+                { id: 1, date: '2024-11-01', comment: 'Great property!', user: 'John Doe', rating: 4 },
+                { id: 2, date: '2024-11-02', comment: 'Needs improvement.', user: 'Jane Smith', rating: 2 }
+            ],
             currentPage: 1,
             rowsPerPage: 10,
             selectedPayment: null,
@@ -337,6 +382,23 @@ export default {
         },
     },
     methods: {
+        setRating(star) {
+            this.rating = star;
+        },
+        addComment() {
+            if (this.newComment && this.rating > 0) {
+                const newComment = {
+                    id: this.comments.length + 1, 
+                    date: new Date().toISOString().split('T')[0], 
+                    comment: this.newComment,
+                    user: 'Current User', 
+                    rating: this.rating
+                };
+                this.comments.push(newComment); 
+                this.newComment = ''; 
+                this.rating = 0; 
+            }
+        },
         formatDate(date) {
             return format(new Date(date), 'dd/MM/yyyy', { locale: es });
         },
