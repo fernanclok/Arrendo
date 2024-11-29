@@ -70,8 +70,10 @@ import { usePage } from '@inertiajs/vue3';
                                 <div v-if="appointment.isOpen" class="mt-4 text-gray-700">
                                     <p><strong>Requested Date:</strong> {{ formatDateTime(appointment.requested_date) }}
                                     </p>
-                                    <p><strong>Confirmation Date:</strong> {{
-                                        formatDateTime(appointment.confirmation_date) }}</p>
+                                    <p v-if="appointment.confirmation_date"><strong>Owner approved your appointment
+                                            at:</strong> {{
+                                                formatDateTime(appointment.confirmation_date)
+                                            }}</p>
                                     <p><strong>Status:</strong> {{ appointment.status }}</p>
                                     <p class="text-lg font-medium mt-4">Property Details</p>
                                     <ul class="list-disc ml-6 space-y-1">
