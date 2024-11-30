@@ -107,7 +107,14 @@ class ContractController extends Controller
     public function getTenantUsers()
     {
         try {
-            $tenantUsers = User::where('role', 'Tenant')->get(); // Devolver una respuesta JSON de éxito
+            // Obtener todos los inquilinos
+            $tenantUsers = User::where('role', 'Tenant')->get();
+            // Filtrar los inquilinos que tienen contratos activos
+            $tenantUsers = $tenantUsers->filter(function ($user) {
+                return !Contract::where('tenant_user_id', $user->id)
+                    ->where('status', 'Active')
+                    ->exists();
+            });
             // Devolver una respuesta JSON de éxito
             return response()->json($tenantUsers);
         } catch (\Exception $e) {
@@ -119,6 +126,7 @@ class ContractController extends Controller
 
     public function getProperties()
     {
+        // Obtener todas las propiedades que no están disponibles
         $properties = Property::join('zones', 'zones.id', '=', 'properties.zone_id')
             ->select('properties.*', 'zones.name as zone_name')
             ->where('availability', 'Not Available')
@@ -130,6 +138,13 @@ class ContractController extends Controller
                     : [];
                 return $property;
             });
+
+        // Filtrar las propiedades que no tienen contratos activos
+        $properties = $properties->filter(function ($property) {
+            return !Contract::where('property_id', $property->id)
+                ->where('status', 'Active')
+                ->exists();
+        });
 
         return response()->json($properties);
     }

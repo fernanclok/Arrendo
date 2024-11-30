@@ -3,10 +3,13 @@ import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import axios from 'axios';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 
 const user = usePage().props.auth.user;
 const contracts = ref([]);
+const currentPage = ref(1);
+const contractsPerPage = 6;
+const paginatedContracts = ref([]);
 
 // Obtener contratos de la API
 const getContracts = async () => {
@@ -21,6 +24,28 @@ const getContracts = async () => {
         console.error(error);
     }
 };
+
+// Paginación
+const prevPage = () => {
+    if (currentPage.value > 1) {
+        currentPage.value--;
+    }
+};
+
+const nextPage = () => {
+    if (currentPage.value < totalPages.value) {
+        currentPage.value++;
+    }
+};
+
+const totalPages = ref(0);
+
+
+// Actualizar la lista de contratos paginados cuando cambie la página actual o los contratos
+watch([contracts, currentPage], () => {
+    totalPages.value = Math.ceil(contracts.value.length / contractsPerPage);
+    paginatedContracts.value = contracts.value.slice((currentPage.value - 1) * contractsPerPage, currentPage.value * contractsPerPage);
+});
 
 // Llamar a getContracts cuando el componente se monte
 onMounted(() => {
@@ -50,7 +75,7 @@ onMounted(() => {
               </tr>
             </thead>
             <tbody class="text-sm text-gray-700">
-              <tr v-for="contract in contracts" :key="contract.id" class="border-b hover:bg-gray-50">
+              <tr v-for="contract in paginatedContracts" :key="contract.id" class="border-b hover:bg-gray-50">
                 <td class="px-6 py-4">{{ contract.property.street }} {{ contract.property.number }}, {{ contract.property.city }} {{ contract.property.state }}, {{ contract.property.postal_code }}</td>
                 <td class="px-6 py-4">{{ contract.tenant_user.first_name }} {{ contract.tenant_user.last_name }}</td>
                 <td class="px-6 py-4">
@@ -72,6 +97,13 @@ onMounted(() => {
               </tr>
             </tbody>
           </table>
+          <div class="flex justify-between ">
+                <button @click="prevPage" :disabled="currentPage === 1" class="px-4 py-2 bg-gray-300 rounded-l">Previous</button>
+                <div class="flex space-x-2">
+                    <span class="text-gray-600">Page {{ currentPage }} of {{ totalPages }}</span>
+                </div>
+                <button @click="nextPage" :disabled="currentPage === totalPages" class="px-4 py-2 bg-gray-300 rounded-r">Next</button>
+            </div>
         </div>
       </div>
   </DashboardLayout>

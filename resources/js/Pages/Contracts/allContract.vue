@@ -9,7 +9,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import Modal from '@/Components/Modal.vue'; 
 import { Head, Link, usePage, useForm } from '@inertiajs/vue3';
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed,watch } from 'vue';
 
 const user = usePage().props.auth.user;
 const contracts = ref([]);
@@ -18,6 +18,9 @@ const isRenewalModalOpen = ref(false);
 const isTerminateModalOpen = ref(false);
 const filterProperty = ref(''); 
 const selectedContractId = ref(null);
+const currentPage = ref(1);
+const contractsPerPage = 6;
+const paginatedContracts = ref([]);
 
 const notification = ref({
   show: false,
@@ -160,6 +163,31 @@ const terminateContract = async (contractId) => {
         console.error(error);
     }
 };
+
+// Paginación
+const prevPage = () => {
+    if (currentPage.value > 1) {
+        currentPage.value--;
+    }
+};
+
+const nextPage = () => {
+    if (currentPage.value < totalPages.value) {
+        currentPage.value++;
+    }
+};
+
+const totalPages = computed(() => {
+    return Math.ceil(filteredContracts.value.length / contractsPerPage);
+});
+
+// Actualizar la lista de contratos paginados cuando cambie la página actual, los contratos o el criterio de búsqueda
+watch([filteredContracts, currentPage], () => {
+    const start = (currentPage.value - 1) * contractsPerPage;
+    const end = currentPage.value * contractsPerPage;
+    paginatedContracts.value = filteredContracts.value.slice(start, end);
+});
+
 // Llamar a getContracts cuando el componente se monte
 onMounted(() => {
     getContracts();
@@ -173,21 +201,22 @@ onMounted(() => {
       <div class="p-6">
        <!-- Filtros -->
        <div  class="block justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-800 mb-4">Owner's Contracts</h1>  
-        <div class="grid grid-cols-3 justify-center items-center text-center gap-8 w-full">
-            <select id="property_id" v-model="filterProperty" @change="filter(filterProperty)" class="w-full rounded-lg col-span-2 border-gray-300 text-black">
-              <option value="">Please select one</option>
-              <option v-for="property in properties" :key="property.id" :value="property.id" class="text-black">
-                {{ property.street }}, {{ property.city }}, {{ property.state }}
-              </option>
-            </select>
-            <Link href="/contracts">
-              <CustomButton class="w-full"><i class="mdi mdi-file-edit text-xl"></i> <span class="text-sm">Create Contract</span></CustomButton>
-            </Link>
+        <h1 class="text-2xl font-bold text-gray-800 mb-4"> {{ user.first_name }} {{ user.last_name }} Contracts</h1>  
+          <div class="block sm:flex justify-center items-center text-center gap-8 w-full">
+            <h1 class="text-lg text-gray-400  font-bold">Filter</h1>
+              <select id="property_id" v-model="filterProperty" @change="filter(filterProperty)" class="w-full rounded-lg  border-gray-300 text-black">
+                <option value="">Please select one</option>
+                <option v-for="property in properties" :key="property.id" :value="property.id" class="text-black">
+                  {{ property.street }}, {{ property.city }}, {{ property.state }}
+                </option>
+              </select>
+              <Link href="/contracts">
+                <CustomButton class="w-full"><i class="mdi mdi-file-edit text-xl"></i></CustomButton>
+              </Link>
           </div>
         </div>
         <!-- Tabla de Contratos -->
-        <div class="overflow-x-auto bg-white shadow-lg rounded-lg">
+        <div class="overflow-x-auto  bg-white shadow-lg rounded-lg">
           <table class="min-w-full table-auto">
             <thead class="bg-gray-100 text-left text-sm text-gray-600">
               <tr>
@@ -201,7 +230,7 @@ onMounted(() => {
               </tr>
             </thead>
             <tbody class="text-sm text-gray-700">
-              <tr v-for="contract in filteredContracts" :key="contract.id" class="border-b hover:bg-gray-50">
+              <tr v-for="contract in paginatedContracts" :key="contract.id" class="border-b hover:bg-gray-50">
                 <td class="px-6 py-4">{{ contract.property.street }} {{ contract.property.number }}, {{ contract.property.city }} {{ contract.property.state }}, {{ contract.property.postal_code }}</td>
                 <td class="px-6 py-4">{{ contract.tenant_user.first_name }} {{ contract.tenant_user.last_name }}</td>
                 <td class="px-6 py-4">
@@ -214,11 +243,11 @@ onMounted(() => {
                 <td class="px-6 py-4">{{ contract.start_date }}</td>
                 <td class="px-6 py-4">{{ contract.end_date }}</td>
                 <td class="px-6 py-4">${{ contract.rental_amount }} MXN</td>
-                <td v-if="(contract.status == 'Active' )" class="px-6 py-4 flex justify-center items-center space-x-2">
+                <td v-if="(contract.status == 'Active' )" class="px-6 flex justify-center items-center space-x-2">
                     <Link :href="`/contracts-details/${contract.id}`">
                       <SecondaryButton>Details</SecondaryButton>
                     </Link>
-                    <CustomButton @click="openTerminateModal(contract.id)" class="bg-red-500 hover:bg-red-700 text-white">Terminate</CustomButton>
+                    <CustomButton  @click="openTerminateModal(contract.id)" class="bg-red-500 hover:bg-red-700 text-white">Terminate</CustomButton>
                 </td>
                 <td v-else-if="(contract.status == 'Terminated')" class="px-6 py-4 space-x-2 flex justify-center items-center">
                     <Link :href="`/contracts-details/${contract.id}`">
@@ -233,11 +262,38 @@ onMounted(() => {
                     <CustomButton @click="openRenewalModal(contract.id)" :key="contract.id" class="bg-yellow-500 hover:bg-yellow-700">Renewal</CustomButton>
                     <CustomButton @click="openTerminateModal(contract.id)" class="bg-red-500 hover:bg-red-700 text-white">Terminate</CustomButton>
                 </td>
-                    <!-- Modal -->
-        
               </tr>
             </tbody>
           </table>
+          <div class="flex justify-between items-center">
+  <!-- Botón de "Previous" -->
+  <SecondaryButton
+    @click="prevPage" 
+    :disabled="currentPage === 1" 
+    :class="{
+      'px-6 py-3  rounded-b-lg font-medium': true, 
+      'opacity-50 cursor-not-allowed': currentPage === 1
+    }" 
+    class="transition-all duration-200 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+  >
+    Previous
+  </SecondaryButton>
+
+  <!-- Contador de páginas -->
+  <div class="flex space-x-2 items-center">
+    <span class="text-gray-600 font-medium">Page {{ currentPage }} of {{ totalPages }}</span>
+  </div>
+
+  <!-- Botón de "Next" -->
+  <SecondaryButton
+    @click="nextPage" 
+    :disabled="currentPage === totalPages" 
+    class="px-6 py-3  rounded-r-lg font-medium transition-all duration-200 ease-in-out " 
+    :class="{'opacity-50 cursor-not-allowed': currentPage === totalPages}"
+  >
+    Next
+  </SecondaryButton>
+</div>
         </div>
       </div>
       <Notification class="absolute bottom-4 right-4"
