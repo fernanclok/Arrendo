@@ -111,4 +111,17 @@ Route::get('/registro-propiedad', function () {
     return Inertia::render('RegistroPropiedad'); // Nombre del componente Vue
 })->name('registro.propiedad');
 
+
+
+// Invoices
+Route::get('/invoice', function () {
+    return Inertia::render('Invoice/Invoices');
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('recibo');
+
+//My Invoices
+Route::get('/myInvoice', function () {
+    return Inertia::render('Invoice/MyInvoices');
+})->middleware(['auth', 'verified', 'role:Tenant'])->name('recibos');
+
+
 require __DIR__ . '/auth.php';

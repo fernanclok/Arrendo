@@ -11,6 +11,7 @@ use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\RentalApplicationController;
 use App\Http\Controllers\AppointmentController;
 use App\Models\Appoinment;
+use App\Http\Controllers\InvoiceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,6 +36,7 @@ Route::prefix('contracts')->group(function () {
     Route::put('/terminate/{id}', [ContractController::class, 'terminateContract']);
     Route::post('/{id}/renew', [ContractController::class, 'renewContract']);
     Route::get('/get/user_tenant', [ContractController::class, 'getTenantUsers']);
+    Route::get('/get/properties', [ContractController::class, 'getProperties']);
 });
 
 // zones
@@ -92,3 +94,10 @@ Route::prefix('maintenanceOwner')->group(function () {
     Route::get('/maintenancesReq', [MaintenanceController::class, 'getRequestsByProperty']); // Listar solicitudes por propiedad
     Route::put('/maintenancesReq/{id}', [MaintenanceController::class, 'updateRequest']);
 });
+
+
+// Invoices
+Route::get('/my-invoices', [InvoiceController::class, 'MyInvoices']);
+Route::get('/invoices', [InvoiceController::class, 'index']);
+Route::patch('/invoices/{id}/invoice-paid', [InvoiceController::class, 'InvoicePaid']);
+Route::post('/contracts/{contractId}/generate-invoices', [InvoiceController::class, 'generateInvoices']);

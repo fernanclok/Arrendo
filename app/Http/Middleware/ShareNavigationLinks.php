@@ -19,7 +19,8 @@ class ShareNavigationLinks
                     ['route' => 'appointments', 'label' => 'Appointments', 'icon' => 'calendar'],
                     ['route' => 'myProperties', 'label' => 'My Properties', 'icon' => 'home'],
                     ['route' => 'maintenanceOwner', 'label' => 'Maintenance', 'icon' => 'hammer-wrench'],
-                    ['route' => 'EvaluateRequest', 'label' => 'Request', 'icon' => 'account-question']
+                    ['route' => 'EvaluateRequest', 'label' => 'Request', 'icon' => 'account-question'],
+                    ['route' => 'recibo', 'label' => 'Invoices', 'icon' => 'receipt-text-clock-outline']
                 ],
                 'Tenant' => [
                     ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'monitor-dashboard'],
@@ -28,6 +29,7 @@ class ShareNavigationLinks
                     ['route' => 'appointments', 'label' => 'Appointments', 'icon' => 'calendar'],
                     ['route' => 'maintenance', 'label' => 'Maintenance', 'icon' => 'hammer-wrench'],
                     ['route' => 'TrackRequest', 'label' => 'Applications', 'icon' => 'account-question'],
+                    ['route' => 'recibos', 'label' => 'My Invoices', 'icon' => 'receipt-text-clock-outline'],
                 ],
             ];
 

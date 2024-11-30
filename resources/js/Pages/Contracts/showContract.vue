@@ -44,7 +44,7 @@ const getTenants = async () => {
 };
 
 const getProperties = () => {
-  axios.get('/api/properties', { params: { user_id: user.id } })
+  axios.get('/api/contracts/get/properties', { params: { user_id: user.id } })
     .then(response => {
       properties.value = response.data;
     })

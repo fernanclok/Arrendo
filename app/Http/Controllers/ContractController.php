@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Contract;
+use App\Models\Property;
 use App\Models\Contract_renewal;
 use App\Models\User;
+use App\Models\Invoice;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
@@ -65,6 +67,10 @@ class ContractController extends Controller
             $contract->status = $validatedData['status'];
             $contract->save();
 
+            // Llamar a la función para generar las facturas para este contrato
+            $this->generateInvoices($contract->id);
+
+
             // Devolver una respuesta JSON de éxito
             return response()->json(['message' => 'Contract created successfully'], 201);
         } catch (\Exception $e) {
@@ -109,6 +115,23 @@ class ContractController extends Controller
             Log::error('Error fetching tenant users: ' . $e->getMessage());
             return response()->json(['error' => 'Error fetching tenant users'], 500);
         }
+    }
+
+    public function getProperties()
+    {
+        $properties = Property::join('zones', 'zones.id', '=', 'properties.zone_id')
+            ->select('properties.*', 'zones.name as zone_name')
+            ->where('availability', 'Not Available')
+            ->get()
+            ->map(function ($property) {
+                $photos = $property->property_photos_path ? json_decode($property->property_photos_path, true) : [];
+                $property->property_photos_path = is_array($photos)
+                    ? array_map(fn($photo) => asset($photo), $photos)
+                    : [];
+                return $property;
+            });
+
+        return response()->json($properties);
     }
 
     public function getContract($id)
@@ -194,6 +217,43 @@ class ContractController extends Controller
         } catch (\Exception $e) {
             // Devolver una respuesta JSON de error
             return response()->json(['success' => false, 'message' => $e,], 500);
+        }
+    }
+
+
+    // Función para generar las facturas
+    public function generateInvoices($contractId)
+    {
+        try {
+            // Obtener el contrato
+            $contract = Contract::findOrFail($contractId);
+
+            $startDate = Carbon::parse($contract->start_date);
+            $endDate = Carbon::parse($contract->end_date);
+            $totalAmount = $contract->rental_amount;
+
+            $invoices = [];
+            while ($startDate <= $endDate) {
+                // Crear una nueva factura para cada mes
+                $invoice = new Invoice([
+                    'contract_id' => $contractId,
+                    'issue_date' => $startDate->format('Y-m-d'),
+                    'total_amount' => $totalAmount,
+                    'payment_status' => 'Pending', // Estado inicial de la factura
+                ]);
+
+                // Guardar la factura
+                $invoice->save();
+                $invoices[] = $invoice;
+
+                // Incrementar la fecha al siguiente mes
+                $startDate->addMonth();
+            }
+
+            // Devolver las facturas generadas
+            return response()->json($invoices, 201);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error generating invoices', 'details' => $e->getMessage()], 500);
         }
     }
 }
