@@ -66,11 +66,9 @@ class InvoiceController extends Controller
     }
 
 
-    public function MyInvoices()
+    public function MyInvoices(Request $request)
     {
         try {
-
-            $tenantUserId = 3;
 
             $history = DB::table('users as u')
                 ->join('contracts as c', 'u.id', '=', 'c.tenant_user_id')
@@ -84,11 +82,11 @@ class InvoiceController extends Controller
                     'i.total_amount as invoice_total',
                     'i.payment_status'
                 )
-                ->where('c.tenant_user_id', $tenantUserId)
+                ->where('c.tenant_user_id', $request->user()->id)
                 ->orderBy('i.issue_date', 'DESC')
                 ->get();
 
-            return response()->json($history, 200);
+            return response()->json($history);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error retrieving payment history', 'details' => $e->getMessage()], 500);
         }

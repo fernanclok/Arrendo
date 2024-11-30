@@ -2,15 +2,19 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 
+const user = usePage().props.auth.user;
 const invoices = ref([]);
-
 // Muestra los recibos por usuario
 const fetchInvoices = async () => {
     try {
-        const response = await axios.get('/api/my-invoices');
-        invoices.value = response.data; 
+        const response = await axios.get('/api/invoices', {
+            params: {
+                user_id: user.id,
+            },
+        });
+        invoices.value = response.data;
     } catch (error) {
         console.error('Error fetching invoices:', error);
     }
@@ -53,12 +57,12 @@ onMounted(fetchInvoices);
             <td class="py-4 px-6">{{ invoice.invoice_date }}</td>
             <td class="py-4 px-6">{{ invoice.contract_id }}</td>
             <td class="py-4 px-6">{{ invoice.tenant_name }}</td>
-            <td class="py-4 px-6">{{ invoice.invoice_date }}</td>
-            <td class="py-4 px-6">{{ invoice.invoice_total }}</td>
+            <td class="py-4 px-6">{{ invoice.issue_date }}</td>
+            <td class="py-4 px-6">{{ invoice.total_amount }}</td>
             <td class="py-4 px-6">{{ invoice.payment_status }}</td>
             <td class="py-4 px-6">
               <button 
-                @click="InvoicePaid(invoice.invoice_id)" 
+                @click="InvoicePaid(invoice.id)" 
                 class="bg-green-500 text-white px-4 py-2 rounded"
               >
                 Pagado

@@ -31,6 +31,9 @@ onMounted(() => {
   <Head title="Invoices" />
   <DashboardLayout>
     <div class="shadow-lg rounded-lg overflow-hidden mx-4 md:mx-10">
+        <div class="p-4 w-full flex justify-start text-start items-start">
+            <h1 class="text-2xl font-semibold text-gray-800 text-center">Owner Invoices</h1>
+        </div>
       <table class="w-full table-fixed">
         <thead>
           <tr class="bg-gray-100">
@@ -46,7 +49,15 @@ onMounted(() => {
             <td class="py-4 px-6 text-gray-600">{{ invoice.contract_id }}</td>
             <td class="py-4 px-6 text-gray-600">{{ invoice.issue_date }}</td>
             <td class="py-4 px-6 text-gray-600">{{ invoice.total_amount }}</td>
-            <td class="py-4 px-6 text-gray-600">{{ invoice.payment_status }}</td>
+            <td class="py-4 px-6 text-gray-70">
+            <span :class="{
+              'text-green-500': invoice.payment_status === 'Paid',
+              'text-yellow-500': invoice.payment_status === 'Pending',
+              'text-red-500': invoice.payment_status === 'Overdue'
+            }">
+              {{ invoice.payment_status }}
+            </span>
+          </td>
           </tr>
         </tbody>
       </table>
