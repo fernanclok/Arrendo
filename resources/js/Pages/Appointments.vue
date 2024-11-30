@@ -72,24 +72,31 @@ import { usePage } from '@inertiajs/vue3';
                                     </p>
                                     <p v-if="appointment.confirmation_date"><strong>Owner approved your appointment
                                             at:</strong> {{
-                                                formatDateTime(appointment.confirmation_date)
-                                            }}</p>
+                                        formatDateTime(appointment.confirmation_date)
+                                        }}</p>
                                     <p><strong>Status:</strong> {{ appointment.status }}</p>
                                     <p class="text-lg font-medium mt-4">Property Details</p>
                                     <ul class="list-disc ml-6 space-y-1">
-                                        <li><strong>Name:</strong> {{ appointment.property.name }}</li>
-                                        <li><strong>Address:</strong> {{ appointment.property.address }}</li>
-                                        <li><strong>Rental Rate:</strong> ${{ appointment.property.rental_rate }}</li>
+                                        <!-- <li><strong>Name:</strong> {{ appointment.property.name }}</li> -->
+                                        <!-- <li><strong>Address:</strong> {{ appointment.property.address }}</li> -->
+                                        <!-- <li><strong>Rental Rate:</strong> ${{ appointment.property.rental_rate }}</li> -->
                                         <li><strong>Availability:</strong> {{ appointment.property.availability }}</li>
-                                        <li><strong>Total Bathrooms:</strong> {{ appointment.property.total_bathrooms }}
-                                        </li>
-                                        <li><strong>Total Rooms:</strong> {{ appointment.property.total_rooms }}</li>
-                                        <li><strong>Size (m²):</strong> {{ appointment.property.total_m2 }}</li>
-                                        <li><strong>Parking Available:</strong> {{ appointment.property.have_parking ?
-                                            'Yes' : 'No' }}</li>
-                                        <li><strong>Price:</strong> ${{ appointment.property.property_price }}</li>
+                                        <li><i class="mr-2 mdi mdi-shower"></i><strong
+                                                class="text-gray-500">Bathrooms:</strong> {{
+                                                    appointment.property.total_bathrooms }}</li>
+                                        <li><i class="mr-2 mdi mdi-bed"></i><strong
+                                                class="text-gray-500">Rooms:</strong> {{
+                                                    appointment.property.total_rooms }}</li>
+                                        <li><i class="mr-2 mdi mdi-ruler"></i><strong class="text-gray-500">Size
+                                                (m²):</strong> {{
+                                                    appointment.property.total_m2 }}</li>
+                                        <li><i class="mr-2 mdi mdi-car"></i><strong
+                                                class="text-gray-500">Parking:</strong> {{
+                                                    appointment.property.have_parking ? "Yes" : "No" }}</li>
+                                        <li><i class="mr-2 mdi mdi-currency-usd"></i><strong
+                                                class="text-gray-500">Price:</strong> {{
+                                                    appointment.property.property_price }}</li>
                                     </ul>
-
 
                                     <!-- Mostrar solo si el estado es Approved -->
                                     <div v-if="appointment.status === 'Approved'">
