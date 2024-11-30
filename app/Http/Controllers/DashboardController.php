@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Carbon\Carbon;
 use App\Models\Notification;
+use App\Events\NewNotification;
 
 class DashboardController extends Controller
 {
@@ -97,39 +98,24 @@ class DashboardController extends Controller
             [
                 'statSubtitle' => 'Active Properties',
                 'statTitle' => "{$activeProperties} of {$allProperties}",
-                'statPercent' => '5', // Porcentaje de cambio mensual, puedes calcularlo dinámicamente si tienes datos históricos
-                'statPercentColor' => 'text-emerald-500',
-                'statDescripiron' => 'Change since last month',
                 'statIconName' => 'mdi mdi-home',
                 'statIconColor' => 'bg-blue-500',
             ],
             [
                 'statSubtitle' => 'Occupancy Rate',
                 'statTitle' => "{$occupancyRate}%",
-                'statArrow' => 'up', // Dirección del cambio
-                'statPercent' => '10',
-                'statPercentColor' => 'text-emerald-500',
-                'statDescripiron' => 'Compared to last month',
                 'statIconName' => 'mdi mdi-chart-line',
                 'statIconColor' => 'bg-green-500',
             ],
             [
                 'statSubtitle' => 'Estimated Income',
                 'statTitle' => "$" . number_format($currentMonthIncome, 2),
-                'statArrow' => 'up',
-                'statPercent' => '15',
-                'statPercentColor' => 'text-emerald-500',
-                'statDescripiron' => 'Estimated this month',
                 'statIconName' => 'mdi mdi-currency-usd',
                 'statIconColor' => 'bg-yellow-500',
             ],
             [
                 'statSubtitle' => 'Maintenance Payments',
                 'statTitle' => "$" . number_format($totalCostCurrentMonth->total_cost ?? 0, 2),
-                'statArrow' => 'down',
-                'statPercent' => '20',
-                'statPercentColor' => 'text-red-500',
-                'statDescripiron' => 'Overdue payments',
                 'statIconName' => 'mdi mdi-currency-usd-off',
                 'statIconColor' => 'bg-red-500',
             ],
@@ -235,7 +221,7 @@ class DashboardController extends Controller
 
     public function getNotifications($userId)
     {
-        $notifications = Notification::where('user_id', $userId)
+        $notifications = Notification::where('receiver_id', $userId)
             ->orderBy('sent_date', 'desc')
             ->get();
 
@@ -289,4 +275,34 @@ class DashboardController extends Controller
             ], 500);
         }
     }
+
+    public function sendNotification(Request $request)
+{
+    $validated = $request->validate([
+        'sender_id' => 'required|integer|exists:users,id',
+        'receiver_id' => 'required|integer|exists:users,id',
+        'notification_type' => 'required|string',
+        'message' => 'required|string|max:255',
+    ]);
+
+    $notification = Notification::create(array_merge($validated, [
+        'sent_date' => now(),
+        'read_status' => false,
+    ]));
+
+    try {
+        broadcast(new NewNotification($notification));
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Notification sent but failed to broadcast.',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+
+    return response()->json([
+        'message' => 'Notification sent successfully!',
+        'notification' => $notification,
+    ]);
+}
+
 }

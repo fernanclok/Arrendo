@@ -1,8 +1,7 @@
 <template>
     <div class="relative">
         <!-- Notifications Button -->
-        <button
-            @click="toggleDropdown"
+        <button @click="toggleDropdown"
             class="relative flex items-center gap-2 text-white bg-primary hover:bg-primary-dark font-semibold py-2 px-4 rounded-lg transition">
             <i class="fas fa-bell"></i>
             Notifications
@@ -26,17 +25,16 @@
 
                 <!-- Notifications List -->
                 <ul v-else class="divide-y divide-gray-200 max-h-64 overflow-y-auto">
-                    <li
-                        v-for="notification in limitedNotifications"
-                        :key="notification.id"
-                        class="flex items-start gap-3 px-4 py-3 hover:bg-gray-100 transition">
+                    <li v-for="notification in limitedNotifications" :key="notification.id"
+                        class="flex items-start gap-3 px-4 py-3 hover:bg-gray-100 transition"
+                        :class="{ 'animate-bounce': notification.new }">
+
                         <!-- Notification Info -->
                         <div class="flex-1">
-                            <p
-                                :class="{
-                                    'text-gray-500': notification.read_status,
-                                    'text-gray-800 font-medium': !notification.read_status
-                                }">
+                            <p :class="{
+                                'text-gray-500': notification.read_status,
+                                'text-gray-800 font-medium': !notification.read_status
+                            }">
                                 {{ notification.message }}
                             </p>
                             <span class="text-xs text-gray-400">
@@ -46,15 +44,11 @@
 
                         <!-- Mark as Read -->
                         <div>
-                            <button
-                                v-if="!notification.read_status"
-                                @click="markAsRead(notification.id)"
+                            <button v-if="!notification.read_status" @click="markAsRead(notification.id)"
                                 class="text-blue-500 hover:text-blue-700 transition">
                                 <i class="mdi mdi-check-circle-outline text-xl"></i>
                             </button>
-                            <button
-                                v-else
-                                @click="markAsUnread(notification.id)"
+                            <button v-else @click="markAsUnread(notification.id)"
                                 class="text-red-500 hover:text-red-700 transition">
                                 <i class="mdi mdi-close-circle-outline text-xl"></i>
                             </button>
@@ -64,8 +58,7 @@
 
                 <!-- View More Option -->
                 <div class="text-center mt-3">
-                    <button
-                        @click="showAllNotifications"
+                    <button @click="showAllNotifications"
                         class="text-blue-600 hover:text-blue-800 font-medium transition">
                         View All Notifications
                     </button>
@@ -79,25 +72,20 @@
         </div>
 
         <!-- Modal -->
-        <div
-            v-if="modalOpen"
-            class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div v-if="modalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <div class="bg-white rounded-lg shadow-lg w-full max-w-3xl p-6">
                 <h2 class="text-xl font-semibold text-gray-800 mb-4">All Notifications</h2>
                 <ul class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
-                    <li
-                        v-for="notification in notifications"
-                        :key="notification.id"
+                    <li v-for="notification in notifications" :key="notification.id"
                         class="flex items-start gap-3 px-4 py-3 hover:bg-gray-100 transition">
                         <div class="flex-1">
                             <span class="text-xs text-gray-400">
                                 {{ notification.notification_type }}
                             </span>
-                            <p
-                                :class="{
-                                    'text-gray-500': notification.read_status,
-                                    'text-gray-800 font-medium': !notification.read_status
-                                }">
+                            <p :class="{
+                                'text-gray-500': notification.read_status,
+                                'text-gray-800 font-medium': !notification.read_status
+                            }">
                                 {{ notification.message }}
                             </p>
                             <span class="text-xs text-gray-400">
@@ -106,15 +94,11 @@
                         </div>
                         <!-- Mark as Read/Unread -->
                         <div>
-                            <button
-                                v-if="!notification.read_status"
-                                @click="markAsRead(notification.id)"
+                            <button v-if="!notification.read_status" @click="markAsRead(notification.id)"
                                 class="text-blue-500 hover:text-blue-700 transition">
                                 <i class="mdi mdi-check-circle-outline text-xl"></i>
                             </button>
-                            <button
-                                v-else
-                                @click="markAsUnread(notification.id)"
+                            <button v-else @click="markAsUnread(notification.id)"
                                 class="text-red-500 hover:text-red-700 transition">
                                 <i class="mdi mdi-close-circle-outline text-xl"></i>
                             </button>
@@ -122,12 +106,20 @@
                     </li>
                 </ul>
                 <div class="text-right mt-4">
-                    <button
-                        @click="closeModal"
+                    <button @click="closeModal"
                         class="text-white bg-primary hover:bg-primary-dark py-2 px-4 rounded-lg transition">
                         Close
                     </button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Notificaciones flotantes -->
+        <div class="fixed top-4 right-4 space-y-2 z-50">
+            <div v-for="(toast, index) in toasts" :key="index"
+                class="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
+                <i class="fas fa-info-circle"></i>
+                {{ toast.message }}
             </div>
         </div>
     </div>
@@ -135,6 +127,8 @@
 
 <script>
 import axios from "axios";
+import Echo from "laravel-echo";
+import Pusher from "pusher-js";
 
 export default {
     props: {
@@ -150,6 +144,7 @@ export default {
             dropdownOpen: false, // State for dropdown visibility
             modalOpen: false, // State for modal visibility
             isLoading: false, // Loading indicator
+            toasts: [], // Toast notifications
         };
     },
     computed: {
@@ -200,6 +195,16 @@ export default {
                 console.error("Error marking notification as unread:", error);
             }
         },
+
+        // Mostrar una notificación flotante
+        showToast(message) {
+            const toast = { message };
+            this.toasts.push(toast);
+            setTimeout(() => {
+                this.toasts.shift();
+            }, 5000); // Ocultar después de 5 segundos
+        },
+
         // Toggle dropdown visibility
         toggleDropdown() {
             this.dropdownOpen = !this.dropdownOpen;
@@ -215,6 +220,17 @@ export default {
     },
     mounted() {
         this.fetchNotifications();
+
+        // Listen to the notifications channel
+
+        window.Echo.private(`notifications.${this.auth.user.id}`)
+            .listen('.NewNotification', (event) => {
+                this.notifications.push(event.notification);
+                this.showToast(event.notification.message);
+            })
+            .error((error) => {
+                console.error("Error escuchando el evento:", error);
+            });
     },
 };
 </script>

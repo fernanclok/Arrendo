@@ -8,6 +8,7 @@ use App\Http\Controllers\MaintenanceController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Broadcasting\BroadcastController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,11 +43,11 @@ Route::get('/properties', function () {
 })->name('properties');
 
 //my properties
-Route::get('/my-properties', function() {
+Route::get('/my-properties', function () {
     return Inertia::render('MyProperties', [
         'user' => auth()->user()
     ]);
-})->middleware(['auth','verified','role:admin,Owner'])->name('myProperties');
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('myProperties');
 
 //search properties
 Route::get('/search-properties', function () {
@@ -102,7 +103,7 @@ Route::get('/maintenance', function () {
     return Inertia::render('Maintenance/ShowMaintenance');
 })->middleware([])->name('maintenance');
 
-Route::get('/maintenance/new', function(){
+Route::get('/maintenance/new', function () {
     return Inertia::render('Maintenance/CreateMaintenance');
 })->middleware(['auth', 'verified', 'role:admin,Tenant,Owner'])->name('maintenanceNew');
 
@@ -115,5 +116,9 @@ Route::get('/maintenanceOwner', function () {
 Route::get('/my-invoices', function () {
     return Inertia::render('invoice/MyInvoices');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('myInvoices');
+
+// Ruta para autenticación de broadcasting
+Route::post('/broadcasting/auth', [BroadcastController::class, 'authenticate'])
+    ->middleware('auth');
 
 require __DIR__ . '/auth.php';
