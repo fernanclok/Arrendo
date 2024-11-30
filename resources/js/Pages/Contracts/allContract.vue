@@ -218,9 +218,10 @@ onMounted(() => {
         <!-- Tabla de Contratos -->
         <div class="overflow-x-auto  bg-white shadow-lg rounded-lg">
           <table class="min-w-full table-auto">
-            <thead class="bg-gray-100 text-left text-sm text-gray-600">
+            <thead class="bg-gray-100 text-center text-sm text-gray-600">
               <tr>
                 <th class="px-6 py-4 font-semibold">Property</th>
+                <th class="px-6 py-4 font-semibold">Property Address</th>
                 <th class="px-6 py-4 font-semibold">Tenant</th>
                 <th class="px-6 py-4 font-semibold">State</th>
                 <th class="px-6 py-4 font-semibold">Start Date</th>
@@ -231,17 +232,18 @@ onMounted(() => {
             </thead>
             <tbody class="text-sm text-gray-700">
               <tr v-for="contract in paginatedContracts" :key="contract.id" class="border-b hover:bg-gray-50">
+                <td class="px-6 py-4">{{ contract.property.property_code }}</td>
                 <td class="px-6 py-4">{{ contract.property.street }} {{ contract.property.number }}, {{ contract.property.city }} {{ contract.property.state }}, {{ contract.property.postal_code }}</td>
                 <td class="px-6 py-4">{{ contract.tenant_user.first_name }} {{ contract.tenant_user.last_name }}</td>
                 <td class="px-6 py-4">
                   <span :class="{
-                    'text-green-600 font-bold': contract.status === 'Active',
-                    'text-red-600 font-bold': contract.status === 'Terminated',
-                    'text-yellow-600 font-bold': contract.status === 'Pending Renewal'
+                    'bg-green-400 font-bold p-2 rounded-xl text-white': contract.status === 'Active',
+                    'bg-red-400 font-bold rounded-xl text-white p-2': contract.status === 'Terminated',
+                    'bg-yellow-600 font-bold rounded-xl text-white p-2': contract.status === 'Pending Renewal'
                   }">{{ contract.status }}</span>
                 </td>
                 <td class="px-6 py-4">{{ contract.start_date }}</td>
-                <td class="px-6 py-4">{{ contract.end_date }}</td>
+                <td class="px-6 py-4 text-red-500">{{ contract.end_date }}</td>
                 <td class="px-6 py-4">${{ contract.rental_amount }} MXN</td>
                 <td v-if="(contract.status == 'Active' )" class="px-6 flex justify-center items-center space-x-2">
                     <Link :href="`/contracts-details/${contract.id}`">

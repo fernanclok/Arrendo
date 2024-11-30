@@ -1,14 +1,14 @@
 <script setup>
+import axios from 'axios';
 import CustomButton from '@/Components/CustomButton.vue';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
-import { Head, usePage, Link } from '@inertiajs/vue3';
-import { ref, computed, onMounted, defineEmits } from 'vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
-import { useForm } from '@inertiajs/vue3';
 import Notification from '@/Components/NotificationCard.vue'; // Asegúrate de tener la ruta correcta
-import axios from 'axios';
+import { useForm } from '@inertiajs/vue3';
+import { Head, usePage, Link } from '@inertiajs/vue3';
+import { ref, computed, onMounted, defineEmits, watch } from 'vue';
 
 // Datos iniciales
 
@@ -75,6 +75,8 @@ const filter = (status) => {
   filterStatus.value = status;
 };
 
+
+
 // Crear contrato
 const form = useForm({
   property_id: '',
@@ -85,6 +87,25 @@ const form = useForm({
   contract_files: [],
   owner_user_id: user.id,
   status: 'Active',
+  errors: {},
+});
+
+const validateForm = () => {
+  form.errors = {};
+  // Validar fechas
+  const startDate = new Date(form.start_date);
+  const endDate = new Date(form.end_date);
+  if (startDate > endDate) {
+    form.errors.start_date = 'Start date cannot be after end date';
+    form.errors.end_date = 'End date cannot be before start date';
+  }
+
+  return Object.keys(form.errors).length === 0;
+}
+
+// Observar cambios en las fechas y validar en tiempo real
+watch([() => form.start_date, () => form.end_date], () => {
+  validateForm();
 });
 
 const handleFileUpload = (event) => {
@@ -112,6 +133,8 @@ const emit = defineEmits(['show_notification']); // Definimos el evento a emitir
 
 // Función para manejar el envío del formulario
 const submitForm = async () => {
+
+
   const formData = new FormData();
   form.contract_files.forEach(fileObj => {
     formData.append('contract_files[]', fileObj.file);
@@ -143,6 +166,7 @@ const submitForm = async () => {
         });
   }
 };
+
 
 // Llamar a getContracts cuando el componente se monte
 onMounted(() => {
@@ -263,12 +287,6 @@ onMounted(() => {
                         <InputError class="mt-2" :message="form.errors.rental_amount" />
                     </div>
                     <div class="flex items-center justify-between pb-8">
-                        <!-- <div class="flex flex-col justify-start items-start text-start space-y-2">
-                        <InputLabel for="checkFiles" value="Did you upload this files?" />
-                        <div class="flex justify-center items-center text-center space-x-2"><Checkbox :value="true"  aria-required="true"/><p class="text-sm text-gray-500">Contract as PDF</p></div>
-                        <div class="flex justify-center items-center text-center space-x-2"><Checkbox :value="true" aria-required="true"/><p class="text-sm text-gray-500">Tenant ID</p></div>
-                        <div class="flex justify-center items-center text-center space-x-2"><Checkbox :value="true"  aria-required="true"/><p class="text-sm text-gray-500">Aval ID</p></div>
-                    </div> -->
                     <CustomButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                         Create Contract
                     </CustomButton>
@@ -307,19 +325,20 @@ onMounted(() => {
                 <div class="block justify-center text-start p-2  overflow-y-auto h-[480px] ">
                     <div v-if="(contracts.length > 0 && filteredContracts.length > 0)">
                         <div v-for="(contract, index) in filteredContracts" :key="contract.id" class="bg-white rounded-lg shadow-lg p-2 m-2">
-                            <nav class="block sm:flex justify-between py-2">
-                                <h1 class="text-sm text-wrap text-black font-black"> {{ contract.property.street }} {{ contract.property.number }}, {{ contract.property.city }} {{ contract.property.state }}</h1>
-                                <div class="block">
-                                    <p :class="{
+                          <nav class="block sm:flex justify-between py-2">
+                            <p class="text-sm justify-start text-start items-start font-bold w-full px-4 py-1 rounded-md">{{ contract.property.property_code }}</p>  
+                            <p :class="{
                                         'text-sm justify-end text-end items-end font-bold w-full px-4 py-1 rounded-md':true,
                                         'bg-gradient-to-l from-green-500 to-white from-10%': contract.status == 'Active',
                                         'bg-gradient-to-l from-yellow-500 to-white from-10%': contract.status == 'Pending Renewal',
                                         'bg-gradient-to-l from-red-500 to-white from-10%': contract.status == 'Terminated'
                                         }"> {{ contract.status }}</p>
-                                    <h1 class="text-sm text-pretty text-primary-black font-black"> {{ contract.rental_amount }}</h1>
-                                </div>
+                          </nav>
+                          <nav class="block sm:flex justify-between py-2 px-4">
+                                <h1 class="text-sm text-wrap text-gray-500 font-black"> {{ contract.property.street }} {{ contract.property.number }}, {{ contract.property.city }} {{ contract.property.state }}</h1>
+                                <h1 class="text-sm text-pretty text-primary-black font-black"> {{ contract.rental_amount }}</h1>
                             </nav>
-                        <div class="block sm:flex justify-start w-full items-center text-center"> <span class="text-sm font-bold text-start  px-2">Tenant:</span><p class="text-xs"> {{ contract.tenant_user.first_name }} {{ contract.tenant_user.last_name }}</p></div>
+                        <div class="block sm:flex justify-start w-full items-center text-center px-2"> <span class="text-sm font-bold text-start  px-2">Tenant:</span><p class="text-xs"> {{ contract.tenant_user.first_name }} {{ contract.tenant_user.last_name }}</p></div>
 
                             <div class="grid grid-cols-3 md:grid-cols-3 gap-2 justify-center items-center text-center py-2">
                                 <div class="items-center">

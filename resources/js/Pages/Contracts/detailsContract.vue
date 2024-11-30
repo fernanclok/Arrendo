@@ -65,7 +65,7 @@ onMounted(() => {
         <!-- Contract Information -->
         <div class="bg-white shadow-lg rounded-lg p-6 space-y-6 border border-gray-200 ">
             <div class="flex justify-between items-center text-center">
-                <h2 class="text-3xl font-semibold text-gray-800">{{ contract.tenant_user.first_name }} {{ contract.tenant_user.last_name }}</h2>
+                <h2 class="text-3xl font-semibold text-gray-800">Tenant: {{ contract.tenant_user.first_name }} {{ contract.tenant_user.last_name }}</h2>
             <p :class="{
                                         'text-sm justify-end text-end items-end font-bold  px-4 py-1 rounded-md':true,
                                         'bg-gradient-to-l from-green-500 to-white from-10%': contract.status == 'Active',
@@ -87,7 +87,7 @@ onMounted(() => {
         <section class="py-8">
           <!-- Property Details -->
           <div class="bg-white shadow-lg rounded-lg p-6 space-y-6 border border-gray-200">
-            <h2 class="text-3xl font-semibold text-gray-800">Property Details</h2>
+            <h2 class="text-3xl font-semibold text-gray-800">Property {{ contract.property.property_code }} Details</h2>
             <div class="space-y-4">
               <p class="font-medium text-gray-700">Address</p>
               <p class="text-gray-500">{{ contract.property.street }} {{ contract.property.number }}, {{ contract.property.city }} {{ contract.property.state }}, {{ contract.property.postal_code }}</p>
