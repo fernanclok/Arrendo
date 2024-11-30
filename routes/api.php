@@ -11,7 +11,10 @@ use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\RentalApplicationController;
 use App\Http\Controllers\AppointmentController;
 use App\Models\Appoinment;
+<<<<<<< HEAD
 use App\Models\Rental_application;
+=======
+>>>>>>> 45ca4fc1e2666bf9abf20419e6974d4074045a43
 
 /*
 |--------------------------------------------------------------------------
@@ -34,7 +37,10 @@ Route::prefix('contracts')->group(function () {
     Route::get('{id}', [ContractController::class, 'getContract']);
     Route::post('/create', [ContractController::class, 'store']);
     Route::get('/get/user_tenant', [ContractController::class, 'getTenantUsers']);
+<<<<<<< HEAD
     Route::get('/tenant/{id}', [ContractController::class, 'getTenantContract']);
+=======
+>>>>>>> 45ca4fc1e2666bf9abf20419e6974d4074045a43
 });
 
 // zones
@@ -58,8 +64,11 @@ Route::prefix('properties')->group(function () {
     Route::post('/appointment', [AppointmentController::class, 'createAppoinment']);
     Route::get('/applications', [PropertyController::class, 'getAllApplications']);
     Route::post('/applicate', [PropertyController::class, 'createApplication']);
+<<<<<<< HEAD
     Route::post('/document-application', [RentalApplicationController::class, 'uploadDocument']);
     Route::get('/last', [RentalApplicationController::class, 'lastApplicationCreated']);
+=======
+>>>>>>> 45ca4fc1e2666bf9abf20419e6974d4074045a43
 });
 
 Route::get('/properties/{id}', [PropertyController::class, 'show']);
@@ -69,18 +78,25 @@ Route::delete('/properties/{id}', [PropertyController::class, 'destroy']);
 // appointments
 Route::prefix('appointments')->group(function () {
     Route::get('/',[AppointmentController::class, 'getUserAppointments']);
+<<<<<<< HEAD
     Route::get('/requests', [AppointmentController::class, 'getOwnerRequests']);
     Route::put('/update', [AppointmentController::class, 'updateAppointment']);
+=======
+>>>>>>> 45ca4fc1e2666bf9abf20419e6974d4074045a43
 });
 
 // dashboard
 Route::get('/payment-history/{tenantUserId}', [DashboardController::class, 'getPaymentHistory']);
 Route::get('/rented-property/{tenantUserId}', [DashboardController::class, 'getRentedProperty']);
+<<<<<<< HEAD
 Route::get('/notifications/{userId}', [DashboardController::class, 'getNotifications']);
 Route::put('/notifications/{id}/read', [DashboardController::class, 'markAsRead']);
 Route::put('/notifications/{id}/unread', [DashboardController::class, 'markAsUnread']);
 
 // rental application
+=======
+
+>>>>>>> 45ca4fc1e2666bf9abf20419e6974d4074045a43
 Route::prefix('rental-applications')->group(function(){
     Route::get('/', [RentalApplicationController::class, 'index']);
     Route::post('/{id}/approve', [RentalApplicationController::class, 'approve']);
@@ -90,6 +106,7 @@ Route::prefix('rental-applications')->group(function(){
 //Maintenace
 Route::prefix('maintenance')->group(function () {
     Route::get('/', [MaintenanceController::class, 'index']);
+<<<<<<< HEAD
     Route::get('/maintenancesReqOwner', [MaintenanceController::class, 'getRequestsByProperty']);
     Route::get('/getPropertyByTenant', [MaintenanceController::class, 'getPropertyByTenant']);
     Route::post('/store', [MaintenanceController::class, 'store']);
@@ -97,3 +114,18 @@ Route::prefix('maintenance')->group(function () {
     Route::put('/maintenancesReqOwner/{id}', [MaintenanceController::class, 'updateRequest']);
    
 });
+=======
+    Route::post('/store', [MaintenanceController::class, 'store']);
+    Route::patch('/{id}',[MaintenanceController::class, 'update']);
+    Route::get('/getPropertyByTenant', [MaintenanceController::class, 'getPropertyByTenant']);
+});
+//MaintenaceOwner
+Route::prefix('maintenanceOwner')->group(function () {
+    Route::get('/properties', [MaintenanceController::class, 'getProperties']); // Listar propiedades
+    Route::get('/maintenancesReq', [MaintenanceController::class, 'getRequestsByProperty']); // Listar solicitudes por propiedad
+    Route::put('/maintenancesReq/{id}', [MaintenanceController::class, 'updateRequest']);
+  
+});
+
+
+>>>>>>> 45ca4fc1e2666bf9abf20419e6974d4074045a43
