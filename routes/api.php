@@ -99,14 +99,16 @@ Route::prefix('maintenance')->group(function () {
 });
 //MaintenaceOwner
 Route::prefix('maintenanceOwner')->group(function () {
-    Route::get('/properties', [MaintenanceController::class, 'getProperties']); // Listar propiedades
-    Route::get('/maintenancesReq', [MaintenanceController::class, 'getRequestsByProperty']); // Listar solicitudes por propiedad
+    Route::get('/properties', [MaintenanceController::class, 'getProperties']);
+    Route::get('/maintenancesReq', [MaintenanceController::class, 'getRequestsByProperty']); 
     Route::put('/maintenancesReq/{id}', [MaintenanceController::class, 'updateRequest']);
 });
 
 // Invoices
-Route::get('/my-invoices', [InvoiceController::class, 'MyInvoices']);
-Route::get('/invoices', [InvoiceController::class, 'index']);
-Route::patch('/invoices/{id}/invoice-paid', [InvoiceController::class, 'InvoicePaid']);
+Route::prefix('Invoices')->group(function () {
+    Route::get('/invoices/{id}/pdf', [InvoiceController::class, 'generatePDF']);
+    Route::get('/invoices', [InvoiceController::class, 'index']);
+    Route::patch('/invoices/{id}/invoice-paid', [InvoiceController::class, 'InvoicePaid']);
+});
 Route::post('/contracts/{contractId}/generate-invoices', [InvoiceController::class, 'generateInvoices']);
 
