@@ -84,7 +84,7 @@ class PropertyController extends Controller
         $property->rental_rate = $total / count($comments);
 
         $property->save();
-        //
+      
         return response()->json($comments);
     }
 
@@ -255,7 +255,8 @@ class PropertyController extends Controller
         ]);
 
         $property = new Property();
-        $property->street = $validatedData['street'];
+        $property->property_code = 'PTY-' .
+            $property->street = $validatedData['street'];
         $property->number = $validatedData['number'];
         $property->city = $validatedData['city'];
         $property->state = $validatedData['state'];
@@ -299,6 +300,9 @@ class PropertyController extends Controller
             $property->property_photos_path = json_encode($photos);
         }
 
+        $property->save();
+        // Generar el código único de la propiedad
+        $property->property_code = 'PTY-' . random_int(1000, 9999) . $property->id;
         $property->save();
 
         return response()->json([

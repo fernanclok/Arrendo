@@ -636,7 +636,7 @@ input[type="range"] {
     outline: none;
 }
 
-input[type="range"]:focus {
+input[type="range"]:focus { 
     outline: none;
 }
 </style>
