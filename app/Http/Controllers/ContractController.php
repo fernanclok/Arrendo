@@ -281,4 +281,5 @@ class ContractController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error generating invoices', 'details' => $e->getMessage()], 500);
         }
+    }
 }
