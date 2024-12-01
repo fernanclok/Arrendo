@@ -25,10 +25,6 @@ import TextInput from '@/Components/TextInput.vue';
           </nav>
 
           <div class="flex items-center space-x-2">
-          <Link href="registro-propiedad"
-            class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-white text-gray-800 hover:bg-gray-100 focus:bg-gray-100 active:bg-gray-200 focus:ring-gray-300">
-          Publicar
-          </Link>
           <Link href="/login"
             class="inline-flex items-center px-3 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-primary text-white hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:ring-green-500">
           Log In
@@ -89,7 +85,12 @@ import TextInput from '@/Components/TextInput.vue';
                             <icon class="mdi mdi-bed mr-2"></icon>
                             {{ property.total_rooms }} rooms
                         </span>
-                        <span class="flex items-center">
+                        <span v-if="property.half_bathrooms > 0" class="flex items-center">
+                            <!-- SVG Icon for bathrooms -->
+                            <icon class="mdi mdi-toilet mr-2"></icon>{{ property.total_bathrooms }} bathrooms +
+                            {{ property.half_bathrooms }} (<icon class="mdi mdi-fraction-one-half mr-1">)</icon>
+                        </span>
+                        <span v-else class="flex items-center">
                             <!-- SVG Icon for bathrooms -->
                             <icon class="mdi mdi-toilet mr-2"></icon>
                             {{ property.total_bathrooms }} bathrooms
@@ -224,10 +225,10 @@ export default {
   }
 }
 const navItems = [
-  { href: '/', label: 'Inicio' },
+  { href: '/', label: 'Welcome' },
   { href: '/properties', label: 'Properties' },
-  { href: '/propietarios', label: 'For Owners' },
-  { href: '/contact', label: 'Contact' },
+  // { href: '/propietarios', label: 'For Owners' },
+  { href: '/contact', label: 'Contact Us' },
 ]
 
 // const propertyTypes = [

@@ -1,78 +1,94 @@
+<script setup>
+import DashboardLayout from "@/Layouts/DashboardLayout.vue";
+import { Head } from '@inertiajs/vue3';
+import CustomButton from '@/Components/CustomButton.vue';
+</script>
 <template>
-    <DashboardLayout>
-      <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-          <div class="bg-white shadow-md rounded-lg">
-            <div class="p-6 border-b border-gray-200">
-              <h1 class="text-3xl font-bold text-gray-800">Application Evaluation</h1>
-              <p class="text-gray-600 mt-2">
-                Review and manage applications efficiently.
-              </p>
+
+  <Head title="Request Evaluation" />
+
+  <DashboardLayout>
+    <div class="py-2">
+      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="rounded-lg">
+          <div class="p-2">
+            <h1 class="text-3xl font-bold text-gray-800">Property Request Evaluation</h1>
+            <p class="text-gray-600 mt-2">
+              Review and manage Property Request efficiently.
+            </p>
+          </div>
+          <div class="p-6 justify-center items-center">
+            <!-- Tabs for filtering -->
+            <div class="flex justify-center space-x-4 mb-6">
+              <button v-for="tab in tabs" :key="tab" @click="currentTab = tab" :class="{
+                'inline-block p-4 border-b-2 rounded-t-lg text-xl text-green-700 border-green-700 underline': currentTab === tab,
+                'inline-block p-4 border-b-2 rounded-t-lg text-xl hover:text-gray-600 hover:border-gray-300 text-gray-500 border-transparent': currentTab !== tab
+              }" class="px-4 py-2 rounded-lg" :style="currentTab === tab ? { 'text-underline-offset': '7px' } : {}">
+                {{ tab }}
+              </button>
             </div>
-            <div class="p-6">
-              <!-- Tabs for filtering -->
-              <div class="flex justify-start space-x-4 mb-6">
-                <button
-                  v-for="tab in tabs"
-                  :key="tab"
-                  @click="currentTab = tab"
-                  :class="{
-                    'bg-blue-500 text-white': currentTab === tab,
-                    'bg-gray-100 text-gray-800': currentTab !== tab
-                  }"
-                  class="px-4 py-2 rounded-lg"
-                >
-                  {{ tab }}
-                </button>
-              </div>
-  
-              <!-- Filtered content -->
-              <div v-for="solicitante in filteredSolicitantes" :key="solicitante.id" class="mb-6">
-                <div class="bg-gray-100 p-4 rounded-lg shadow-sm">
-                  <div class="flex justify-between items-center">
+
+            <!-- Filtered content -->
+            <div v-if="filteredSolicitantes.length === 0" class="text-center text-gray-500">
+              <p>Nothing to show</p>
+            </div>
+            <div v-else class="space-y-4">
+              <div v-for="solicitante in filteredSolicitantes" :key="solicitante.id"
+                class="bg-gray-50 p-4 rounded-lg shadow flex flex-col space-y-4">
+                <!-- Cabecera del solicitante -->
+                <div class="flex items-center justify-between cursor-pointer" @click="toggleInfo(solicitante.id)">
+                  <div class="flex items-center space-x-4">
                     <div>
-                      <p class="text-lg font-semibold text-gray-800">
+                      <p class="font-medium text-gray-900">
                         {{ solicitante.tenant_user.first_name }} {{ solicitante.tenant_user.last_name }}
                       </p>
                       <p class="text-sm text-gray-600">
                         <strong>Property:</strong> {{ solicitante.property.street }}
                       </p>
                     </div>
-                    <button
-                      @click="toggleInfo(solicitante.id)"
-                      class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
-                    >
-                      {{ solicitante.isExpanded ? 'Less' : 'More' }}
-                    </button>
+                  </div>
+                  <div class="flex items-center space-x-4">
+                    <!-- Muestra el estado de la solicitud -->
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full" :class="{
+                      'bg-green-100 text-green-600': solicitante.status === 'Approved',
+                      'bg-red-100 text-red-600': solicitante.status === 'Rejected',
+                      'bg-yellow-100 text-yellow-800': solicitante.status === 'Pending'
+                    }">
+                      {{ solicitante.status }}
+                    </span>
+                    <i :class="solicitante.isExpanded ? 'mdi mdi-chevron-up' : 'mdi mdi-chevron-down'"></i>
                   </div>
                 </div>
-                <div
-                  v-if="solicitante.isExpanded"
-                  class="mt-4 p-4 bg-white border border-gray-200 rounded-lg"
-                >
-                  <p><strong>Applicant:</strong> {{ solicitante.tenant_user.first_name }} {{ solicitante.tenant_user.last_name }}</p>
+
+                <!-- Información adicional (Contenido del acordeón) -->
+                <div v-if="solicitante.isExpanded" class="mt-4 text-gray-700">
+                  <p><strong>Applicant:</strong> {{ solicitante.tenant_user.first_name }} {{
+                    solicitante.tenant_user.last_name }}</p>
                   <p><strong>Property:</strong> {{ solicitante.property.street }}</p>
                   <p><strong>Requested:</strong> {{ solicitante.application_date }}</p>
+
+                  <!-- Display the approval/rejection date -->
+                  <p v-if="solicitante.status === 'Approved'">
+                    <strong>Approved on:</strong> {{ solicitante.approved_at }}
+                  </p>
+                  <p v-if="solicitante.status === 'Rejected'">
+                    <strong>Rejected on:</strong> {{ solicitante.rejected_at }}
+                  </p>
+
                   <p class="mt-2"><strong>Applicant Information:</strong></p>
                   <ul class="list-disc list-inside text-gray-700">
                     <li><strong>Email:</strong> {{ solicitante.tenant_user.email }}</li>
                     <li><strong>Phone:</strong> {{ solicitante.tenant_user.phone }}</li>
                   </ul>
                   <div class="mt-4 flex space-x-3">
-                    <button
-                      v-if="currentTab === 'Pending'"
-                      @click="approveRequest(solicitante.id)"
-                      class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
-                    >
+                    <CustomButton type='primary' v-if="currentTab === 'Pending'" @click="approveRequest(solicitante.id)"
+                      class="py-2">
                       Approve
-                    </button>
-                    <button
-                      v-if="currentTab === 'Pending'"
-                      @click="rejectRequest(solicitante.id)"
-                      class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition"
-                    >
+                    </CustomButton>
+                    <CustomButton type='cancel' v-if="currentTab === 'Pending'" @click="rejectRequest(solicitante.id)"
+                      class="py-2">
                       Reject
-                    </button>
+                    </CustomButton>
                   </div>
                 </div>
               </div>
@@ -80,139 +96,182 @@
           </div>
         </div>
       </div>
-    </DashboardLayout>
-  </template>
-  
-  <script>
-  import axios from "axios";
-  import DashboardLayout from "@/Layouts/DashboardLayout.vue";
-  
-  export default {
-    components: { DashboardLayout },
-    data() {
-      return {
-        solicitantes: [], // Data fetched from API
-        currentTab: "Pending", // Default selected tab
-        tabs: ["Pending", "Approved", "Rejected"], // Tab options
-      };
+
+      <!-- Modal para confirmar creación de contrato -->
+      <div v-if="showContractModal" class="fixed inset-0 z-40 flex items-center justify-center bg-gray-800 bg-opacity-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+          <h2 class="text-lg font-bold mb-4">¿Desea crear un contrato?</h2>
+          <div class="flex space-x-4">
+            <button @click="handleContractDecision(true)"
+              class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">
+              Sí
+            </button>
+            <button @click="handleContractDecision(false)"
+              class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">
+              No
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </DashboardLayout>
+</template>
+
+<script>
+import axios from "axios";
+
+export default {
+  data() {
+    return {
+      solicitantes: [],
+      currentTab: "Pending",
+      tabs: ["Pending", "Approved", "Rejected"],
+      showContractModal: false,
+      currentSolicitanteId: null,
+    };
+  },
+  computed: {
+    filteredSolicitantes() {
+      return this.solicitantes.filter(
+        (solicitante) => solicitante.status === this.currentTab
+      );
     },
-    computed: {
-      filteredSolicitantes() {
-        return this.solicitantes.filter(
-          (solicitante) => solicitante.status === this.currentTab
-        );
-      },
+  },
+  created() {
+    this.fetchSolicitantes();
+  },
+  methods: {
+    async fetchSolicitantes() {
+      try {
+        const response = await axios.get("/api/rental-applications");
+        this.solicitantes = response.data.map((solicitante) => ({
+          ...solicitante,
+          isExpanded: false,
+        }));
+      } catch (error) {
+        console.error("Error fetching solicitantes:", error);
+      }
     },
-    created() {
-      this.fetchSolicitantes();
+    toggleInfo(id) {
+      this.solicitantes = this.solicitantes.map((solicitante) =>
+        solicitante.id === id
+          ? { ...solicitante, isExpanded: !solicitante.isExpanded }
+          : solicitante
+      );
     },
-    methods: {
-      async fetchSolicitantes() {
+    approveRequest(id) {
+      this.currentSolicitanteId = id;
+      this.showContractModal = true;
+    },
+    async handleContractDecision(createContract) {
+      if (createContract) {
         try {
-          const response = await axios.get("/api/rental-applications");
-          this.solicitantes = response.data.map((solicitante) => ({
-            ...solicitante,
-            isExpanded: false, // Add `isExpanded` property to toggle
-          }));
+          // Actualizar el estado a "Aprobado" antes de redirigir
+          const response = await axios.post(`/api/rental-applications/${this.currentSolicitanteId}/approve`);
+          this.updateStatus(
+            this.currentSolicitanteId,
+            response.data.status || "Approved",
+            response.data.approved_at
+          );
+
+          // Redirigir a la página de creación de contrato
+          this.$router.push(`/contracts/create/${this.currentSolicitanteId}`);
         } catch (error) {
-          console.error("Error fetching solicitantes:", error);
+          console.error("Error updating and redirecting:", error);
         }
-      },
-      toggleInfo(id) {
-        this.solicitantes = this.solicitantes.map((solicitante) =>
-          solicitante.id === id
-            ? { ...solicitante, isExpanded: !solicitante.isExpanded }
-            : solicitante
-        );
-      },
-      async approveRequest(id) {
+      } else {
+        this.showContractModal = false;
         try {
-          const response = await axios.post(`/api/rental-applications/${id}/approve`);
-          this.updateStatus(id, response.data.status || "Approved");
+          // Actualizar el estado a "Aprobado"
+          const response = await axios.post(`/api/rental-applications/${this.currentSolicitanteId}/approve`);
+          this.updateStatus(
+            this.currentSolicitanteId,
+            response.data.status || "Approved",
+            response.data.approved_at
+          );
         } catch (error) {
           console.error("Error approving request:", error);
         }
-      },
-      async rejectRequest(id) {
-        try {
-          const response = await axios.post(`/api/rental-applications/${id}/reject`);
-          this.updateStatus(id, response.data.status || "Rejected");
-        } catch (error) {
-          console.error("Error rejecting request:", error);
-        }
-      },
-      updateStatus(id, newStatus) {
-        this.solicitantes = this.solicitantes.map((solicitante) =>
-          solicitante.id === id ? { ...solicitante, status: newStatus } : solicitante
-        );
-      },
+      }
     },
-  };
-  </script>
-  
-  
+    async rejectRequest(id) {
+      try {
+        const response = await axios.post(`/api/rental-applications/${id}/reject`);
+        this.updateStatus(id, response.data.status || "Rejected", response.data.rejected_at);
+      } catch (error) {
+        console.error("Error rejecting request:", error);
+      }
+    },
+    updateStatus(id, newStatus, date) {
+      this.solicitantes = this.solicitantes.map((solicitante) =>
+        solicitante.id === id
+          ? { ...solicitante, status: newStatus, approved_at: date || null, rejected_at: date || null }
+          : solicitante
+      );
+    },
+  },
+};
+</script>
 
-  
-  
-  <style scoped>
-  .card {
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .card-header {
-    background-color: #f8f8f8;
-    padding: 10px 15px;
-    font-weight: bold;
-    color: #555;
-  }
-  
-  .card-body {
-    padding: 15px;
-    font-size: 0.9rem;
-    color: #555;
-  }
-  
-  button {
-    padding: 8px 12px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.9rem;
-  }
-  
-  .btn-primary {
-    background-color: #007bff;
-    color: white;
-  }
-  
-  .btn-primary:hover {
-    background-color: #0056b3;
-  }
-  
-  .btn-success {
-    background-color: #28a745;
-    color: white;
-    margin-right: 10px;
-  }
-  
-  .btn-success:hover {
-    background-color: #218838;
-  }
-  
-  .btn-danger {
-    background-color: #dc3545;
-    color: white;
-  }
-  
-  .btn-danger:hover {
-    background-color: #c82333;
-  }
-  
-  .mb-4 {
-    margin-bottom: 1rem;
-  }
-  </style>
-  
+
+<style scoped>
+.card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  background-color: #f8f8f8;
+  padding: 10px 15px;
+  font-weight: bold;
+  color: #555;
+}
+
+.card-body {
+  padding: 15px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.btn-success {
+  background-color: #28a745;
+  color: white;
+  margin-right: 10px;
+}
+
+.btn-success:hover {
+  background-color: #218838;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+</style>

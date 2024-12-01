@@ -170,26 +170,61 @@
 
     <!-- Comments section-->
     <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-        <h3 class="text-lg font-semibold text-gray-700 mb-4">Comments</h3>
-        <div class="overflow-x-auto">
-            <table class="w-full table-auto text-left">
-                <thead>
-                    <tr>
-                        <th class="px-4 py-2 text-sm font-medium text-gray-500">Date</th>
-                        <th class="px-4 py-2 text-sm font-medium text-gray-500">Comment</th>
-                        <th class="px-4 py-2 text-sm font-medium text-gray-500">User</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="comment in comments" :key="comment.id" class="hover:bg-gray-100">
-                        <td class="px-4 py-2 text-sm text-gray-700">{{ comment.date }}</td>
-                        <td class="px-4 py-2 text-sm text-gray-700">{{ comment.comment }}</td>
-                        <td class="px-4 py-2 text-sm text-gray-700">{{ comment.user }}</td>
-                    </tr>
-                </tbody>
-            </table>
+    <h3 class="text-lg font-semibold text-gray-700 mb-4">Comments</h3>
+
+    <!-- Input para agregar comentario -->
+    <div class="flex items-center space-x-4 mb-6">
+        <input 
+            type="text" 
+            class="flex-1 border border-gray-300 rounded-lg p-2 focus:ring focus:ring-green-500 focus:outline-none" 
+            placeholder="Leave a comment..." 
+            v-model="newComment"
+        >
+        <div class="flex items-center space-x-1">
+            <button 
+                v-for="n in 5" 
+                :key="n" 
+                @click="setRating(n)" 
+                :class="n <= rating ? 'text-yellow-500' : 'text-gray-400 hover:text-yellow-500'"
+            >
+                <icon :class="n <= rating ? 'mdi mdi-star' : 'mdi mdi-star-outline'"></icon>
+            </button>
+        </div>
+        <button 
+            class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50" 
+            @click="addComment"
+            :disabled="!newComment || !rating"
+        >
+            <i class="mdi mdi-send"></i>
+        </button>
+    </div>
+
+    <!-- Contenedor de comentarios -->
+    <div class="space-y-4 overflow-y-auto max-h-60">
+        <div 
+            v-for="comment in comments" 
+            :key="comment.id" 
+            class="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm"
+        >
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-gray-500">{{ new Date(comment.created_at).toLocaleDateString() }}</span>
+            <div class="flex">
+                <icon 
+                    v-for="n in 5" 
+                    :key="n"
+                    :class="n <= comment.comment_rate ? 'mdi mdi-star' : 'mdi mdi-star-outline'" 
+                    class="text-yellow-500 text-lg"
+                ></icon>
+            </div>
+            </div>
+            <div class="mb-2">
+                <p class="text-gray-700 font-medium">{{ comment.first_name }} {{ comment.last_name }}</p>
+            </div>
+            <p class="text-gray-600 whitespace-normal break-words">{{ comment.comment }}</p>
         </div>
     </div>
+</div>
+
 </div>
     </div>
 </template>
@@ -224,6 +259,9 @@ export default {
     },
     data() {
         return {
+            newComment: '',
+            rating: 0, 
+            comments: [],
             currentPage: 1,
             rowsPerPage: 10,
             selectedPayment: null,
@@ -337,6 +375,39 @@ export default {
         },
     },
     methods: {
+        getComments() {
+            axios.get(`/api/comments/2`)
+                .then(response => {
+                    this.comments = response.data;
+                })
+                .catch(error => {
+                    console.error('Error fetching comments:', error);
+                });
+        },
+        setRating(star) {
+            this.rating = star;
+        },
+        addComment() {
+            if (this.newComment && this.rating > 0) {
+                const newComment = {
+                    comment: this.newComment,
+                    rating: this.rating,
+                    property_id : this.property.property_id,
+                    user_id: this.auth.user.id, 
+                };
+
+                axios.post('/api/comments', newComment)
+                .then(response => {
+                    this.comments = response.data.reverse();
+                    this.newComment = ''; 
+                    this.rating = 0; 
+
+                })
+                .catch(error => {
+                    console.error('Error adding comment:', error);
+                });
+            }
+        },
         formatDate(date) {
             return format(new Date(date), 'dd/MM/yyyy', { locale: es });
         },
@@ -444,6 +515,7 @@ export default {
         this.refreshInterval = setInterval(this.fetchPayments, 30000);
         this.fetchContracts();
         this.fetchProperty();
+        this.getComments();
     },
 };
 </script>

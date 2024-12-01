@@ -41,10 +41,6 @@ Route::get('/properties', function () {
     return Inertia::render('Properties');
 })->name('properties');
 
-// Route::get('/detailprop', function () {
-//     return Inertia::render('DetailPropertie');  ---que show con esto al que le toco
-// })->name('detailproperties');
-
 //my properties
 Route::get('/my-properties', function () {
     return Inertia::render('MyProperties', [
@@ -62,6 +58,9 @@ Route::get('/contracts', function () {
     return Inertia::render('Contracts/showContract');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('contracts');
 
+Route::get('/manage/contracts', function () {
+    return Inertia::render('Contracts/manageContracts');
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('manageContracts');
 
 Route::get('/contracts-details/{id}', function ($id) {
     return Inertia::render('Contracts/detailsContract');
@@ -90,7 +89,13 @@ Route::get('/appointments', function () {
     return Inertia::render('Appointments', [
         'user' => auth()->user()
     ]);
-})->middleware(['auth', 'verified', 'role:admin,Tenant,Owner'])->name('appointments');
+})->middleware(['auth', 'verified', 'role:admin,Tenant'])->name('appointments');
+
+Route::get('/appointment-request', function () {
+    return Inertia::render('AppointmentRequest', [
+        'user' => auth()->user()
+    ]);
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('appointmentRequest');
 
 //Maintenance
 Route::get('/maintenance', function () {
@@ -106,10 +111,10 @@ Route::get('/maintenanceOwner', function () {
     return Inertia::render('Maintenance/ShowMaintenanceJobs');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('maintenanceOwner');
 
-//Registro propiedades
-Route::get('/registro-propiedad', function () {
-    return Inertia::render('RegistroPropiedad'); // Nombre del componente Vue
-})->name('registro.propiedad');
+// invoices
+Route::get('/my-invoices', function () {
+    return Inertia::render('invoice/MyInvoices');
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('myInvoices');
 
 
 

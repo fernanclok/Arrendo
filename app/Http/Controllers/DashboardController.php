@@ -8,47 +8,77 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Property;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Carbon\Carbon;
+use App\Models\Notification;
 
 class DashboardController extends Controller
 {
     public function index(Request $request)
     {
 
-        $requests = Maintenance_Request::orderBy('report_date', 'desc')->take(10)->get();
+        $requests = DB::table('maintenance_requests as m')
+            ->join('properties as p', 'm.property_id', '=', 'p.id')
+            ->select('m.*')
+            ->where('p.owner_user_id', auth()->id())
+            ->where('m.status', 'Pending')
+            ->where('m.priority', 'High')
+            ->orderBy('m.priority', 'desc')
+            ->orderBy('m.report_date', 'desc')
+            ->take(10)
+            ->get();
+
+        // Datos de gasto de mantenimiento totales por mes
+        $totalCostCurrentMonth = DB::table('maintenance_requests as m')
+            ->join('properties as p', 'p.id', '=', 'm.property_id')
+            ->join('users as u', 'u.id', '=', 'p.owner_user_id')
+            ->select(DB::raw('SUM(m.maintenance_cost) as total_cost'))
+            ->where('p.owner_user_id', auth()->id())
+            ->where('m.status', 'Pending')
+            ->whereMonth('m.date_review', Carbon::now()->month) // Filtra por el mes actual
+            ->whereYear('m.date_review', Carbon::now()->year)   // Filtra por el año actual
+            ->first();
 
         // Datos de ingresos totales por mes
-        $monthlyIncome = DB::table('payment_histories')
-            ->select(
-                DB::raw('EXTRACT(YEAR FROM payment_date) as year'),
-                DB::raw('EXTRACT(MONTH FROM payment_date) as month'),
-                DB::raw('SUM(amount_paid) as total_income')
-            )
-            ->groupBy(DB::raw('EXTRACT(YEAR FROM payment_date)'))
-            ->groupBy(DB::raw('EXTRACT(MONTH FROM payment_date)'))
-            ->orderByRaw('EXTRACT(YEAR FROM payment_date) ASC')
-            ->orderByRaw('EXTRACT(MONTH FROM payment_date) ASC')
+
+        $monthlyIncome = DB::table('payment_histories as ph')
+            ->join('invoices as i', 'ph.invoice_id', '=', 'i.id')
+            ->join('contracts as c', 'i.contract_id', '=', 'c.id')
+            ->join('properties as p', 'c.property_id', '=', 'p.id')
+            ->selectRaw('EXTRACT(YEAR FROM ph.payment_date) as year, EXTRACT(MONTH FROM ph.payment_date) as month, SUM(ph.amount_paid) as total_income')
+            ->where('p.owner_user_id', auth()->id())
+            ->groupBy(DB::raw('EXTRACT(YEAR FROM ph.payment_date)'), DB::raw('EXTRACT(MONTH FROM ph.payment_date)'))
+            ->orderByRaw('EXTRACT(YEAR FROM ph.payment_date) ASC')
+            ->orderByRaw('EXTRACT(MONTH FROM ph.payment_date) ASC')
             ->get();
+
 
         $occupancy = DB::table('properties')
             ->select(
                 DB::raw("COUNT(CASE WHEN availability = 'Available' THEN 1 END) as available"),
                 DB::raw("COUNT(CASE WHEN availability = 'Not Available' THEN 1 END) as not_available"),
+                DB::raw("EXTRACT(YEAR FROM updated_at) as year"),
                 DB::raw("EXTRACT(MONTH FROM updated_at) as month")
             )
-            ->groupBy('month')
-            ->orderBy('month')
             ->where('owner_user_id', auth()->id())
+            ->groupBy('year', 'month')
+            ->orderBy('year')
+            ->orderBy('month')
             ->get();
 
         $activeProperties = DB::table('properties')
-        ->where('owner_user_id', auth()->id())
-        ->where('availability', 'Available')
-        ->count();
+            ->where('owner_user_id', auth()->id())
+            ->where('availability', 'Available')
+            ->count();
+
+        $allProperties = DB::table('properties')
+            ->where('owner_user_id', auth()->id())
+            ->count();
 
         // Tasa de ocupación
-        $occupiedUnits = DB::table('properties')->where('availability', 'Not Available')->where('owner_user_id',auth()->id())->count();
-        $occupancyRate = $activeProperties > 0
-            ? round(($occupiedUnits / $activeProperties) * 100, 2)
+        $occupiedUnits = DB::table('properties')->where('availability', 'Not Available')->where('owner_user_id', auth()->id())->count();
+        $totalProperties = DB::table('properties')->where('owner_user_id', auth()->id())->count();
+        $occupancyRate = $totalProperties > 0
+            ? round(($occupiedUnits / $totalProperties) * 100, 2)
             : 0;
 
         // Ingresos estimados del mes actual
@@ -66,7 +96,7 @@ class DashboardController extends Controller
         $cardStats = [
             [
                 'statSubtitle' => 'Active Properties',
-                'statTitle' => $activeProperties,
+                'statTitle' => "{$activeProperties} of {$allProperties}",
                 'statPercent' => '5', // Porcentaje de cambio mensual, puedes calcularlo dinámicamente si tienes datos históricos
                 'statPercentColor' => 'text-emerald-500',
                 'statDescripiron' => 'Change since last month',
@@ -95,7 +125,7 @@ class DashboardController extends Controller
             ],
             [
                 'statSubtitle' => 'Maintenance Payments',
-                'statTitle' => "$" . number_format($pendingPayments, 2),
+                'statTitle' => "$" . number_format($totalCostCurrentMonth->total_cost ?? 0, 2),
                 'statArrow' => 'down',
                 'statPercent' => '20',
                 'statPercentColor' => 'text-red-500',
@@ -118,7 +148,7 @@ class DashboardController extends Controller
             p.state, ', ',
             p.postal_code
         ) as property_address
-    "),
+        "),
                 DB::raw("CONCAT(u.first_name, ' ', u.last_name) as tenant_name"),
                 'c.rental_amount as rental_amount',
                 'c.end_date as contract_end',
@@ -126,7 +156,10 @@ class DashboardController extends Controller
             )
             ->leftJoin('contracts as c', 'p.id', '=', 'c.property_id')
             ->leftJoin('users as u', 'c.tenant_user_id', '=', 'u.id')
-            ->whereIn('c.status', ['Active', 'Pending Renewal', 'Terminated'])
+            ->where(function ($query) {
+                $query->whereIn('c.status', ['Active', 'Pending Renewal', 'Terminated'])
+                    ->orWhereNull('c.status');
+            })
             ->where('p.owner_user_id', auth()->id())
             ->get();
 
@@ -198,5 +231,62 @@ class DashboardController extends Controller
             ->first();
 
         return response()->json($property);
+    }
+
+    public function getNotifications($userId)
+    {
+        $notifications = Notification::where('user_id', $userId)
+            ->orderBy('sent_date', 'desc')
+            ->get();
+
+        return response()->json($notifications);
+    }
+
+    public function markAsRead($id)
+    {
+        try {
+            // Buscar la notificación por su ID
+            $notification = Notification::findOrFail($id);
+
+            // Actualizar el estado de lectura
+            $notification->read_status = true;
+            $notification->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Notification marked as read.',
+                'data' => $notification,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error marking notification as read.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function markAsUnread($id)
+    {
+        try {
+            // Buscar la notificación por su ID
+            $notification = Notification::findOrFail($id);
+
+            // Actualizar el estado de lectura
+            $notification->read_status = false;
+            $notification->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Notification marked as read.',
+                'data' => $notification,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error marking notification as read.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

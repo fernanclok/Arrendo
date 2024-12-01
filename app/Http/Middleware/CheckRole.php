@@ -22,8 +22,8 @@ class CheckRole
         }
 
         $allowedRoutes = [
-            'Owner' => ['dashboard', 'dashboard/settings', 'my-properties', 'contracts', 'contracts-details/{employee}', 'all-contracts', 'EvaluateRequest', 'appointments', 'maintenanceOwner', 'invoice'],
-            'Tenant' => ['dashboard', 'search-properties', 'appointments', 'TrackRequest', 'maintenance/new', 'contracts-details/{employee}', 'all-contracts/tenant', 'myInvoice'],
+            'Owner' => ['dashboard', 'dashboard/settings', 'my-properties', 'contracts', 'contracts-details/{employee}', 'all-contracts', 'EvaluateRequest', 'appointments', 'appointment-request', 'maintenanceOwner', 'invoice'],
+            'Tenant' => ['dashboard','search-properties','appointments','TrackRequest', 'maintenance/new', 'contracts-details/{employee}', 'all-contracts/tenant', 'myInvoice'],
         ];
         $currentPath = $request->path();
 
@@ -31,6 +31,7 @@ class CheckRole
         if (isset($allowedRoutes[$user->role]) && in_array($currentPath, $allowedRoutes[$user->role])) {
             return $next($request);
         }
+
         foreach ($roles as $role) {
             if (isset($allowedRoutes[$role])) {
                 foreach ($allowedRoutes[$role] as $allowedRoute) {
