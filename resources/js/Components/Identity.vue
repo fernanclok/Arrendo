@@ -21,7 +21,7 @@ export default {
         InputLabel,
         CustomButton,
     },
-    setup(props) {
+    setup(props, { emit }) {
         const user = usePage().props.auth.user;
 
         const form2 = useForm({
@@ -93,7 +93,8 @@ export default {
                     }
                 });
                 console.log('Documentos enviados exitosamente');
-                alert('Documentos y aplicación enviados con éxito');
+                // alert('Documentos y aplicación enviados con éxito');
+                emit('closeModal'); // Cerrar el modal
             } catch (error) {
                 console.error('Error al enviar los documentos:', error.response.data);
             }

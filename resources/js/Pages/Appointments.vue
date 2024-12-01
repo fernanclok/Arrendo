@@ -109,7 +109,7 @@ import { usePage } from '@inertiajs/vue3';
                                         </button>
                                         <button type="button"
                                             class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white transition-colors duration-200 bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
-                                            @click="openDetailsModal(appointment)">
+                                            @click.stop="handleModalToggle(appointment)">
                                             <i class="mr-2 mdi mdi-check"></i> Yes
                                         </button>
                                     </div>
@@ -146,7 +146,7 @@ import { usePage } from '@inertiajs/vue3';
                                                     </div>
                                                 </div>
                                                 <!-- {{ console.log({id: selectedAppointment.property.id}) }} -->
-                                                <Identity :propertyId="selectedAppointment.property.id" />
+                                                <Identity :propertyId="selectedAppointment.property.id" @close-modal="closeModal" @close-appointment="toggleAccordion(appointment)"/>
                                             </div>
                                         </div>
                                     </div>
@@ -162,16 +162,16 @@ import { usePage } from '@inertiajs/vue3';
 
 <script>
 export default {
-    setup(){
+    setup() {
         const user = usePage().props.auth.user;
     },
     props: ['user'],
     data() {
         return {
             appointments: [],
-            propertyId : '',
+            propertyId: '',
             showDetails: false, // estado del modal
-            selectedAppointment: null, // para almacenar la cita seleccionada
+            selectedAppointment: null, // cita seleccionada
             form: {
                 contract_files: [],
             },
@@ -179,35 +179,52 @@ export default {
     },
     methods: {
         toggleAccordion(appointment) {
-            appointment.isOpen = !appointment.isOpen;
-        },
-        openDetailsModal(appointment) {
-            this.selectedAppointment = appointment; // Guarda la cita seleccionada
-            this.showDetails = true; // Abre el modal
-        },
-        closeModal() {
-            this.showDetails = false; // Cierra el modal
-            this.selectedAppointment = null; // Limpia la cita seleccionada
-        },
-        toggleAccordion(appointment) {
+            // Alterna el estado de 'isOpen' para el acordeón
             this.appointments.forEach((appt) => {
                 if (appt.id === appointment.id) {
                     appt.isOpen = !appt.isOpen;
                 } else {
-                    appt.isOpen = false;
+                    appt.isOpen = false; // Colapsa los demás
                 }
+            });
+
+            // Opcional: Sincronizar con el modal (cerrar modal si el acordeón se colapsa)
+            if (!appointment.isOpen) {
+                this.showDetails = false;
+                this.selectedAppointment = null;
+            }
+        },
+        handleModalToggle(appointment) {
+            // Alterna el estado del modal
+            if (this.selectedAppointment === appointment) {
+                this.showDetails = false;
+                this.selectedAppointment = null;
+            } else {
+                this.selectedAppointment = appointment;
+                this.showDetails = true;
+            }
+        },
+        closeModal() {
+            this.showDetails = false;
+            this.selectedAppointment = null;
+
+            // Opcional: Cierra también el acordeón relacionado
+            this.appointments.forEach((appt) => {
+                appt.isOpen = false;
             });
         },
         handleGetAppointments() {
-            axios.get('/api/appointments', {
-                params: {
-                    user_id: this.user.id
-                }
-            })
+            axios
+                .get('/api/appointments', {
+                    params: {
+                        user_id: this.user.id,
+                    },
+                })
                 .then((response) => {
-                    this.appointments = response.data;
-
-                    // console.log(response.data);
+                    this.appointments = response.data.map((appt) => ({
+                        ...appt,
+                        isOpen: false, // Inicializa 'isOpen' como false para cada cita
+                    }));
                 })
                 .catch((error) => {
                     console.error(error);
@@ -221,7 +238,7 @@ export default {
         },
         formatDateTime(date) {
             return new Date(date).toLocaleString();
-        }
+        },
     },
     mounted() {
         this.handleGetAppointments();
@@ -234,4 +251,5 @@ export default {
         Checkbox,
     },
 };
+
 </script>
