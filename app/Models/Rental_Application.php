@@ -24,13 +24,13 @@ class Rental_application extends Model
     {
         return $this->belongsTo(Property::class, 'property_id'); // Usar 'property_id' como clave foránea
     }
-    
+
     public function tenantUser()
     {
         return $this->belongsTo(User::class, 'tenant_user_id'); // Usar 'tenant_user_id' como clave foránea
     }
-    
-    
+
+
 
     public function validateStatus(array $attributes)
     {

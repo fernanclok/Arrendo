@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Invoice;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use App\Models\Rental_application;
 
 class ContractController extends Controller
 {
@@ -104,23 +105,32 @@ class ContractController extends Controller
         // Devolver una respuesta JSON de éxito
         return response()->json($contracts);
     }
-    public function getTenantUsers()
+    public function getTenantUsers(Request $request)
     {
+        $request->validate([
+            'property_id' => 'required|exists:properties,id',
+        ]);
+
         try {
-            // Obtener todos los inquilinos
-            $tenantUsers = User::where('role', 'Tenant')->get();
-            // Filtrar los inquilinos que tienen contratos activos
-            $tenantUsers = $tenantUsers->filter(function ($user) {
+            // Obtener todas las aplicaciones de renta para la propiedad especificada
+            $rentalApplications = Rental_application::where('property_id', $request->property_id)
+                ->with('tenantUser')
+                ->get();
+
+            // Obtener los usuarios Tenant que tienen una aplicación de renta para la propiedad especificada
+            $tenantUsers = $rentalApplications->pluck('tenantUser')->filter(function ($user) {
+                // Filtrar los usuarios que no tienen un contrato activo
                 return !Contract::where('tenant_user_id', $user->id)
                     ->where('status', 'Active')
                     ->exists();
             });
+
             // Devolver una respuesta JSON de éxito
             return response()->json($tenantUsers);
         } catch (\Exception $e) {
             // Registrar el error y devolver una respuesta JSON de error
-            Log::error('Error fetching tenant users: ' . $e->getMessage());
-            return response()->json(['error' => 'Error fetching tenant users'], 500);
+            Log::error('Error fetching tenant applications for property: ' . $e->getMessage());
+            return response()->json(['error' => 'Error fetching tenant applications for property'], 500);
         }
     }
 
