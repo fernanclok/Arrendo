@@ -42,11 +42,11 @@ Route::get('/properties', function () {
 })->name('properties');
 
 //my properties
-Route::get('/my-properties', function() {
+Route::get('/my-properties', function () {
     return Inertia::render('MyProperties', [
         'user' => auth()->user()
     ]);
-})->middleware(['auth','verified','role:admin,Owner'])->name('myProperties');
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('myProperties');
 
 //search properties
 Route::get('/search-properties', function () {
@@ -70,6 +70,10 @@ Route::get('/all-contracts', function () {
     return Inertia::render('Contracts/allContract');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('AllContracts');
 
+Route::get('/all-contracts/tenant', function () {
+    return Inertia::render('Contracts/tenantContracts');
+})->middleware(['auth', 'verified', 'role:Tenant'])->name('TenantContracts');
+
 // rental applications
 Route::get('/TrackRequest', function () {
     return Inertia::render('TrackRequest');
@@ -79,10 +83,6 @@ Route::get('/EvaluateRequest', function () {
     return Inertia::render('EvaluateRequest');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('EvaluateRequest');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/contracts/all', [ContractController::class, 'index'])->name('contracts.index');
-    Route::post('/contract', [ContractController::class, 'store'])->name('contracts.store');
-});
 
 //appointments
 Route::get('/appointments', function () {
@@ -102,7 +102,7 @@ Route::get('/maintenance', function () {
     return Inertia::render('Maintenance/ShowMaintenance');
 })->middleware([])->name('maintenance');
 
-Route::get('/maintenance/new', function(){
+Route::get('/maintenance/new', function () {
     return Inertia::render('Maintenance/CreateMaintenance');
 })->middleware(['auth', 'verified', 'role:admin,Tenant,Owner'])->name('maintenanceNew');
 
@@ -115,5 +115,18 @@ Route::get('/maintenanceOwner', function () {
 Route::get('/my-invoices', function () {
     return Inertia::render('invoice/MyInvoices');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('myInvoices');
+
+
+
+// Invoices
+Route::get('/invoice', function () {
+    return Inertia::render('Invoice/Invoices');
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('recibo');
+
+//My Invoices
+Route::get('/myInvoice', function () {
+    return Inertia::render('Invoice/MyInvoices');
+})->middleware(['auth', 'verified', 'role:Tenant'])->name('recibos');
+
 
 require __DIR__ . '/auth.php';
