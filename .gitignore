@@ -18,7 +18,7 @@ yarn-error.log
 /.vscode
 /public/properties_photos/*
 /public/contracts_files/*
-
 /socket-server/node_modules
 /socket-server/npm-debug.log
 /socket-server/yarn-error.log
+/public/application_files

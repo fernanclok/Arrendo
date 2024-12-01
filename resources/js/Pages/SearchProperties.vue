@@ -25,13 +25,13 @@ import { Head, usePage } from '@inertiajs/vue3';
 
                         <div class="flex-[2] flex flex-col space-y-1">
                             <div class="text-sm font-medium text-gray-600">
-                                <b>Maximum Price:</b> {{ displayPrice }}
+                                <b>Maximum Price:</b> {{ displayPrice }} $MXN
                             </div>
                             <input type="range" v-model="selectedPrice" :min="0" :max="priceOptions.length - 1" step="1"
                                 class="w-full focus:ring-green-500" />
                             <div class="flex justify-between text-sm text-gray-500">
                                 <span v-for="(price, index) in priceOptions" :key="index">
-                                    {{ price }}
+                                    {{ price }} 
                                 </span>
                             </div>
                         </div>
@@ -41,6 +41,9 @@ import { Head, usePage } from '@inertiajs/vue3';
                         </CustomButton>
                         <CustomButton v-else @click="toggleFilters" type="primary" class="py-2 ml-2">
                             Hide Filters
+                        </CustomButton>
+                        <CustomButton @click="refreshFilters" type="primary" class="py-2 w-32">
+                            <i class="mdi mdi-refresh mr-2"></i> REFRESH FILTERS 
                         </CustomButton>
                     </div>
 
@@ -82,9 +85,6 @@ import { Head, usePage } from '@inertiajs/vue3';
                                     </div>
 
                                     <div class="col-span-1 flex flex-col items-center justify-center space-y-4">
-                                        <CustomButton @click="refreshFilters" type="primary" class="py-2 w-32">
-                                            <i class="mdi mdi-refresh mr-2"></i> REFRESH
-                                        </CustomButton>
                                         <CustomButton @click="filterProperties" type="primary" class="py-2 w-32">
                                             <i class="mdi mdi-magnify mr-2"></i> SEARCH
                                         </CustomButton>
@@ -94,70 +94,83 @@ import { Head, usePage } from '@inertiajs/vue3';
                         </div>
                     </transition>
                 </div>
-
-                <<div
-  class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
-  <div 
-    v-if="properties && properties.length > 0" 
-    v-for="property in properties" 
-    :key="property.id"
-    class="bg-white shadow-md rounded-lg flex flex-col justify-between h-full transform transition duration-300"
-    :class="{ 'scale-105 shadow-xl': activePropertyId === property.id }">
-    
-    <!-- Imagen de la propiedad -->
-    <img 
-      :src="property.property_photos_path[0]" 
-      alt="Property Photo"
-      class="w-full h-48 object-cover"
-      v-if="property.property_photos_path.length" />
-    
-    <!-- Contenido -->
-    <div class="p-4 flex-grow">
-      <h2 class="text-xl font-bold mb-2">{{ property.zone_name }}</h2>
-      <p class="text-gray-600 mb-2">
-        {{ property.city }} {{ property.state }}, {{ property.street }}, {{ property.number }}
-      </p>
-      <div class="flex justify-between items-center mb-2">
-        <span class="flex items-center">
-          <!-- Icono de habitaciones -->
-          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16h6M4 6h16M4 6a2 2 0 012-2h12a2 2 0 012 2M4 6v12a2 2 0 002 2h12a2 2 0 002-2V6"></path>
-          </svg>
-          {{ property.total_rooms }} rooms
-        </span>
-        <span class="flex items-center">
-          <!-- Icono de baños -->
-          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 1.343-3 3v4h6v-4c0-1.657-1.343-3-3-3zM5 20h14a2 2 0 002-2v-5a2 2 0 00-2-2H5a2 2 0 00-2 2v5a2 2 0 002 2z"></path>
-          </svg>
-          {{ property.total_bathrooms }} bathrooms
-        </span>
-      </div>
-    </div>
-    
-    <!-- Pie de tarjeta -->
-    <div class="bg-gray-100 px-4 py-3 flex justify-between items-center">
-      <span class="text-lg font-bold flex items-center">
-        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 1.343-3 3v4h6v-4c0-1.657-1.343-3-3-3zM5 20h14a2 2 0 002-2v-5a2 2 0 00-2-2H5a2 2 0 00-2 2v5a2 2 0 002 2z"></path>
-        </svg>
-        ${{ property.property_price }}
-      </span>
-      <CustomButton v-if="property.id != activePropertyId" type="primary" @click="toggleDetails(property.id)">
-        View Details
-      </CustomButton>
-      <CustomButton v-else type="primary" @click="showDetails = false">
-        Hide Details
-      </CustomButton>
-    </div>
-  </div>
-  
-  <!-- Si no hay propiedades -->
-  <div v-else class="text-center text-gray-500 col-span-3">
-    <p>No properties found with the applied filters.</p>
-  </div>
-</div>
-
+                
+                <div
+                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
+                    <div 
+                        v-if="properties && properties.length > 0" 
+                        v-for="property in properties" 
+                        :key="property.id"
+                        class="bg-white shadow-md rounded-lg flex flex-col justify-between h-full transform transition duration-300"
+                        :class="{ 'scale-105 shadow-xl': activePropertyId === property.id }">
+                        
+                        <!-- Imagen de la propiedad -->
+                        <img 
+                        :src="property.property_photos_path[0]" 
+                        alt="Property Photo"
+                        class="w-full h-48 object-cover"
+                        v-if="property.property_photos_path.length" />
+                        
+                        <!-- Contenido -->
+                        <div class="p-4 flex-grow">
+                        <h2 class="text-xl font-bold mb-2">{{ property.zone_name }}</h2>
+                        <p class="text-gray-600 mb-2">
+                            {{ property.city }}, {{ property.state }}, {{ property.colony }} {{ property.street }} {{ property.number }}
+                        </p>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="flex items-center">
+                            <!-- Icono de habitaciones -->
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16h6M4 6h16M4 6a2 2 0 012-2h12a2 2 0 012 2M4 6v12a2 2 0 002 2h12a2 2 0 002-2V6"></path>
+                            </svg>
+                            {{ property.total_rooms }} rooms
+                            </span>
+                            <span v-if="property.half_bathrooms > 0" class="flex items-center">
+                                    <!-- SVG Icon for bathrooms -->
+                                    <icon class="mdi mdi-toilet mr-2"></icon>{{ property.total_bathrooms }} bathrooms +
+                                    {{ property.half_bathrooms }} (<icon class="mdi mdi-fraction-one-half mr-1">)</icon>
+                                </span>
+                                <span v-else class="flex items-center">
+                                    <!-- SVG Icon for bathrooms -->
+                                    <icon class="mdi mdi-toilet mr-2"></icon>
+                                    {{ property.total_bathrooms }} bathrooms
+                                </span>
+                                <span v-if="property.rental_rate != null" class="flex items-center">
+                                    <!-- SVG Icon for bathrooms -->
+                                    <icon class="mdi mdi-star mr-2"></icon>
+                                    {{ property.rental_rate }} 
+                                </span>
+                                <span v-else class="flex items-center">
+                                    <!-- SVG Icon for bathrooms -->
+                                    <icon class="mdi mdi-star mr-2"></icon>
+                                    No rated yet
+                                </span>
+                        </div>
+                        </div>
+                        
+                        <!-- Pie de tarjeta -->
+                        <div class="bg-gray-100 px-4 py-3 flex justify-between items-center">
+                        <span class="text-lg font-bold flex items-center">
+                            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 1.343-3 3v4h6v-4c0-1.657-1.343-3-3-3zM5 20h14a2 2 0 002-2v-5a2 2 0 00-2-2H5a2 2 0 00-2 2v5a2 2 0 002 2z"></path>
+                            </svg>
+                            {{ property.property_price }} $MXN
+                        </span>
+                        <CustomButton v-if="property.id != activePropertyId" type="primary" @click="toggleDetails(property.id)">
+                            View Details
+                        </CustomButton>
+                        <CustomButton v-else type="primary" @click="showDetails = false">
+                            Hide Details
+                        </CustomButton>
+                        </div>
+                    </div>
+                    
+                    <!-- Si no hay propiedades -->
+                    <div v-else class="text-center text-gray-500 col-span-3">
+                        <p>No properties found with the applied filters.</p>
+                    </div>
+                </div>
+            
             </div>
 
             <div v-if="showDetails" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title"
@@ -175,7 +188,7 @@ import { Head, usePage } from '@inertiajs/vue3';
                                 <div class="w-full mt-3 text-center sm:mt-0 sm:text-left">
                                     <div class="flex items-center justify-between mb-4">
                                         <h3 class="text-2xl font-bold leading-6" id="modal-title">
-                                            {{ selectedProperty.street }}, {{ selectedProperty.number }}
+                                            {{ selectedProperty.colony }} {{ selectedProperty.street }}, {{ selectedProperty.number }}
                                         </h3>
                                         <button @click="showDetails = false"
                                             class="text-gray-400 transition-colors duration-200 hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
@@ -189,19 +202,22 @@ import { Head, usePage } from '@inertiajs/vue3';
                                             selectedProperty.state }} - CP {{ selectedProperty.postal_code }}
                                     </p>
 
-                                    <div class="grid grid-cols-1 gap-6 mb-6 md:grid-cols-2">
+                                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                                         <div class="p-4 rounded-lg">
                                             <h4 class="mb-2 text-lg font-semibold">Key Specifications</h4>
                                             <ul class="space-y-2">
                                                 <li><i class="mr-2 mdi mdi-currency-usd"></i><strong
-                                                        class="text-gray-500">Price:</strong> ${{
-                                                            selectedProperty.property_price }}</li>
+                                                        class="text-gray-500">Price:</strong> {{
+                                                            selectedProperty.property_price }} MXN$ </li>
                                                 <li><i class="mr-2 mdi mdi-bed"></i><strong
                                                         class="text-gray-500">Rooms:</strong> {{
                                                             selectedProperty.total_rooms }}</li>
                                                 <li><i class="mr-2 mdi mdi-shower"></i><strong
                                                         class="text-gray-500">Bathrooms:</strong> {{
                                                             selectedProperty.total_bathrooms }}</li>
+                                                <li><i class="mr-2 mdi mdi-fraction-one-half"></i><strong
+                                                        class="text-gray-500">Half bathrooms:</strong> {{
+                                                            selectedProperty.half_bathrooms }}</li>
                                                 <li><i class="mr-2 mdi mdi-ruler"></i><strong
                                                         class="text-gray-500">Square Meters:</strong> {{
                                                             selectedProperty.total_m2 }}</li>
@@ -216,6 +232,35 @@ import { Head, usePage } from '@inertiajs/vue3';
                                         <div class="p-4 rounded-lg">
                                             <h4 class="mb-2 text-lg font-semibold">Details</h4>
                                             <p class="text-gray-500">{{ selectedProperty.property_details }}</p>
+                                            <div class=" mt-1 mb-4">
+                                                <h3 class="text-lg font-semibold text-gray-700 mb-2">Comments ({{ selectedProperty.comments.length }})</h3>
+                                                <div v-if="selectedProperty.comments && selectedProperty.comments.length > 0" class="space-y-4 overflow-y-auto max-h-40">
+                                                    <div 
+                                                        v-for="comment in [...selectedProperty.comments].reverse()" 
+                                                        :key="comment.id" 
+                                                        class="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm"
+                                                    >
+                                                        <div class="flex items-center justify-between mb-2">
+                                                            <span class="text-sm text-gray-500">{{ new Date(comment.created_at).toLocaleDateString() }}</span>
+                                                            <div class="flex">
+                                                                <icon 
+                                                                    v-for="n in 5" 
+                                                                    :key="n"
+                                                                    :class="n <= comment.comment_rate ? 'mdi mdi-star' : 'mdi mdi-star-outline'" 
+                                                                    class="text-yellow-500 text-lg"
+                                                                ></icon>
+                                                            </div>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <p class="text-gray-700 font-medium">{{ comment.user.first_name }} {{ comment.user.last_name }}</p>
+                                                        </div>
+                                                        <p class="text-gray-600 whitespace-normal break-words">{{ comment.comment }}</p>
+                                                    </div>
+                                                </div>
+                                                <div v-else class="text-gray-500 text-center mt-4">
+                                                    <p>No comments found for this property.</p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -313,12 +358,13 @@ export default {
         maxDate.setMonth(now.getMonth() + 6); // Fecha máxima (6 meses adelante)
         const maxDateString = maxDate.toISOString().split('T')[0];
         return {
+            hasInitialFilterChanged: false,
             showDetails: false,
             scheduleAppointment: false,
             showFilters: false,
             activePropertyId: null,
             priceOptions: ["5000", "7000", "10000", "+10000"],
-            selectedPrice: 0,
+            selectedPrice: 3,
             isRefreshing: false,
             properties: [],
             appointmentForm: {
@@ -373,7 +419,9 @@ export default {
             }
         },
         checkUserAppointment() {
-            this.hasAppointment = this.selectedProperty.appointments.some(appointment => appointment.user.id === this.user.id);
+            this.hasAppointment = this.selectedProperty.appointments.some(appointment => {
+                return appointment.user.id === this.user.id && appointment.appointment_status !== 'Rejected';
+            });
         },
         toggleFilters() {
             this.showFilters = !this.showFilters;
@@ -388,6 +436,8 @@ export default {
                 });
         },
         filterProperties() {
+            this.hasInitialFilterChanged = true;
+            
             var selectedZoneName = this.zones.find(zone => zone.id == this.propertiesSpecifications.selectedZone);
 
             var filters = {
@@ -408,7 +458,7 @@ export default {
                 });
         },
         refreshFilters() {
-            this.isRefreshing = true;
+            this.isRefreshing = true; 
             this.propertiesSpecifications = {
                 selectedZone: '',
                 maxPrice: '',
@@ -418,13 +468,14 @@ export default {
                 allowPets: false,
                 parking: false,
             };
-            this.selectedPrice = 0;
+            this.selectedPrice = 3;
 
             this.getProperties();
 
             setTimeout(() => {
                 this.isRefreshing = false;
-            }, 0);
+                this.hasInitialFilterChanged = false;
+            }, 0); 
         },
         ApplyToAnAppointment(propertyId) {
             // Combinar fecha y hora en formato "YYYY-MM-DDTHH:MM"
@@ -585,7 +636,7 @@ input[type="range"] {
     outline: none;
 }
 
-input[type="range"]:focus {
+input[type="range"]:focus { 
     outline: none;
 }
 </style>

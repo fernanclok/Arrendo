@@ -7,48 +7,33 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
 export default {
+    props: {
+        propertyId: {
+            type: Number, // Define el tipo de la prop según tu necesidad
+            required: true
+        }
+    },
+    // mounted() {
+    //     console.log('Property ID:', this.propertyId); // Funciona en el lifecycle hook
+    // },
     components: {
         InputError,
         InputLabel,
         CustomButton,
     },
-    methods: {
-        async submitDocuments() {
-            const formData = new FormData();
-
-            // Agregar documentos al formData
-            this.form.contract_files.forEach((fileObj) => {
-                formData.append('document_path', fileObj.file);
-                formData.append('document_type', 'Something'); // Por defecto
-                formData.append('application_id', 1); // Por defecto
-                formData.append('upload_date', new Date().toISOString());
-                formData.append('document_status', 'Active'); // Por defecto
-            });
-
-            try {
-                const response = await axios.post('/api/properties/document-application', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
-                alert('Documentos subidos exitosamente');
-                // Limpia los documentos del formulario
-                this.form.contract_files = "";
-            } catch (error) {
-                console.error('Error al subir los documentos:', error.response?.data || error.message);
-            }
-        }
-    },
-    setup() {
+    setup(props) {
         const user = usePage().props.auth.user;
 
+        const form2 = useForm({
+            property_id: props.propertyId,
+            tenant_user_id: user.id,
+            application_date: new Date().toISOString().split("T")[0], 
+            status: "Pending"
+        });
+
+        // Formulario para manejar los archivos
         const form = useForm({
-            application_id: "1", // Valor predeterminado
-            document_type: "Something", // Valor predeterminado
-            document_path: "", // Ruta del documento cargado (simulado con la vista previa)
-            upload_date: new Date().toISOString().split("T")[0], // Fecha actual (formato YYYY-MM-DD)
-            document_status: "Active", // Estado predeterminado
-            contract_files: [], // Archivos cargados
+            application_files: [], // Inicializar como array
         });
 
         const handleFileUpload = (event) => {
@@ -57,9 +42,9 @@ export default {
                 const file = files[i];
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    form.contract_files.push({
+                    form.application_files.push({
                         file: file,
-                        preview: e.target.result, // Simula la ruta del archivo
+                        preview: e.target.result
                     });
                 };
                 reader.readAsDataURL(file); // Convertir a base64
@@ -67,35 +52,56 @@ export default {
         };
 
         const removeFile = (index) => {
-            form.contract_files.splice(index, 1);
+            form.application_files.splice(index, 1);
         };
 
         const submitForm = async () => {
-            const formData = new FormData();
-            form.contract_files.forEach((fileObj, index) => {
-                formData.append(`documents[${index}][application_id]`, form.application_id);
-                formData.append(`documents[${index}][document_type]`, form.document_type);
-                formData.append(`documents[${index}][document_status]`, form.document_status);
-                formData.append(`documents[${index}][upload_date]`, form.upload_date);
-                formData.append(`documents[${index}][document_path]`, fileObj.preview); // Vista previa como simulación
-                formData.append(`documents[${index}][file]`, fileObj.file); // Archivo real
-            });
+            const formData2 = new FormData();
+            let applicationId = 0;
+
+            // Preparar los datos para el primer POST
+            formData2.append('property_id', form2.property_id);
+            formData2.append('tenant_user_id', form2.tenant_user_id);
+            formData2.append('application_date', form2.application_date);
+            formData2.append('status', form2.status);
 
             try {
+                // Primer POST: aplicación
+                const response = await axios.post('api/properties/applicate', formData2, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                applicationId = response.data.application // Ver qué devuelve el servidor
+            } catch (error) {
+                console.error('Error al enviar la aplicación:', error.response.data);
+                return; // Detener la ejecución si la aplicación falla
+            }
+
+            // Preparar los datos para el segundo POST (documentos)
+            const formData = new FormData();
+            form.application_files.forEach(fileObj => {
+                formData.append('application_files[]', fileObj.file);
+            });
+            formData.append('application_id', applicationId); // Usar el ID de la aplicación obtenida previamente
+
+            try {
+                // Segundo POST: documentos
                 const response = await axios.post('/api/properties/document-application', formData, {
                     headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
+                        'Content-Type': 'multipart/form-data'
+                    }
                 });
-                console.log('Documentos enviados:', formData);
-                alert('Documentos enviados exitosamente');
+                console.log('Documentos enviados exitosamente');
+                alert('Documentos y aplicación enviados con éxito');
             } catch (error) {
-                console.error('Error al enviar los documentos', error.response?.data);
+                console.error('Error al enviar los documentos:', error.response.data);
             }
         };
 
         return {
             form,
+            form2,
             handleFileUpload,
             removeFile,
             submitForm,
@@ -109,9 +115,10 @@ export default {
         <form @submit.prevent="submitForm" class="mt-2 space-y-4 bg-gray-100 p-8 rounded-lg">
             <nav :class="{
                 'grid gap-4 w-full': true,
-                'grid-cols-1': form.contract_files.length == 0,
-                'grid-cols-1 sm:grid-cols-2': form.contract_files.length > 0,
+                'grid-cols-1': form.application_files.length == 0,
+                'grid-cols-1 sm:grid-cols-2': form.application_files.length > 0,
             }">
+                <p class="text-sm text-gray-500 font-semibold">Here you can add a form of ID and other documents</p>
                 <div class="w-full">
                     <InputLabel for="contract_file"
                         class="flex flex-col items-center justify-center w-full h-[200px] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 ">
@@ -128,10 +135,10 @@ export default {
                 <!-- Mostrar archivos cargados con vista previa -->
                 <div :class="{
                     'flex-wrap justify-center items center gap-2 h-[200px] w-full p-4 overflow-y-scroll': true,
-                    'hidden': form.contract_files.length == 0,
-                    'flex': form.contract_files.length > 0,
+                    'hidden': form.application_files.length == 0,
+                    'flex': form.application_files.length > 0,
                 }">
-                    <div v-for="(file, index) in form.contract_files" :key="index"
+                    <div v-for="(file, index) in form.application_files" :key="index"
                         class="flex items-center justify-between w-full mt-2 p-2 bg-primary rounded-lg overflow-hidden">
                         <button @click="removeFile(index)" type="button"
                             class=" text-white mr-2 font-semibold h-full text-sm"><i
@@ -152,5 +159,12 @@ export default {
                 </div>
             </nav>
         </form>
+        <div class="px-4 py-4  bg-opacity-50 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button type="button"
+                class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white transition-colors duration-200 bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
+                @click="submitForm()">
+                <i class="mr-2 mdi mdi-check"></i> Apply to this Listing
+            </button>
+        </div>
     </div>
 </template>

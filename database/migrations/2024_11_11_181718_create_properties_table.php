@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('properties', function (Blueprint $table) {
             $table->id();
+            $table->string('property_code', 20)->unique();
             $table->string('street', 100);
             $table->string('number', 10);
             $table->string('city', 100);

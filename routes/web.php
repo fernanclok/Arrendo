@@ -71,6 +71,10 @@ Route::get('/all-contracts', function () {
     return Inertia::render('Contracts/allContract');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('AllContracts');
 
+Route::get('/all-contracts/tenant', function () {
+    return Inertia::render('Contracts/tenantContracts');
+})->middleware(['auth', 'verified', 'role:Tenant'])->name('TenantContracts');
+
 // rental applications
 Route::get('/TrackRequest', function () {
     return Inertia::render('TrackRequest');
@@ -79,11 +83,6 @@ Route::get('/TrackRequest', function () {
 Route::get('/EvaluateRequest', function () {
     return Inertia::render('EvaluateRequest');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('EvaluateRequest');
-
-Route::middleware('auth')->group(function () {
-    Route::get('/contracts/all', [ContractController::class, 'index'])->name('contracts.index');
-    Route::post('/contract', [ContractController::class, 'store'])->name('contracts.store');
-});
 
 //appointments
 Route::get('/appointments', function () {
@@ -112,10 +111,14 @@ Route::get('/maintenanceOwner', function () {
     return Inertia::render('Maintenance/ShowMaintenanceJobs');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('maintenanceOwner');
 
-// invoices
+// Invoices
+Route::get('/invoices', function () {
+    return Inertia::render('Invoice/Invoices');
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('invoices');
+
 Route::get('/my-invoices', function () {
-    return Inertia::render('invoice/MyInvoices');
-})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('myInvoices');
+    return Inertia::render('Invoice/MyInvoices');
+})->middleware(['auth', 'verified', 'role:admin,Tenant'])->name('myInvoices');
 
 // Ruta para autenticación de broadcasting
 Route::post('/broadcasting/auth', [BroadcastController::class, 'authenticate'])

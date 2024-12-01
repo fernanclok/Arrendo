@@ -11,6 +11,7 @@ use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\RentalApplicationController;
 use App\Http\Controllers\AppointmentController;
 use App\Models\Appoinment;
+use App\Http\Controllers\InvoiceController;
 use App\Models\Rental_application;
 
 /*
@@ -31,9 +32,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // contracts
 Route::prefix('contracts')->group(function () {
     Route::get('/', [ContractController::class, 'index']);
-    Route::get('{id}', [ContractController::class, 'getContract']);
+    Route::get('/{id}', [ContractController::class, 'getContract']);
     Route::post('/create', [ContractController::class, 'store']);
+    Route::put('/terminate/{id}', [ContractController::class, 'terminateContract']);
+    Route::post('/{id}/renew', [ContractController::class, 'renewContract']);
     Route::get('/get/user_tenant', [ContractController::class, 'getTenantUsers']);
+    Route::get('/get/properties', [ContractController::class, 'getProperties']);
     Route::get('/tenant/{id}', [ContractController::class, 'getTenantContract']);
 });
 
@@ -58,8 +62,7 @@ Route::prefix('properties')->group(function () {
     Route::post('/appointment', [AppointmentController::class, 'createAppoinment']);
     Route::get('/applications', [PropertyController::class, 'getAllApplications']);
     Route::post('/applicate', [PropertyController::class, 'createApplication']);
-    Route::post('/document-application', [RentalApplicationController::class, 'uploadDocument']);
-    Route::get('/last', [RentalApplicationController::class, 'lastApplicationCreated']);
+    Route::post('/document-application', [RentalApplicationController::class, 'storeAppDocuments']);
 });
 
 Route::get('/properties/{id}', [PropertyController::class, 'show']);
@@ -95,13 +98,21 @@ Route::prefix('rental-applications')->group(function(){
 Route::prefix('maintenance')->group(function () {
     Route::get('/', [MaintenanceController::class, 'index']);
     Route::post('/store', [MaintenanceController::class, 'store']);
-    Route::patch('/{id}',[MaintenanceController::class, 'update']);
+    Route::patch('/{id}', [MaintenanceController::class, 'update']);
     Route::get('/getPropertyByTenant', [MaintenanceController::class, 'getPropertyByTenant']);
 });
 //MaintenaceOwner
 Route::prefix('maintenanceOwner')->group(function () {
-    Route::get('/properties', [MaintenanceController::class, 'getProperties']); // Listar propiedades
-    Route::get('/maintenancesReq', [MaintenanceController::class, 'getRequestsByProperty']); // Listar solicitudes por propiedad
+    Route::get('/properties', [MaintenanceController::class, 'getProperties']);
+    Route::get('/maintenancesReq', [MaintenanceController::class, 'getRequestsByProperty']); 
     Route::put('/maintenancesReq/{id}', [MaintenanceController::class, 'updateRequest']);
 });
+
+// Invoices
+Route::prefix('Invoices')->group(function () {
+    Route::get('/invoices/{id}/pdf', [InvoiceController::class, 'generatePDF']);
+    Route::get('/invoices', [InvoiceController::class, 'index']);
+    Route::patch('/invoices/{id}/invoice-paid', [InvoiceController::class, 'InvoicePaid']);
+});
+Route::post('/contracts/{contractId}/generate-invoices', [InvoiceController::class, 'generateInvoices']);
 
