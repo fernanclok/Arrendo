@@ -17,6 +17,7 @@ const tenants = ref([]);
 const properties = ref([]);
 const contracts = ref([]);
 const filterStatus = ref('all'); // valor por defecto
+const selectedPropertyId = ref(null);
 
 const notification = ref({
   show: false,
@@ -34,9 +35,12 @@ const closeNotification = () => {
 };
 
 // Funciones para obtener datos
-const getTenants = async () => {
+const getTenants = async (propertyId) => {
   try {
-    const response = await axios.get('/api/contracts/get/user_tenant');
+    const response = await axios.get('/api/contracts/get/user_tenant', {
+      params: { property_id: propertyId }
+    });
+    console.log(response.data);
     tenants.value = response.data;
   } catch (error) {
     console.error(error);
@@ -107,6 +111,12 @@ const validateForm = () => {
 watch([() => form.start_date, () => form.end_date], () => {
   validateForm();
 });
+// Watch para detectar cambios en la propiedad seleccionada
+watch(selectedPropertyId, (newPropertyId) => {
+  if (newPropertyId) {
+    getTenants(newPropertyId);
+  }
+});
 
 const handleFileUpload = (event) => {
   const files = event.target.files;
@@ -139,7 +149,7 @@ const submitForm = async () => {
   form.contract_files.forEach(fileObj => {
     formData.append('contract_files[]', fileObj.file);
   });
-  formData.append('property_id', form.property_id);
+  formData.append('property_id', selectedPropertyId.value);
   formData.append('tenant_user_id', form.tenant_user_id);
   formData.append('start_date', form.start_date);
   formData.append('end_date', form.end_date);
@@ -225,7 +235,7 @@ onMounted(() => {
                     <nav class="flex justify-center space-x-2 w-full">
                         <div class="flex flex-col justify-start items-start text-start w-full">
                         <InputLabel for="property_id" value="Select property" />
-                        <select id="property_id" v-model="form.property_id" class="w-full rounded-lg border-gray-300 text-black">
+                        <select id="property_id" v-model="selectedPropertyId" class="w-full rounded-lg border-gray-300 text-black">
                             <option disabled value="">Please select one</option>
                             <option v-for="property in properties" :key="property.id" :value="property.id" class="text-black">
                             {{ property.street }}, {{ property.city }}, {{ property.state }}
