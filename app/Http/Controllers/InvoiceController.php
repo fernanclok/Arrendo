@@ -6,51 +6,69 @@ use Illuminate\Http\Request;
 use App\Models\Contract;
 use App\Models\Invoice;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Inertia\Inertia;
 use Carbon\Carbon;
 
 
+
 class InvoiceController extends Controller
 {
-    public function index()
+
+    /*public function index()
     {
         $invoices = Invoice::all();
         return response()->json($invoices);
+    }*/
+
+    public function index(Request $request)
+    {
+        // Obtenemos el mes y el año de la solicitud (por defecto, el mes y año actuales)
+        $month = $request->query('month', now()->month);
+        $year = $request->query('year', now()->year);
+
+        // Filtrar recibos por mes y año
+        $invoices = Invoice::whereYear('issue_date', $year)
+            ->whereMonth('issue_date', $month)
+            ->where('payment_status', 'Pending')
+            ->get();
+
+        return response()->json($invoices);
     }
 
-    // public function generateInvoices($contractId)
-    // {
-    //     try {
-    //         // Obtener el contrato
-    //         $contract = Contract::findOrFail($contractId);
 
-    //         $startDate = Carbon::parse($contract->start_date);
-    //         $endDate = Carbon::parse($contract->end_date);
-    //         $totalAmount = $contract->rental_amount;
+    public function generateInvoices($contractId)
+    {
+        try {
+            // Obtener el contrato
+            $contract = Contract::findOrFail($contractId);
 
-    //         $invoices = [];
-    //         while ($startDate <= $endDate) {
-    //             // Crear una nueva factura para cada mes
-    //             $invoice = new Invoice([
-    //                 'contract_id' => $contractId,
-    //                 'issue_date' => $startDate->format('Y-m-d'),
-    //                 'total_amount' => $totalAmount,
-    //                 'payment_status' => 'Pending',
-    //             ]);
+            $startDate = Carbon::parse($contract->start_date);
+            $endDate = Carbon::parse($contract->end_date);
+            $totalAmount = $contract->rental_amount;
 
-    //             // Guardar la factura
-    //             $invoice->save();
-    //             $invoices[] = $invoice;
+            $invoices = [];
+            while ($startDate <= $endDate) {
+                $invoice = new Invoice([
+                    'contract_id' => $contractId,
+                    'issue_date' => $startDate->format('Y-m-d'),
+                    'total_amount' => $totalAmount,
+                    'payment_status' => 'Pending',
+                ]);
+                
+                // Guardar la factura
+                $invoice->save();
+                $invoices[] = $invoice;
 
-    //             // Incrementar la fecha al siguiente mes
-    //             $startDate->addMonth();
-    //         }
+                $startDate->addMonth();
+            }
 
-    //         return response()->json($invoices, 201);
-    //     } catch (\Exception $e) {
-    //         return response()->json(['error' => 'Error generating invoices', 'details' => $e->getMessage()], 500);
-    //     }
-    // }
+            return response()->json($invoices, 201);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error generating invoices', 'details' => $e->getMessage()], 500);
+        }
+    }
 
     public function InvoicePaid($id)
     {
@@ -90,5 +108,29 @@ class InvoiceController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error retrieving payment history', 'details' => $e->getMessage()], 500);
         }
+    }   
+
+
+    public function generatePDF($id)
+    {
+        try {
+            // Obtener la factura
+            $invoice = Invoice::findOrFail($id);
+
+            // Preparar los datos para la vista
+            $data = [
+                'invoice' => $invoice,
+            ];
+
+            // Generar el PDF usando una vista específicayvdh\DomPDF\Facade\Pd
+            $pdf = Pdf::loadView('pdf.invoice', $data);
+
+            // Descargar el PDF
+            return $pdf->download("invoice-{$id}.pdf");
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error generating PDF', 'details' => $e->getMessage()], 500);
+        }
     }
+
+
 }
