@@ -11,6 +11,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use App\Models\Notification;
 use App\Events\NewNotification;
+use Illuminate\Support\Facades\Http;
 
 class DashboardController extends Controller
 {
@@ -277,32 +278,46 @@ class DashboardController extends Controller
     }
 
     public function sendNotification(Request $request)
-{
-    $validated = $request->validate([
-        'sender_id' => 'required|integer|exists:users,id',
-        'receiver_id' => 'required|integer|exists:users,id',
-        'notification_type' => 'required|string',
-        'message' => 'required|string|max:255',
-    ]);
+    {
+        // Validar datos de la notificación
+        $validated = $request->validate([
+            'sender_id' => 'required|integer|exists:users,id',
+            'receiver_id' => 'required|integer|exists:users,id',
+            'notification_type' => 'required|string',
+            'message' => 'required|string|max:255',
+        ]);
 
-    $notification = Notification::create(array_merge($validated, [
-        'sent_date' => now(),
-        'read_status' => false,
-    ]));
+        // Crear la notificación en la base de datos
+        $notification = Notification::create(array_merge($validated, [
+            'sent_date' => now(),
+            'read_status' => false,
+        ]));
 
-    try {
-        broadcast(new NewNotification($notification));
-    } catch (\Exception $e) {
+        // Decidir si usar Pusher o Socket.IO
+        if ($this->isOnline()) {
+            // Enviar a través de Pusher
+            broadcast(new NewNotification($notification));
+        } else {
+            // Enviar al servidor local Socket.IO
+            Http::post('http://localhost:3001/emit', [
+                'event' => 'localNotification',
+                'data' => $notification,
+            ]);
+        }
+
         return response()->json([
-            'message' => 'Notification sent but failed to broadcast.',
-            'error' => $e->getMessage(),
-        ], 500);
+            'message' => 'Notificación enviada correctamente.',
+            'notification' => $notification,
+        ]);
     }
 
-    return response()->json([
-        'message' => 'Notification sent successfully!',
-        'notification' => $notification,
-    ]);
-}
-
+    private function isOnline()
+    {
+        try {
+            Http::get('https://google.com'); // Verificar conectividad
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
 }

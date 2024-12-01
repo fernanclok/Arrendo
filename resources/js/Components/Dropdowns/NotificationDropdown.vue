@@ -17,6 +17,22 @@
                 <h2 class="text-gray-800 text-lg font-semibold border-b pb-2">
                     Notifications
                 </h2>
+                <div class="flex gap-2">
+                    <!-- Botón "Todas las notificaciones" -->
+                    <button @click="filter = 'all'"
+                        :class="filter === 'all' ? 'bg-[#2A3C32] text-white' : 'bg-[#E8E4D9] text-[#2A3C32]'"
+                        class="px-3 py-1 rounded-lg text-sm font-semibold transition">
+                        Todas
+                    </button>
+
+                    <!-- Botón "No leídas" -->
+                    <button @click="filter = 'unread'"
+                        :class="filter === 'unread' ? 'bg-[#3F594A] text-white' : 'bg-[#F7F7F7] text-[#4B4B4B]'"
+                        class="px-3 py-1 rounded-lg text-sm font-semibold transition">
+                        No leídas
+                    </button>
+                </div>
+
 
                 <!-- Loading Spinner -->
                 <div v-if="isLoading" class="flex items-center justify-center py-4">
@@ -25,10 +41,9 @@
 
                 <!-- Notifications List -->
                 <ul v-else class="divide-y divide-gray-200 max-h-64 overflow-y-auto">
-                    <li v-for="notification in limitedNotifications" :key="notification.id"
+                    <li v-for="notification in filteredNotifications.slice(0, 10)" :key="notification.id"
                         class="flex items-start gap-3 px-4 py-3 hover:bg-gray-100 transition"
                         :class="{ 'animate-bounce': notification.new }">
-
                         <!-- Notification Info -->
                         <div class="flex-1">
                             <p :class="{
@@ -41,7 +56,6 @@
                                 {{ new Date(notification.sent_date).toLocaleString() }}
                             </span>
                         </div>
-
                         <!-- Mark as Read -->
                         <div>
                             <button v-if="!notification.read_status" @click="markAsRead(notification.id)"
@@ -55,6 +69,7 @@
                         </div>
                     </li>
                 </ul>
+
 
                 <!-- View More Option -->
                 <div class="text-center mt-3">
@@ -114,14 +129,28 @@
             </div>
         </div>
 
-        <!-- Notificaciones flotantes -->
+        <!-- Toast Notifications -->
         <div class="fixed top-4 right-4 space-y-2 z-50">
-            <div v-for="(toast, index) in toasts" :key="index"
-                class="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
-                <i class="fas fa-info-circle"></i>
-                {{ toast.message }}
-            </div>
+            <transition-group name="toast" tag="div">
+                <div v-for="(toast, index) in toasts" :key="index"
+                    class="flex items-center gap-3 bg-white shadow-lg rounded-xl border-l-4 border-green-800 p-4 max-w-sm transform transition-all duration-300 ease-in-out hover:shadow-2xl">
+                    <!-- Icon -->
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-info-circle text-blue-500 text-2xl"></i>
+                    </div>
+                    <!-- Notification Content -->
+                    <div class="flex-1">
+                        <p class="font-semibold text-gray-800 truncate">{{ toast.message }}</p>
+                        <p v-if="toast.details" class="text-sm text-gray-600 truncate">{{ toast.details }}</p>
+                    </div>
+                    <!-- Close Button -->
+                    <button @click="removeToast(index)" class="flex-shrink-0 text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </transition-group>
         </div>
+
     </div>
 </template>
 
@@ -129,6 +158,7 @@
 import axios from "axios";
 import Echo from "laravel-echo";
 import Pusher from "pusher-js";
+import {socket} from '@/bootstrap.js';
 
 export default {
     props: {
@@ -145,6 +175,7 @@ export default {
             modalOpen: false, // State for modal visibility
             isLoading: false, // Loading indicator
             toasts: [], // Toast notifications
+            filter: "all", // Filter for notifications
         };
     },
     computed: {
@@ -155,6 +186,13 @@ export default {
         // Limit notifications to the first 10 for the dropdown
         limitedNotifications() {
             return this.notifications.slice(0, 10);
+        },
+
+        filteredNotifications() {
+            if (this.filter === 'unread') {
+                return this.notifications.filter(notification => !notification.read_status);
+            }
+            return this.notifications;
         },
     },
     methods: {
@@ -231,6 +269,46 @@ export default {
             .error((error) => {
                 console.error("Error escuchando el evento:", error);
             });
+
+        // Escucha notificaciones de Socket.IO
+        socket.on('localNotification', (data) => {
+            this.notifications.push({ id: data.id, message: data.message });
+            this.showToast(data.message);
+        });
+
+        socket.on('error', (error) => {
+            console.error("Socket.IO error:", error);
+            this.showToast("An error occurred while receiving notifications.");
+        });
+
     },
 };
 </script>
+
+<style scoped>
+/* Transición personalizada para la entrada y salida */
+.toast-enter-active,
+.toast-leave-active {
+    transition: all 0.5s ease;
+}
+
+.toast-enter-from {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+.toast-enter-to {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast-leave-from {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast-leave-to {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+</style>

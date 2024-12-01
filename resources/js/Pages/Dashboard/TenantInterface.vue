@@ -60,25 +60,38 @@
             <!-- Payment History -->
             <div class="col-span-2 bg-white rounded-lg shadow-lg p-6">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold text-gray-700">Payment Status</h3>
-                    <button class="bg-indigo-500 text-white text-xs font-bold uppercase px-4 py-2 rounded transition hover:bg-indigo-600">
-                        See all
+                    <h3 class="text-lg font-semibold text-gray-800">Payment Status</h3>
+                    <button
+                        class="bg-green-800 text-white text-xs font-bold uppercase px-4 py-2 rounded hover:bg-primary transition">
+                        See All
                     </button>
                 </div>
 
+                <!-- Filtro por Status -->
+                <div class="mb-4">
+                    <select v-model="filters.paymentStatus"
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="">All Status</option>
+                        <option value="Paid">Paid</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Overdue">Overdue</option>
+                    </select>
+                </div>
+
+                <!-- Tabla -->
                 <div class="overflow-x-auto">
                     <table class="w-full table-auto border-collapse text-left">
-                        <thead>
+                        <thead class="bg-green-100 text-green-800">
                             <tr>
-                                <th class="px-4 py-3 text-sm font-medium text-gray-500 border-b">Payment Date</th>
-                                <th class="px-4 py-3 text-sm font-medium text-gray-500 border-b">Amount</th>
-                                <th class="px-4 py-3 text-sm font-medium text-gray-500 border-b">Status</th>
-                                <th class="px-4 py-3 text-sm font-medium text-gray-500 border-b">Contract ID</th>
+                                <th class="px-4 py-3 text-sm font-semibold border-b">Payment Date</th>
+                                <th class="px-4 py-3 text-sm font-semibold border-b">Amount</th>
+                                <th class="px-4 py-3 text-sm font-semibold border-b">Status</th>
+                                <th class="px-4 py-3 text-sm font-semibold border-b">Contract ID</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="payment in paginatedPayments" :key="payment.id" class="hover:bg-gray-100">
-                                <td class="px-4 py-3 text-sm text-gray-700">{{ payment?.invoice_date }}</td>
+                            <tr v-for="payment in filteredPayments" :key="payment.id" class="hover:bg-gray-50">
+                                <td class="px-4 py-3 text-sm text-gray-700">{{ payment.invoice_date }}</td>
                                 <td class="px-4 py-3 text-sm text-gray-700">${{ payment.invoice_total }}</td>
                                 <td class="px-4 py-3 text-sm">
                                     <span :class="getStatusClasses(payment.payment_status)">
@@ -92,17 +105,20 @@
                     </table>
                 </div>
 
-                <!-- Pagination Controls -->
+                <!-- Pagination -->
                 <div class="mt-6 flex justify-between items-center">
-                    <button @click="previousPage" :disabled="currentPage <= 1" class="bg-primary text-white px-4 py-2 rounded disabled:opacity-50">
+                    <button @click="previousPage" :disabled="currentPage <= 1"
+                        class="bg-primary text-white px-4 py-2 rounded disabled:opacity-50 hover:bg-green-800">
                         Previous
                     </button>
                     <span class="text-gray-700">Page {{ currentPage }} of {{ totalPages }}</span>
-                    <button @click="nextPage" :disabled="currentPage >= totalPages" class="bg-primary text-white px-4 py-2 rounded disabled:opacity-50">
+                    <button @click="nextPage" :disabled="currentPage >= totalPages"
+                        class="bg-primary text-white px-4 py-2 rounded disabled:opacity-50 hover:bg-green-800">
                         Next
                     </button>
                 </div>
             </div>
+
 
             <!-- Sidebar -->
             <div class="bg-white rounded-lg shadow-md p-6">
@@ -116,7 +132,7 @@
                 <div>
                     <h3 class="text-lg font-semibold text-gray-700 mb-3">Payment Calendar</h3>
                     <div class="flex justify-center">
-                        <v-calendar :attributes="calendarAttributes" :first-day-of-week="2" @dayclick="onDayClick">
+                        <v-calendar class="w-full h-96" :attributes="calendarAttributes" :first-day-of-week="2" @dayclick="onDayClick" :timezone="timezone">
                             <template #date="{ date }">
                                 <span class="text-sm">{{ formatDate(date) }}</span>
                             </template>
@@ -159,77 +175,65 @@
                 </div>
                 <!-- Pagination Controls -->
                 <div class="mt-4 flex justify-between items-center">
-                    <button @click="previousContractPage" :disabled="currentContractPage <= 1" class="bg-primary text-white px-4 py-2 rounded disabled:opacity-50">
+                    <button @click="previousContractPage" :disabled="currentContractPage <= 1"
+                        class="bg-primary text-white px-4 py-2 rounded disabled:opacity-50">
                         Previous
                     </button>
                     <span>Page {{ currentContractPage }} of {{ totalContractPages }}</span>
-                    <button @click="nextContractPage" :disabled="currentContractPage >= totalContractPages" class="bg-primary text-white px-4 py-2 rounded disabled:opacity-50">
+                    <button @click="nextContractPage" :disabled="currentContractPage >= totalContractPages"
+                        class="bg-primary text-white px-4 py-2 rounded disabled:opacity-50">
                         Next
                     </button>
                 </div>
             </div>
 
-           <!-- Comments section-->
-    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-        <!-- {{ this.auth?.user }} -->
-        <h3 class="text-lg font-semibold text-gray-700 mb-4">Comments</h3>
-        <div class="flex items-center justify-between mb-4">
-            <input
-                type="text"
-                class="w-full border border-gray-300 rounded p-2"
-                placeholder="Add a comment..."
-                v-model="newComment"
-            >
-            <div class="flex items-center ml-4">
-                <button
-                    v-for="n in 5"
-                    :key="n"
-                    @click="setRating(n)"
-                    class="text-gray-400 hover:text-yellow-500"
-                >
-                    <icon :class="n <= rating ? 'mdi mdi-star' : 'mdi mdi-star-outline'"></icon>
-                </button>
+            <!-- Comments section-->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <!-- {{ this.auth?.user }} -->
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Comments</h3>
+                <div class="flex items-center justify-between mb-4">
+                    <input type="text" class="w-full border border-gray-300 rounded p-2" placeholder="Add a comment..."
+                        v-model="newComment">
+                    <div class="flex items-center ml-4">
+                        <button v-for="n in 5" :key="n" @click="setRating(n)"
+                            class="text-gray-400 hover:text-yellow-500">
+                            <icon :class="n <= rating ? 'mdi mdi-star' : 'mdi mdi-star-outline'"></icon>
+                        </button>
+                    </div>
+                    <button class="bg-primary text-white px-4 py-2 rounded ml-4" @click="addComment"
+                        :disabled="!newComment || !rating">
+                        <i class="mdi mdi-send"></i>
+                    </button>
+                </div>
+                <div class="overflow-y-auto max-h-40">
+                    <table class="w-full table-auto text-left">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-2 text-sm font-medium text-gray-500">Date</th>
+                                <th class="px-4 py-2 text-sm font-medium text-gray-500">Comment</th>
+                                <th class="px-4 py-2 text-sm font-medium text-gray-500">User</th>
+                                <th class="px-4 py-2 text-sm font-medium text-gray-500">Rating</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="comment in comments" :key="comment.id" class="hover:bg-gray-100">
+                                <td class="px-4 py-2 text-sm text-gray-700">{{ comment.date }}</td>
+                                <td class="px-4 py-2 text-sm text-gray-700 max-w-60 whitespace-normal break-words">
+                                    {{ comment.comment }}
+                                </td>
+                                <td class="px-4 py-2 text-sm text-gray-700">{{ comment.user }}</td>
+                                <td class="px-4 py-2 text-sm text-gray-700">
+                                    <div class="flex">
+                                        <icon v-for="n in 5" :key="n"
+                                            :class="n <= comment.rating ? 'mdi mdi-star' : 'mdi mdi-star-outline'"
+                                            class="text-yellow-500"></icon>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <button
-                class="bg-primary text-white px-4 py-2 rounded ml-4"
-                @click="addComment"
-                :disabled="!newComment || !rating"
-            >
-                <i class="mdi mdi-send"></i>
-            </button>
-        </div>
-        <div class="overflow-y-auto max-h-40">
-            <table class="w-full table-auto text-left">
-                <thead>
-                    <tr>
-                        <th class="px-4 py-2 text-sm font-medium text-gray-500">Date</th>
-                        <th class="px-4 py-2 text-sm font-medium text-gray-500">Comment</th>
-                        <th class="px-4 py-2 text-sm font-medium text-gray-500">User</th>
-                        <th class="px-4 py-2 text-sm font-medium text-gray-500">Rating</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="comment in comments" :key="comment.id" class="hover:bg-gray-100">
-                        <td class="px-4 py-2 text-sm text-gray-700">{{ comment.date }}</td>
-                        <td class="px-4 py-2 text-sm text-gray-700 max-w-60 whitespace-normal break-words">
-                            {{ comment.comment }}
-                        </td>
-                        <td class="px-4 py-2 text-sm text-gray-700">{{ comment.user }}</td>
-                        <td class="px-4 py-2 text-sm text-gray-700">
-                            <div class="flex">
-                                <icon
-                                    v-for="n in 5"
-                                    :key="n"
-                                    :class="n <= comment.rating ? 'mdi mdi-star' : 'mdi mdi-star-outline'"
-                                    class="text-yellow-500"
-                                ></icon>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
         </div>
     </div>
 </template>
@@ -263,9 +267,9 @@ export default {
             },
         },
     },
-            components:{
-            NotificationDropdown
-        },
+    components: {
+        NotificationDropdown
+    },
     data() {
         return {
             newComment: '',
@@ -284,7 +288,10 @@ export default {
             rowsPerContractPage: 5,
             contractsData: [],
             isLoading: false,
-
+            filters: {
+                paymentStatus: '', // Filtro por estado
+            },
+            timezone: 'UTC',
         }
     },
     computed: {
@@ -292,6 +299,15 @@ export default {
             const startIndex = (this.currentPage - 1) * this.rowsPerPage;
             return this.paymentsData.slice(startIndex, startIndex + this.rowsPerPage);
         },
+
+        filteredPayments() {
+            return this.paymentsData
+                .filter(payment =>
+                    !this.filters.paymentStatus || payment.payment_status === this.filters.paymentStatus
+                )
+                .slice((this.currentPage - 1) * this.rowsPerPage, this.currentPage * this.rowsPerPage);
+        },
+
         totalPages() {
             return Math.ceil(this.paymentsData.length / this.rowsPerPage);
         },
@@ -335,14 +351,15 @@ export default {
                     if (!adjustedDate) {
                         return null;
                     }
-                    const formattedDate = format(adjustedDate, 'yyyy-MM-dd');
-
+                    const formattedDate = format(adjustedDate, 'yyyy-MM-dd',{ locale: es });
                     return {
                         dates: formattedDate,
-                        highlight: 'green',
+                        highlight: payment.payment_status === 'Paid' ? 'green' : payment.payment_status === 'Pending' ? 'yellow' : 'red',
                         popover: {
                             label: `$${payment.invoice_total} - ${payment.payment_status}`,
                         },
+
+
                     };
                 })
                 .filter(item => item !== null) // Filtra elementos nulos
@@ -404,16 +421,18 @@ export default {
                 this.rating = 0;
             }
         },
-        formatDate(date) {
-            return format(new Date(date), 'dd/MM/yyyy', { locale: es });
-        },
+        formatDate(dateString) {
+        // Si la fecha ya viene ajustada, solo formatea
+        const date = parseISO(dateString);
+        return format(date, 'dd MMM yyyy', { locale: es });
+    },
         getStatusColor(status) {
             // Lógica para devolver el color según el estado
             if (status === "active") return "green";
             if (status === "inactive") return "red";
             return "gray";
         },
-       getStatusClasses(status) {
+        getStatusClasses(status) {
             switch (status) {
                 // Estatus de pagos
                 case 'Paid':
@@ -493,6 +512,7 @@ export default {
             } finally {
                 this.isLoading = false;
             }
+
         },
 
         async fetchProperty() {
@@ -505,7 +525,6 @@ export default {
                 }
                 const response = await axios.get(`/api/rented-property/${userId}`);
                 this.property = response.data
-                console.log(this.property)
             } catch (error) {
                 console.error("Error al obtener la propiedad rentada:", error);
             }
@@ -551,7 +570,6 @@ export default {
         this.refreshInterval = setInterval(this.fetchPayments, 30000);
         this.fetchContracts();
         this.fetchProperty();
-        console.log(this.property)
     },
 };
 </script>
