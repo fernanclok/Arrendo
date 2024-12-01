@@ -166,6 +166,7 @@ class ContractController extends Controller
         // Devolver una respuesta JSON de éxito
         return response()->json($contract);
     }
+
     // Method to check and update contract statuses
     public function checkAndUpdateContractStatuses()
     {
@@ -280,5 +281,4 @@ class ContractController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error generating invoices', 'details' => $e->getMessage()], 500);
         }
-    }
 }

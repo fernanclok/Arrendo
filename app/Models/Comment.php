@@ -15,4 +15,14 @@ class Comment extends Model
         'property_id',
         'user_id' //add this field
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function property()
+    {
+        return $this->belongsTo(Property::class);
+    }
 }
