@@ -63,6 +63,10 @@ Route::prefix('properties')->group(function () {
     Route::get('/applications', [PropertyController::class, 'getAllApplications']);
     Route::post('/applicate', [PropertyController::class, 'createApplication']);
     Route::post('/document-application', [RentalApplicationController::class, 'storeAppDocuments']);
+
+    Route::post('/pass-documents', [RentalApplicationController::class, 'passDocuments']);
+    Route::post('/pass-user-documents', [RentalApplicationController::class, 'updateUserDocuments']);
+    Route::post('/user-applications', [RentalApplicationController::class, 'applicationsMadeByUser']);
 });
 
 Route::get('/properties/{id}', [PropertyController::class, 'show']);
