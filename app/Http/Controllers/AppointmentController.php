@@ -81,17 +81,26 @@ class AppointmentController extends Controller
 
         $appointment->status = $request->status;
 
-        // Agregar la fecha y hora de confirmación si el estado es "Approved"
-        if ($request->status === 'Approved') {
-            $appointment->confirmation_date = now();
-            $appointment->rejected_reason = null; // Limpiar el motivo de rechazo si está aprobado
-        } elseif ($request->status === 'Rejected') {
-            $appointment->rejected_reason = $request->rejected_reason;
-            $appointment->confirmation_date = now(); // Limpiar la fecha de confirmación si está rechazado
-        } else {
-            $appointment->confirmation_date = null; // Limpiar la fecha de confirmación si no está aprobado
-            $appointment->rejected_reason = null; // Limpiar el motivo de rechazo si no está rechazado
-        }
+               // Agregar la fecha y hora de confirmación si el estado es "Approved"
+               if ($request->status === 'Approved') {
+                $appointment->confirmation_date = now();
+                $appointment->rejected_reason = null; // Limpiar el motivo de rechazo si está aprobado
+            } elseif ($request->status === 'Rejected') {
+                $appointment->rejected_reason = $request->rejected_reason;
+                $appointment->confirmation_date = now(); // Limpiar la fecha de confirmación si está rechazado
+            }   elseif ($request->status === 'Confirmed') {
+                $appointment->rejected_reason = null;
+                $appointment->confirmation_date = $request->confirmation_date; // Limpiar la fecha de confirmación si está rechazado
+            } elseif($request->status === 'Cancelled') {
+                $appointment->confirmation_date = null; // Limpiar la fecha de confirmación si está cancelado
+                $appointment->rejected_reason = null; // Limpiar el motivo de rechazo si está cancelado
+            } elseif($request->status === 'Applicated') {
+                $appointment->confirmation_date = $request->confirmation_date; // Limpiar la fecha de confirmación si está aplicado
+                $appointment->rejected_reason = null; // Limpiar el motivo de rechazo si está aplicado
+            } else {
+                $appointment->confirmation_date = null; // Limpiar la fecha de confirmación si no está aprobado
+                $appointment->rejected_reason = null; // Limpiar el motivo de rechazo si no está rechazado
+            }
 
         $appointment->save();
 

@@ -8,7 +8,7 @@ import CustomButton from '@/Components/CustomButton.vue';
 import { Head } from '@inertiajs/vue3';
 import axios from 'axios';
 import Identity from '../Components/Identity.vue';
-import { usePage } from '@inertiajs/vue3';
+import { usePage, useForm } from '@inertiajs/vue3';
 </script>
 
 <template>
@@ -16,11 +16,11 @@ import { usePage } from '@inertiajs/vue3';
     <Head title="Appointments" />
 
     <DashboardLayout>
-        <div class="py-2">
+        <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="overflow-hidden">
                     <div class="p-6">
-                        <h1 class="text-3xl font-bold mb-6">Your Appointments</h1>
+                        <h1 class="text-2xl font-semibold text-gray-900 mb-6">Your Appointments</h1>
 
                         <div v-if="appointments.length === 0"
                             class="flex items-center justify-center h-64 text-gray-600 text-lg">
@@ -104,12 +104,12 @@ import { usePage } from '@inertiajs/vue3';
                                             application?</h1>
                                         <button type="button"
                                             class="inline-flex justify-center w-full px-4 py-2 mt-3 text-base font-medium text-gray-700 transition-colors duration-200 bg-white border border-red-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                                            @click="">
+                                            @click="cancelAppointment(appointment)">
                                             <i class="mr-2 mdi mdi-cancel"></i> No
                                         </button>
                                         <button type="button"
                                             class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white transition-colors duration-200 bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
-                                            @click="openDetailsModal(appointment)">
+                                            @click.stop="handleApplication(appointment)">
                                             <i class="mr-2 mdi mdi-check"></i> Yes
                                         </button>
                                     </div>
@@ -145,8 +145,7 @@ import { usePage } from '@inertiajs/vue3';
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <!-- {{ console.log({id: selectedAppointment.property.id}) }} -->
-                                                <Identity :propertyId="selectedAppointment.property.id" />
+                                                <Identity :appointments="appointments" :propertyId="selectedAppointment.property.id" :appointmentId="selectedAppointment.id" @close-modal="closeModal" @close-appointment="toggleAccordion(appointment)" @refresh-appointments="handleGetAppointments"/>
                                             </div>
                                         </div>
                                     </div>
@@ -162,52 +161,145 @@ import { usePage } from '@inertiajs/vue3';
 
 <script>
 export default {
-    setup(){
+    setup() {
         const user = usePage().props.auth.user;
     },
     props: ['user'],
     data() {
         return {
             appointments: [],
-            propertyId : '',
+            propertyId: '',
             showDetails: false, // estado del modal
-            selectedAppointment: null, // para almacenar la cita seleccionada
+            selectedAppointment: null, // cita seleccionada
             form: {
                 contract_files: [],
             },
         };
     },
     methods: {
+        async submitFormWithExistingDocument(appointment) {
+            try {
+                // Verifica el valor de document_path antes del primer POST
+                if (!this.user.document_path) {
+                    console.error('Document path is not set!');
+                    return; // Sal de la función si el path no está definido
+                }
+
+                // Prepara los datos para la solicitud inicial
+                const formData2 = new FormData();
+                formData2.append('property_id', appointment.property.id);
+                formData2.append('tenant_user_id', this.user.id);
+                formData2.append('application_date', new Date().toISOString().split("T")[0]);
+                formData2.append('status', "Pending");
+                formData2.append('document_path', this.user.document_path);
+
+                // Primer POST: enviar la aplicación
+                const response = await axios.post('api/properties/applicate', formData2, {
+                    headers: { 'Content-Type': 'application/json' },
+                });
+
+                const applicationId = response.data.application;
+                console.log('Application submitted successfully:', response.data);
+
+                // Prepara los datos para el segundo POST
+                const formData = new FormData();
+                formData.append('application_id', applicationId);
+                // console.log('Document path:', user.document_path);
+                formData.append('document_path', this.user.document_path);
+
+                // Segundo POST: enviar documentos
+                const docResponse = await axios.post('/api/properties/pass-documents', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                });
+
+                console.log('Document submitted successfully:', docResponse.data);
+
+                const newFormData2 = new FormData();
+                newFormData2.append('appointment_id', appointment.id);
+                newFormData2.append('status', 'Applicated');
+
+                const statusResponse = await axios.put('/api/appointments/update', newFormData2, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                console.log('Appointment status updated:', statusResponse.data);
+
+                this.closeModal();
+                this.handleGetAppointments();
+            } catch (error) {
+                console.error('Error:', error.response ? error.response.data : error.message);
+            }
+        },
+        handleApplication(appointment) {
+            // Verifica si el usuario ya tiene documentos cargados
+            if (this.user.document_path) {
+                // Usa el documento existente y procede directamente
+                this.submitFormWithExistingDocument(appointment);
+            } else {
+                // Abre el modal para cargar documentos
+                this.handleModalToggle(appointment);
+            }
+        },
         toggleAccordion(appointment) {
-            appointment.isOpen = !appointment.isOpen;
-        },
-        openDetailsModal(appointment) {
-            this.selectedAppointment = appointment; // Guarda la cita seleccionada
-            this.showDetails = true; // Abre el modal
-        },
-        closeModal() {
-            this.showDetails = false; // Cierra el modal
-            this.selectedAppointment = null; // Limpia la cita seleccionada
-        },
-        toggleAccordion(appointment) {
+            // Alterna el estado de 'isOpen' para el acordeón
             this.appointments.forEach((appt) => {
                 if (appt.id === appointment.id) {
                     appt.isOpen = !appt.isOpen;
                 } else {
-                    appt.isOpen = false;
+                    appt.isOpen = false; // Colapsa los demás
                 }
+            });
+
+            // Opcional: Sincronizar con el modal (cerrar modal si el acordeón se colapsa)
+            if (!appointment.isOpen) {
+                this.showDetails = false;
+                this.selectedAppointment = null;
+            }
+        },
+        async cancelAppointment(appointment) {
+            try {
+                const response = await axios.put('/api/appointments/update', {
+                    appointment_id: appointment.id,
+                    status: 'Cancelled',
+                });
+                console.log('Appointment cancelled:', response.data);
+                this.handleGetAppointments();
+            } catch (error) {
+                console.error('Error:', error.response ? error.response.data : error.message);
+            }
+        },
+        handleModalToggle(appointment) {
+            // Alterna el estado del modal
+            if (this.selectedAppointment === appointment) {
+                this.showDetails = false;
+                this.selectedAppointment = null;
+            } else {
+                this.selectedAppointment = appointment;
+                this.showDetails = true;
+            }
+        },
+        closeModal() {
+            this.showDetails = false;
+            this.selectedAppointment = null;
+
+            // Opcional: Cierra también el acordeón relacionado
+            this.appointments.forEach((appt) => {
+                appt.isOpen = false;
             });
         },
         handleGetAppointments() {
-            axios.get('/api/appointments', {
-                params: {
-                    user_id: this.user.id
-                }
-            })
+            axios
+                .get('/api/appointments', {
+                    params: {
+                        user_id: this.user.id,
+                    },
+                })
                 .then((response) => {
-                    this.appointments = response.data;
-
-                    // console.log(response.data);
+                    this.appointments = response.data.map((appt) => ({
+                        ...appt,
+                        isOpen: false, // Inicializa 'isOpen' como false para cada cita
+                    }));
                 })
                 .catch((error) => {
                     console.error(error);
@@ -216,12 +308,9 @@ export default {
         editAppointment(id) {
             console.log(`Editing appointment with ID: ${id}`);
         },
-        cancelAppointment(id) {
-            console.log(`Cancelling appointment with ID: ${id}`);
-        },
         formatDateTime(date) {
             return new Date(date).toLocaleString();
-        }
+        },
     },
     mounted() {
         this.handleGetAppointments();
@@ -234,4 +323,5 @@ export default {
         Checkbox,
     },
 };
+
 </script>

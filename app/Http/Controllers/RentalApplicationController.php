@@ -6,6 +6,7 @@ use App\Models\Rental_application;
 use App\Models\Rental_document;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Models\User;
 
 class RentalApplicationController extends Controller
 {
@@ -72,6 +73,7 @@ class RentalApplicationController extends Controller
     }
 
     // Insert contract information
+    // Insert contract information
     public function storeAppDocuments(Request $request)
     {
         try {
@@ -129,5 +131,107 @@ class RentalApplicationController extends Controller
             // Devolver una respuesta JSON de error
             return response()->json(['success' => false, 'message' => $e,], 500);
         }
+    }
+
+    public function passDocuments(Request $request)
+    {
+        $validatedData = Validator::make($request->all(), [
+            'application_id' => 'required|integer|exists:rental_applications,id',
+            'document_path' => 'required|string'
+        ]);
+
+        if ($validatedData->fails()) {
+            return response()->json([
+                'message' => 'Error en la validación de los datos',
+                'error' => $validatedData->errors(),
+                'status' => 400
+            ], 400);
+        }
+
+        $passDocuments = new Rental_document();
+        $passDocuments->application_id = $request->input('application_id');
+        $passDocuments->document_path = $request->input('document_path');
+        $passDocuments->save();
+
+        return response()->json([
+            'message' => 'Documentos enviados con éxito',
+            'document' => $passDocuments,
+            'status' => 200
+        ], 200);
+    }
+
+    public function updateUserDocuments(Request $request)
+    {
+        // Validar los datos del request
+        $validatedData = Validator::make($request->all(), [
+            'tenant_user_id' => 'required|integer|exists:users,id', // Asegura que el ID de usuario existe
+            'document_path' => 'required|string',
+        ]);
+
+        if ($validatedData->fails()) {
+            return response()->json([
+                'message' => 'Error en la validación de los datos',
+                'error' => $validatedData->errors(),
+                'status' => 400
+            ], 400);
+        }
+
+        // Buscar al usuario por ID
+        $user = User::find($request->tenant_user_id);
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Usuario no encontrado',
+                'status' => 404
+            ], 404);
+        }
+
+        // Actualizar el campo document_path
+        $user->document_path = $request->document_path;
+
+        // Guardar los cambios en la base de datos
+        if ($user->save()) {
+            return response()->json([
+                'message' => 'Document path actualizado con éxito',
+                'status' => 200
+            ], 200);
+        }
+
+        // Manejar errores en caso de que el guardado falle
+        return response()->json([
+            'message' => 'Error al actualizar el document path',
+            'status' => 500
+        ], 500);
+    }
+
+    public function applicationsMadeByUser(Request $request)
+    {
+        // Validar los datos de entrada
+        $validator = Validator::make($request->all(), [
+            'tenant_user_id' => 'required|integer|exists:users,id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Error en la validación de los datos',
+                'error' => $validator->errors(),
+                'status' => 400
+            ], 400);
+        }
+
+        // Obtener el ID del usuario
+        $tenantUserId = $request->input('tenant_user_id');
+
+        // Consultar las aplicaciones realizadas por el usuario
+        $applications = Rental_application::with('property') // Incluir información de la propiedad
+            ->where('tenant_user_id', $tenantUserId)
+            ->get();
+
+        // Retornar los resultados
+        return response()->json([
+            'message' => 'Aplicaciones encontradas con éxito',
+            'applications' => $applications,
+            'status' => 200
+        ], 200);
     }
 }
