@@ -255,6 +255,8 @@
                             <i class="mdi mdi-send"></i>
                         </button>
                     </div>
+                </div>
+            </div>
 
     <!-- Comments section-->
     <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
