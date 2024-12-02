@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Carbon\Carbon;
 use App\Models\Notification;
+use App\Models\Contract;
 use App\Events\NewNotification;
 use Illuminate\Support\Facades\Http;
 
@@ -41,13 +42,13 @@ class DashboardController extends Controller
             ->first();
 
         // Datos de ingresos totales por mes
-
         $monthlyIncome = DB::table('payment_histories as ph')
             ->join('invoices as i', 'ph.invoice_id', '=', 'i.id')
             ->join('contracts as c', 'i.contract_id', '=', 'c.id')
             ->join('properties as p', 'c.property_id', '=', 'p.id')
             ->selectRaw('EXTRACT(YEAR FROM ph.payment_date) as year, EXTRACT(MONTH FROM ph.payment_date) as month, SUM(ph.amount_paid) as total_income')
             ->where('p.owner_user_id', auth()->id())
+            ->whereNotNull('ph.amount_paid')
             ->groupBy(DB::raw('EXTRACT(YEAR FROM ph.payment_date)'), DB::raw('EXTRACT(MONTH FROM ph.payment_date)'))
             ->orderByRaw('EXTRACT(YEAR FROM ph.payment_date) ASC')
             ->orderByRaw('EXTRACT(MONTH FROM ph.payment_date) ASC')
@@ -83,16 +84,17 @@ class DashboardController extends Controller
             ? round(($occupiedUnits / $totalProperties) * 100, 2)
             : 0;
 
-        // Ingresos estimados del mes actual
-        $currentMonthIncome = DB::table('payment_histories')
-            ->whereMonth('payment_date', date('m'))
-            ->whereYear('payment_date', date('Y'))
-            ->sum('amount_paid');
+        // Ingresos estimados del mes actual por las propiedades del owner
+        $currentMonthIncome = DB::table('payment_histories as ph')
+            ->join('invoices as i', 'ph.invoice_id', '=', 'i.id')
+            ->join('contracts as c', 'i.contract_id', '=', 'c.id')
+            ->join('properties as p', 'c.property_id', '=', 'p.id')
+            ->where('p.owner_user_id', auth()->id())
+            ->whereMonth('ph.payment_date', date('m'))
+            ->whereYear('ph.payment_date', date('Y'))
+            ->whereNotNull('ph.amount_paid')
+            ->sum('ph.amount_paid');
 
-        // Pagos pendientes
-        $pendingPayments = DB::table('payment_histories')
-            ->whereNull('payment_date')
-            ->count();
 
         // Datos de las tarjetas
         $cardStats = [
@@ -293,31 +295,82 @@ class DashboardController extends Controller
             'read_status' => false,
         ]));
 
-        // Decidir si usar Pusher o Socket.IO
-        if ($this->isOnline()) {
-            // Enviar a través de Pusher
-            broadcast(new NewNotification($notification));
+        $notificationData = [
+            'id' => $notification->id,
+            'sender_id' => $notification->sender_id,
+            'receiver_id' => $notification->receiver_id,
+            'notification_type' => $notification->notification_type,
+            'message' => $notification->message,
+            'sent_date' => $notification->sent_date,
+            'read_status' => $notification->read_status,
+        ];
+
+        // Verificar disponibilidad de Pusher y sus credenciales
+        if ($this->isPusherAvailable()) {
+            try {
+                broadcast(new NewNotification($notificationData));
+            } catch (\Exception $e) {
+                \Log::error("Error al enviar notificación con Pusher: " . $e->getMessage());
+                $this->sendViaSocketIO($notificationData); // Fallback a Socket.IO
+            }
         } else {
-            // Enviar al servidor local Socket.IO
-            Http::post('http://localhost:3001/emit', [
-                'event' => 'localNotification',
-                'data' => $notification,
-            ]);
+            $this->sendViaSocketIO($notificationData);
         }
 
         return response()->json([
             'message' => 'Notificación enviada correctamente.',
-            'notification' => $notification,
+            'notification' => $notificationData,
         ]);
     }
 
-    private function isOnline()
+    // Verificar disponibilidad de Pusher
+    private function isPusherAvailable()
     {
         try {
-            Http::get('https://google.com'); // Verificar conectividad
-            return true;
+            $pusherKey = config('broadcasting.connections.pusher.key');
+            $pusherSecret = config('broadcasting.connections.pusher.secret');
+            $pusherCluster = config('broadcasting.connections.pusher.options.cluster');
+
+            if (empty($pusherKey) || empty($pusherSecret) || empty($pusherCluster)) {
+                throw new \Exception('Credenciales de Pusher no configuradas correctamente.');
+            }
+
+            // Realiza una solicitud de prueba a Pusher
+            $response = Http::get('https://pusher.com');
+            return $response->successful();
         } catch (\Exception $e) {
+            \Log::warning("Problema con Pusher: " . $e->getMessage());
             return false;
         }
+    }
+
+    // Enviar datos a Socket.IO
+    private function sendViaSocketIO($notificationData)
+    {
+        try {
+            Http::post('http://localhost:3001/emit', [
+                'event' => 'localNotification',
+                'room' => 'user_' . $notificationData['receiver_id'], // Nombre de la sala
+                'data' => $notificationData,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error("Error al enviar notificación con Socket.IO: " . $e->getMessage());
+        }
+    }
+
+    public function getTenantContracts($tenantUserId)
+    {
+        // Verifica si el parámetro existe en la base de datos o realizar alguna validación
+        if (!$tenantUserId || !is_numeric($tenantUserId)) {
+            return response()->json(['error' => 'Invalid tenant user ID'], 400);
+        }
+
+        // Obtener los contratos basados en el tenantUserId
+        $contracts = Contract::where('tenant_user_id', $tenantUserId)
+            ->with('property', 'tenantUser') // Relaciones con propiedad y usuario del inquilino
+            ->orderBy('end_date', 'asc') // Ordenar por fecha de vencimiento
+            ->get();
+
+        return response()->json($contracts);
     }
 }
