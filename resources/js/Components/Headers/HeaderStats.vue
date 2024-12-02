@@ -7,10 +7,6 @@
                 <p class="text-white text-sm uppercase font-semibold p-4">
                     Dashboard
                 </p>
-                <!-- Notifications -->
-                <div class="absolute right-10 top-6">
-                    <NotificationDropdown :auth="auth" />
-                </div>
             </div>
 
             <!-- Cards Section -->

@@ -84,6 +84,7 @@ Route::prefix('appointments')->group(function () {
 // dashboard
 Route::get('/payment-history/{tenantUserId}', [DashboardController::class, 'getPaymentHistory']);
 Route::get('/rented-property/{tenantUserId}', [DashboardController::class, 'getRentedProperty']);
+Route::get('/tenant/contracts/{tenantUserId}', [DashboardController::class, 'getTenantContracts']);
 
 //notifications
 Route::get('/notifications/{userId}', [DashboardController::class, 'getNotifications']);

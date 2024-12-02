@@ -7,7 +7,6 @@
                     <h1 class="text-3xl font-bold">Payment Summary</h1>
                     <p class="text-sm text-gray-200 mt-1">Check your payment status and history</p>
                 </div>
-                <NotificationDropdown :auth="auth" />
             </div>
 
             <!-- Summary Cards -->
@@ -47,7 +46,8 @@
                             </p>
                         </div>
                     </div>
-                    <p class="text-sm text-gray-500 mt-3">Date: {{ nextPaymentDate ? formatDate(nextPaymentDate) : 'No scheduled payments' }}</p>
+                    <p class="text-sm text-gray-500 mt-3">Date: {{ nextPaymentDate ? formatDate(nextPaymentDate) :
+                        'Noscheduled payments' }}</p>
                 </div>
             </div>
         </div>
@@ -142,7 +142,7 @@
                 </div>
             </div>
         </div>
-        <!-- Contracts and Comments -->
+        <!-- Contratos y Comentarios organizados -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-5">
             <!-- Contract Table -->
             <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
@@ -187,7 +187,6 @@
                     </button>
                 </div>
             </div>
-
             <!-- Contratos y Comentarios organizados -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-5">
                 <!-- Contract Table -->
@@ -287,7 +286,7 @@
 
 <script>
 
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, isValid } from 'date-fns';
 import { es } from 'date-fns/locale';
 import 'v-calendar/dist/style.css';
 import VCalendar from 'v-calendar';
@@ -592,7 +591,7 @@ export default {
         },
 
 
-        async fetchContracts() {
+        async fetchContractsData() {
             this.isLoading = true;
             try {
 
@@ -601,12 +600,9 @@ export default {
                     console.error("User ID is not available");
                     return;
                 }
-                const response = await axios.get('/api/contracts/tenant/contracts', {
-                    params: {
-                        user_id: userId,
-                    }
-                });
+                const response = await axios.get(`/api/tenant/contracts/${userId}`);
                 this.contractsData = response.data;
+                console.log('Contracts:', this.contractsData);
             } catch (error) {
                 console.error(error);
             } finally {
@@ -626,7 +622,7 @@ export default {
     mounted() {
         this.fetchPaymentsData();
         this.refreshInterval = setInterval(this.fetchPayments, 30000);
-        this.fetchContracts();
+        this.fetchContractsData();
         this.fetchProperty();
         this.getComments();
     },

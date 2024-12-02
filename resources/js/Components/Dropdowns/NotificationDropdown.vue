@@ -1,18 +1,19 @@
 <template>
     <div class="relative">
+
         <!-- Notifications Button -->
         <button @click="toggleDropdown"
-            class="relative flex items-center gap-2 text-white bg-primary hover:bg-primary-dark font-semibold py-2 px-4 rounded-lg transition">
-            <i class="fas fa-bell"></i>
-            Notifications
+            class="relative flex items-center justify-center bg-transparent hover:bg-primary-dark p-3 rounded-full transition">
+            <i class="mdi mdi-bell text-xl text-green-900"></i>
             <span
                 class="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
                 {{ unreadNotificationsCount }}
             </span>
         </button>
 
+
         <!-- Dropdown -->
-        <div v-if="dropdownOpen" class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg z-20">
+        <div v-if="dropdownOpen" class="absolute right-0 -mt-3 w-80 bg-white rounded-lg shadow-lg z-20">
             <div class="p-4">
                 <h2 class="text-gray-800 text-lg font-semibold border-b pb-2">
                     Notifications
@@ -136,7 +137,7 @@
                     class="flex items-center gap-3 bg-white shadow-lg rounded-xl border-l-4 border-green-800 p-4 max-w-sm transform transition-all duration-300 ease-in-out hover:shadow-2xl">
                     <!-- Icon -->
                     <div class="flex-shrink-0">
-                        <i class="fas fa-info-circle text-blue-500 text-2xl"></i>
+                        <i class="mdi mdi-information-outline text-green-500 text-2xl"></i>
                     </div>
                     <!-- Notification Content -->
                     <div class="flex-1">
@@ -145,7 +146,7 @@
                     </div>
                     <!-- Close Button -->
                     <button @click="removeToast(index)" class="flex-shrink-0 text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times"></i>
+                        <i class="mdi mdi-close"></i>
                     </button>
                 </div>
             </transition-group>
@@ -158,7 +159,7 @@
 import axios from "axios";
 import Echo from "laravel-echo";
 import Pusher from "pusher-js";
-import {socket} from '@/bootstrap.js';
+import { socket } from '@/bootstrap.js';
 
 export default {
     props: {
@@ -243,6 +244,11 @@ export default {
             }, 5000); // Ocultar después de 5 segundos
         },
 
+        removeToast(index) {
+            this.toasts.splice(index, 1);
+        },
+
+
         // Toggle dropdown visibility
         toggleDropdown() {
             this.dropdownOpen = !this.dropdownOpen;
@@ -259,29 +265,44 @@ export default {
     mounted() {
         this.fetchNotifications();
 
-        // Listen to the notifications channel
+        // Verifica si Pusher y su conexión están configurados correctamente
+        if (
+            window.Echo &&
+            window.Echo.connector &&
+            window.Echo.connector.pusher &&
+            window.Echo.connector.pusher.connection.state === 'connected'
+        ) {
+            console.log("Pusher está conectado. Suscribiéndose al canal...");
 
-        window.Echo.private(`notifications.${this.auth.user.id}`)
-            .listen('.NewNotification', (event) => {
-                this.notifications.push(event.notification);
-                this.showToast(event.notification.message);
-            })
-            .error((error) => {
-                console.error("Error escuchando el evento:", error);
+            window.Echo.private(`notifications.${this.auth.user.id}`)
+                .listen('.NewNotification', (event) => {
+                    if (event.notification.receiver_id === this.auth.user.id) {
+                        this.notifications.push(event.notification);
+                        this.showToast(event.notification.message);
+                    }
+                })
+                .error((error) => {
+                    console.error("Error escuchando el evento con Pusher:", error);
+                });
+        } else {
+
+            // Configurar Socket.IO solo si Pusher no está funcionando
+            socket.on('localNotification', (data) => {
+                if (data.receiver_id === this.auth.user.id) {
+                    this.notifications.push({ id: data.id, message: data.message });
+                    this.showToast(data.message);
+                }
             });
 
-        // Escucha notificaciones de Socket.IO
-        socket.on('localNotification', (data) => {
-            this.notifications.push({ id: data.id, message: data.message });
-            this.showToast(data.message);
-        });
+            socket.on('error', (error) => {
+                console.error("Socket.IO error:", error);
+                this.showToast("Error recibiendo notificaciones.");
+            });
 
-        socket.on('error', (error) => {
-            console.error("Socket.IO error:", error);
-            this.showToast("An error occurred while receiving notifications.");
-        });
+            socket.connect(); // Asegúrate de conectar el socket
+        }
+    }
 
-    },
 };
 </script>
 
