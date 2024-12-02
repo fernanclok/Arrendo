@@ -122,8 +122,14 @@ Route::get('/my-invoices', function () {
 
 //Payment History
 Route::get('/payment-history', function () {
-    return Inertia::render('PaymentHistory');
+    return Inertia::render('PaymentHistory', [
+        'user' => auth()->user()
+    ]);
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('paymentHistory');
+
+Route::get('/payment-history/tenant', function () {
+    return Inertia::render('TenantPaymentHistory');
+})->middleware(['auth', 'verified', 'role:Tenant'])->name('tenantPaymentHistory');
 
 // Ruta para autenticación de broadcasting
 Route::post('/broadcasting/auth', [BroadcastController::class, 'authenticate'])

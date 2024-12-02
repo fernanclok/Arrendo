@@ -12,6 +12,7 @@ use App\Http\Controllers\RentalApplicationController;
 use App\Http\Controllers\AppointmentController;
 use App\Models\Appoinment;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\PaymentHistoryController;
 use App\Models\Rental_application;
 
 /*
@@ -124,5 +125,5 @@ Route::post('/contracts/{contractId}/generate-invoices', [InvoiceController::cla
 
 //payment history
 Route::prefix('payment-history')->group(function () {
-    Route::get('/{userId}', [DashboardController::class, 'getPaymentHistory']);
+    Route::get('/', [PaymentHistoryController::class, 'getPaymentHistoriesByOwner']);
 });

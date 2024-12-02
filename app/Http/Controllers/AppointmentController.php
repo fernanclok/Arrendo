@@ -81,8 +81,8 @@ class AppointmentController extends Controller
 
         $appointment->status = $request->status;
 
-               // Agregar la fecha y hora de confirmación si el estado es "Approved"
-               if ($request->status === 'Approved') {
+             // Agregar la fecha y hora de confirmación si el estado es "Approved"
+             if ($request->status === 'Approved') {
                 $appointment->confirmation_date = now();
                 $appointment->rejected_reason = null; // Limpiar el motivo de rechazo si está aprobado
             } elseif ($request->status === 'Rejected') {

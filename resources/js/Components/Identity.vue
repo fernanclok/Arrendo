@@ -222,11 +222,11 @@ export default {
             </nav>
         </form>
         <div class="px-4 py-4  bg-opacity-50 sm:px-6 sm:flex sm:flex-row-reverse">
-            <button type="button"
+            <CustomButton type="primary"
                 class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white transition-colors duration-200 bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
                 @click="submitForm()">
                 <i class="mr-2 mdi mdi-check"></i> Apply to this Listing
-            </button>
+            </CustomButton>
         </div>
     </div>
 </template>
