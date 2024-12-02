@@ -107,31 +107,24 @@ class ContractController extends Controller
     }
     public function getTenantUsers(Request $request)
     {
+        // validar los datos del formulario
         $request->validate([
-            'property_id' => 'required|exists:properties,id',
+            'property_id' => 'required|string|exists:properties,id',
         ]);
 
-        try {
-            // Obtener todas las aplicaciones de renta para la propiedad especificada
-            $rentalApplications = Rental_application::where('property_id', $request->property_id)
-                ->with('tenantUser')
-                ->get();
+        // Obtener todos los usuarios que han solicitado la propiedad
+        $tenantUsers1 = Rental_application::where('property_id', $request->property_id)
+            ->where('status', 'Approved')
+            ->with('tenantUser')
+            ->get();
 
-            // Obtener los usuarios Tenant que tienen una aplicación de renta para la propiedad especificada
-            $tenantUsers = $rentalApplications->pluck('tenantUser')->filter(function ($user) {
-                // Filtrar los usuarios que no tienen un contrato activo
-                return !Contract::where('tenant_user_id', $user->id)
-                    ->where('status', 'Active')
-                    ->exists();
-            });
+        // filtrar la información de los usuarios
+        $tenantUsers = $tenantUsers1->map(function ($tenantUser) {
+            return $tenantUser->tenantUser;
+        });
 
-            // Devolver una respuesta JSON de éxito
-            return response()->json($tenantUsers);
-        } catch (\Exception $e) {
-            // Registrar el error y devolver una respuesta JSON de error
-            Log::error('Error fetching tenant applications for property: ' . $e->getMessage());
-            return response()->json(['error' => 'Error fetching tenant applications for property'], 500);
-        }
+        // Devolver una respuesta JSON de éxito
+        return response()->json($tenantUsers);
     }
 
     public function getProperties()

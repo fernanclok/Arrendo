@@ -14,22 +14,22 @@ class ShareNavigationLinks
         Inertia::share('navLinks', function () {
             $allowedRoutes = [
                 'Owner' => [
-                    ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'monitor-dashboard'], 
+                    ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'monitor-dashboard'],
                     ['route' => 'myProperties', 'label' => 'My Properties', 'icon' => 'home'],
                     ['route' => 'appointmentRequest', 'label' => 'Appointments', 'icon' => 'calendar'],
-                    ['route' => 'AllContracts', 'label' => 'contracts', 'icon' => 'file'], 
                     ['route' => 'EvaluateRequest', 'label' => 'Request', 'icon' => 'account-question'],
-                    ['route' => 'maintenanceOwner','label' => 'Maintenance','icon'=> 'hammer-wrench'],
-                    ['route' => 'recibo', 'label' => 'Invoices', 'icon' => 'receipt-text'],
+                    ['route' => 'AllContracts', 'label' => 'contracts', 'icon' => 'file'],
+                    ['route' => 'invoices', 'label' => 'Invoices', 'icon' => 'receipt-text'],
+                    ['route' => 'maintenanceOwner', 'label' => 'Maintenance', 'icon' => 'hammer-wrench'],
                 ],
                 'Tenant' => [
                     ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'monitor-dashboard'],
-                    ['route' => 'TenantContracts', 'label' => 'contracts', 'icon' => 'file'],
                     ['route' => 'searchProperties', 'label' => 'Properties', 'icon' => 'home'],
                     ['route' => 'appointments', 'label' => 'Appointments', 'icon' => 'calendar'],
-                    ['route' => 'maintenance', 'label' => 'Maintenance', 'icon' => 'hammer-wrench'],
                     ['route' => 'TrackRequest', 'label' => 'Applications', 'icon' => 'account-question'],
-                    ['route' => 'recibos', 'label' => 'My Invoices', 'icon' => 'receipt-text-clock-outline'],
+                    ['route' => 'TenantContracts', 'label' => 'contracts', 'icon' => 'file'],
+                    ['route' => 'myInvoices', 'label' => 'My Invoices', 'icon' => 'receipt-text-clock-outline'],
+                    ['route' => 'maintenance', 'label' => 'Maintenance', 'icon' => 'hammer-wrench'],
                 ],
             ];
 
