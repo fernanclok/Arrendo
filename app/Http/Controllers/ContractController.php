@@ -35,6 +35,7 @@ class ContractController extends Controller
             $contract = new Contract();
             $contract->property_id = $validatedData['property_id'];
             $contract->tenant_user_id = $validatedData['tenant_user_id'];
+            $contract->contract_code = 'CT-';
             $contract->start_date = $validatedData['start_date'];
             $contract->end_date = $validatedData['end_date'];
             $contract->rental_amount = $validatedData['rental_amount'];
@@ -67,6 +68,11 @@ class ContractController extends Controller
             $contract->owner_user_id = $validatedData['owner_user_id'];
             $contract->status = $validatedData['status'];
             $contract->save();
+
+            // Generar el código único de la propiedad
+            $contract->contract_code = 'CT-' . random_int(1000, 9999) . $contract->id;
+            $contract->save();
+
 
             // Llamar a la función para generar las facturas para este contrato
             $this->generateInvoices($contract->id);
@@ -258,6 +264,7 @@ class ContractController extends Controller
                     'contract_id' => $contractId,
                     'issue_date' => $startDate->format('Y-m-d'),
                     'total_amount' => $totalAmount,
+                    'evidence_path' => null,
                     'payment_status' => 'Pending', // Estado inicial de la factura
                 ]);
 
