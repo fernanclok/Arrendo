@@ -116,3 +116,8 @@ Route::prefix('Invoices')->group(function () {
     Route::patch('/invoices/{id}/invoice-paid', [InvoiceController::class, 'InvoicePaid']);
 });
 Route::post('/contracts/{contractId}/generate-invoices', [InvoiceController::class, 'generateInvoices']);
+
+//payment history
+Route::prefix('payment-history')->group(function () {
+    Route::get('/{userId}', [DashboardController::class, 'getPaymentHistory']);
+});
