@@ -9,8 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Inertia\Inertia;
 use Carbon\Carbon;
-
-
+use Illuminate\Support\Facades\Log;
 
 class InvoiceController extends Controller
 {
@@ -55,7 +54,7 @@ class InvoiceController extends Controller
                     'total_amount' => $totalAmount,
                     'payment_status' => 'Pending',
                 ]);
-                
+
                 // Guardar la factura
                 $invoice->save();
                 $invoices[] = $invoice;
@@ -64,7 +63,6 @@ class InvoiceController extends Controller
             }
 
             return response()->json($invoices, 201);
-
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error generating invoices', 'details' => $e->getMessage()], 500);
         }
@@ -96,19 +94,21 @@ class InvoiceController extends Controller
                     DB::raw("CONCAT(u.first_name, ' ', u.last_name) as tenant_name"),
                     'c.id as contract_id',
                     'i.id as invoice_id',
-                    'i.issue_date as invoice_date',
+                    'i.created_at as invoice_date',
+                    'i.issue_date as issue_date',
                     'i.total_amount as invoice_total',
                     'i.payment_status'
                 )
-                ->where('c.tenant_user_id', $request->user()->id)
+                ->where('c.tenant_user_id', $request->id)
                 ->orderBy('i.issue_date', 'DESC')
                 ->get();
 
             return response()->json($history);
         } catch (\Exception $e) {
+            Log::error($e->getMessage());
             return response()->json(['error' => 'Error retrieving payment history', 'details' => $e->getMessage()], 500);
         }
-    }   
+    }
 
 
     public function generatePDF($id)
@@ -131,6 +131,4 @@ class InvoiceController extends Controller
             return response()->json(['error' => 'Error generating PDF', 'details' => $e->getMessage()], 500);
         }
     }
-
-
 }
