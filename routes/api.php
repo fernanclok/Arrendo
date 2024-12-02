@@ -79,6 +79,7 @@ Route::prefix('appointments')->group(function () {
 // dashboard
 Route::get('/payment-history/{tenantUserId}', [DashboardController::class, 'getPaymentHistory']);
 Route::get('/rented-property/{tenantUserId}', [DashboardController::class, 'getRentedProperty']);
+Route::get('/tenant/contracts/{tenantUserId}', [DashboardController::class, 'getTenantContracts']);
 
 //notifications
 Route::get('/notifications/{userId}', [DashboardController::class, 'getNotifications']);
@@ -104,7 +105,7 @@ Route::prefix('maintenance')->group(function () {
 //MaintenaceOwner
 Route::prefix('maintenanceOwner')->group(function () {
     Route::get('/properties', [MaintenanceController::class, 'getProperties']);
-    Route::get('/maintenancesReq', [MaintenanceController::class, 'getRequestsByProperty']); 
+    Route::get('/maintenancesReq', [MaintenanceController::class, 'getRequestsByProperty']);
     Route::put('/maintenancesReq/{id}', [MaintenanceController::class, 'updateRequest']);
 });
 
