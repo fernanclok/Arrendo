@@ -24,6 +24,7 @@
         "chart.js": "^4.4.6",
         "date-fns": "^4.1.0",
         "date-fns-tz": "^3.2.0",
+        "lucide-vue-next": "^0.462.0",
         "mdi-vue": "^3.0.13",
         "mitt": "^3.0.1",
         "v-calendar": "^3.1.2"
