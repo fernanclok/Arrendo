@@ -47,7 +47,7 @@ Route::get('/zones', [ZoneController::class, 'getZones']);
 
 //Comments
 Route::prefix('comments')->group(function () {
-    Route::get('/{propertyId}', [PropertyController::class, 'getComments']);
+    Route::get('/{userId}', [PropertyController::class, 'getComments']);
     Route::post('/', [PropertyController::class, 'createComment']);
 });
 
