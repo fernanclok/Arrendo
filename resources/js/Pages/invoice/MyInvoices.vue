@@ -9,11 +9,12 @@ const invoices = ref([]);
 // Muestra los recibos por usuario
 const fetchInvoices = async () => {
     try {
-        const response = await axios.get('/api/invoices', {
+        const response = await axios.get('/api/Invoices/tenatn-invoices', {
             params: {
-                user_id: user.id,
+                id: user.id,
             },
         });
+        console.log(response.data);
         invoices.value = response.data;
     } catch (error) {
         console.error('Error fetching invoices:', error);
@@ -58,7 +59,7 @@ onMounted(fetchInvoices);
             <td class="py-4 px-6">{{ invoice.contract_id }}</td>
             <td class="py-4 px-6">{{ invoice.tenant_name }}</td>
             <td class="py-4 px-6">{{ invoice.issue_date }}</td>
-            <td class="py-4 px-6">{{ invoice.total_amount }}</td>
+            <td class="py-4 px-6">{{ invoice.invoice_total }}</td>
             <td class="py-4 px-6">{{ invoice.payment_status }}</td>
             <td class="py-4 px-6">
               <button 

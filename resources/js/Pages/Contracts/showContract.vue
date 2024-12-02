@@ -40,7 +40,7 @@ const getTenants = async (propertyId) => {
     const response = await axios.get('/api/contracts/get/user_tenant', {
       params: { property_id: propertyId }
     });
-    console.log(response.data);
+    console.log(response);
     tenants.value = response.data;
   } catch (error) {
     console.error(error);
