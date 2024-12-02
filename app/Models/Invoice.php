@@ -24,6 +24,11 @@ class Invoice extends Model
         return $this->belongsTo(Contract::class, 'contract_id');
     }
 
+    public function paymentHistory()
+    {
+        return $this->hasOne(Payment_history::class, 'invoice_id');
+    }
+
     public function validatePaymentStatus(array $attributes)
     {
         $validator = Validator::make($attributes, [

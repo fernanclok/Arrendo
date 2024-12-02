@@ -12,6 +12,7 @@ use App\Http\Controllers\RentalApplicationController;
 use App\Http\Controllers\AppointmentController;
 use App\Models\Appoinment;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\PaymentHistoryController;
 use App\Models\Rental_application;
 
 /*
@@ -63,6 +64,10 @@ Route::prefix('properties')->group(function () {
     Route::get('/applications', [PropertyController::class, 'getAllApplications']);
     Route::post('/applicate', [PropertyController::class, 'createApplication']);
     Route::post('/document-application', [RentalApplicationController::class, 'storeAppDocuments']);
+
+    Route::post('/pass-documents', [RentalApplicationController::class, 'passDocuments']);
+    Route::post('/pass-user-documents', [RentalApplicationController::class, 'updateUserDocuments']);
+    Route::post('/user-applications', [RentalApplicationController::class, 'applicationsMadeByUser']);
 });
 
 Route::get('/properties/{id}', [PropertyController::class, 'show']);
@@ -120,5 +125,5 @@ Route::post('/contracts/{contractId}/generate-invoices', [InvoiceController::cla
 
 //payment history
 Route::prefix('payment-history')->group(function () {
-    Route::get('/{userId}', [DashboardController::class, 'getPaymentHistory']);
+    Route::get('/', [PaymentHistoryController::class, 'getPaymentHistoriesByOwner']);
 });

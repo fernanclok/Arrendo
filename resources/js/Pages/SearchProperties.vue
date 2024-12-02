@@ -420,7 +420,7 @@ export default {
         },
         checkUserAppointment() {
             this.hasAppointment = this.selectedProperty.appointments.some(appointment => {
-                return appointment.user.id === this.user.id && appointment.appointment_status !== 'Rejected';
+                return appointment.user.id === this.user.id && appointment.appointment_status !== 'Rejected' && appointment.appointment_status !== 'Cancelled';
             });
         },
         toggleFilters() {
