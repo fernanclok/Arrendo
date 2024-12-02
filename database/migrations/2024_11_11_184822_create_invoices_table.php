@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('contract_id')->constrained('contracts');
             $table->date('issue_date');
             $table->decimal('total_amount', 10, 2);
+            $table->JSON('evidence_path')->nullable();
             $table->enum('payment_status', ['Pending', 'Paid']);
             $table->timestamps();
         });

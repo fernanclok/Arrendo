@@ -10,6 +10,9 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Carbon\Carbon;
 use App\Models\Notification;
+use App\Models\Contract;
+use App\Events\NewNotification;
+use Illuminate\Support\Facades\Http;
 
 class DashboardController extends Controller
 {
@@ -39,13 +42,13 @@ class DashboardController extends Controller
             ->first();
 
         // Datos de ingresos totales por mes
-
         $monthlyIncome = DB::table('payment_histories as ph')
             ->join('invoices as i', 'ph.invoice_id', '=', 'i.id')
             ->join('contracts as c', 'i.contract_id', '=', 'c.id')
             ->join('properties as p', 'c.property_id', '=', 'p.id')
             ->selectRaw('EXTRACT(YEAR FROM ph.payment_date) as year, EXTRACT(MONTH FROM ph.payment_date) as month, SUM(ph.amount_paid) as total_income')
             ->where('p.owner_user_id', auth()->id())
+            ->whereNotNull('ph.amount_paid')
             ->groupBy(DB::raw('EXTRACT(YEAR FROM ph.payment_date)'), DB::raw('EXTRACT(MONTH FROM ph.payment_date)'))
             ->orderByRaw('EXTRACT(YEAR FROM ph.payment_date) ASC')
             ->orderByRaw('EXTRACT(MONTH FROM ph.payment_date) ASC')
@@ -81,55 +84,41 @@ class DashboardController extends Controller
             ? round(($occupiedUnits / $totalProperties) * 100, 2)
             : 0;
 
-        // Ingresos estimados del mes actual
-        $currentMonthIncome = DB::table('payment_histories')
-            ->whereMonth('payment_date', date('m'))
-            ->whereYear('payment_date', date('Y'))
-            ->sum('amount_paid');
+        // Ingresos estimados del mes actual por las propiedades del owner
+        $currentMonthIncome = DB::table('payment_histories as ph')
+            ->join('invoices as i', 'ph.invoice_id', '=', 'i.id')
+            ->join('contracts as c', 'i.contract_id', '=', 'c.id')
+            ->join('properties as p', 'c.property_id', '=', 'p.id')
+            ->where('p.owner_user_id', auth()->id())
+            ->whereMonth('ph.payment_date', date('m'))
+            ->whereYear('ph.payment_date', date('Y'))
+            ->whereNotNull('ph.amount_paid')
+            ->sum('ph.amount_paid');
 
-        // Pagos pendientes
-        $pendingPayments = DB::table('payment_histories')
-            ->whereNull('payment_date')
-            ->count();
 
         // Datos de las tarjetas
         $cardStats = [
             [
                 'statSubtitle' => 'Active Properties',
                 'statTitle' => "{$activeProperties} of {$allProperties}",
-                'statPercent' => '5', // Porcentaje de cambio mensual, puedes calcularlo dinámicamente si tienes datos históricos
-                'statPercentColor' => 'text-emerald-500',
-                'statDescripiron' => 'Change since last month',
                 'statIconName' => 'mdi mdi-home',
                 'statIconColor' => 'bg-blue-500',
             ],
             [
                 'statSubtitle' => 'Occupancy Rate',
                 'statTitle' => "{$occupancyRate}%",
-                'statArrow' => 'up', // Dirección del cambio
-                'statPercent' => '10',
-                'statPercentColor' => 'text-emerald-500',
-                'statDescripiron' => 'Compared to last month',
                 'statIconName' => 'mdi mdi-chart-line',
                 'statIconColor' => 'bg-green-500',
             ],
             [
                 'statSubtitle' => 'Estimated Income',
                 'statTitle' => "$" . number_format($currentMonthIncome, 2),
-                'statArrow' => 'up',
-                'statPercent' => '15',
-                'statPercentColor' => 'text-emerald-500',
-                'statDescripiron' => 'Estimated this month',
                 'statIconName' => 'mdi mdi-currency-usd',
                 'statIconColor' => 'bg-yellow-500',
             ],
             [
                 'statSubtitle' => 'Maintenance Payments',
                 'statTitle' => "$" . number_format($totalCostCurrentMonth->total_cost ?? 0, 2),
-                'statArrow' => 'down',
-                'statPercent' => '20',
-                'statPercentColor' => 'text-red-500',
-                'statDescripiron' => 'Overdue payments',
                 'statIconName' => 'mdi mdi-currency-usd-off',
                 'statIconColor' => 'bg-red-500',
             ],
@@ -235,7 +224,7 @@ class DashboardController extends Controller
 
     public function getNotifications($userId)
     {
-        $notifications = Notification::where('user_id', $userId)
+        $notifications = Notification::where('receiver_id', $userId)
             ->orderBy('sent_date', 'desc')
             ->get();
 
@@ -288,5 +277,100 @@ class DashboardController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function sendNotification(Request $request)
+    {
+        // Validar datos de la notificación
+        $validated = $request->validate([
+            'sender_id' => 'required|integer|exists:users,id',
+            'receiver_id' => 'required|integer|exists:users,id',
+            'notification_type' => 'required|string',
+            'message' => 'required|string|max:255',
+        ]);
+
+        // Crear la notificación en la base de datos
+        $notification = Notification::create(array_merge($validated, [
+            'sent_date' => now(),
+            'read_status' => false,
+        ]));
+
+        $notificationData = [
+            'id' => $notification->id,
+            'sender_id' => $notification->sender_id,
+            'receiver_id' => $notification->receiver_id,
+            'notification_type' => $notification->notification_type,
+            'message' => $notification->message,
+            'sent_date' => $notification->sent_date,
+            'read_status' => $notification->read_status,
+        ];
+
+        // Verificar disponibilidad de Pusher y sus credenciales
+        if ($this->isPusherAvailable()) {
+            try {
+                broadcast(new NewNotification($notificationData));
+            } catch (\Exception $e) {
+                \Log::error("Error al enviar notificación con Pusher: " . $e->getMessage());
+                $this->sendViaSocketIO($notificationData); // Fallback a Socket.IO
+            }
+        } else {
+            $this->sendViaSocketIO($notificationData);
+        }
+
+        return response()->json([
+            'message' => 'Notificación enviada correctamente.',
+            'notification' => $notificationData,
+        ]);
+    }
+
+    // Verificar disponibilidad de Pusher
+    private function isPusherAvailable()
+    {
+        try {
+            $pusherKey = config('broadcasting.connections.pusher.key');
+            $pusherSecret = config('broadcasting.connections.pusher.secret');
+            $pusherCluster = config('broadcasting.connections.pusher.options.cluster');
+
+            if (empty($pusherKey) || empty($pusherSecret) || empty($pusherCluster)) {
+                throw new \Exception('Credenciales de Pusher no configuradas correctamente.');
+            }
+
+            // Realiza una solicitud de prueba a Pusher
+            $response = Http::get('https://pusher.com');
+            return $response->successful();
+        } catch (\Exception $e) {
+            \Log::warning("Problema con Pusher: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    // Enviar datos a Socket.IO
+    private function sendViaSocketIO($notificationData)
+    {
+        try {
+            Http::post('http://localhost:3001/emit', [
+                'event' => 'localNotification',
+                'room' => 'user_' . $notificationData['receiver_id'], // Nombre de la sala
+                'data' => $notificationData,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error("Error al enviar notificación con Socket.IO: " . $e->getMessage());
+        }
+    }
+
+    public function getTenantContracts($tenantUserId)
+    {
+        // Verifica si el parámetro existe en la base de datos o realizar alguna validación
+        if (!$tenantUserId || !is_numeric($tenantUserId)) {
+            return response()->json(['error' => 'Invalid tenant user ID'], 400);
+        }
+
+        // Obtener los contratos basados en el tenantUserId
+        $contracts = Contract::where('tenant_user_id', $tenantUserId)
+            ->with('property', 'tenantUser') // Relaciones con propiedad y usuario del inquilino
+            ->orderBy('end_date', 'asc') // Ordenar por fecha de vencimiento
+            ->get();
+
+        return response()->json($contracts);
     }
 }
