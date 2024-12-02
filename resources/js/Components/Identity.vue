@@ -11,6 +11,14 @@ export default {
         propertyId: {
             type: Number, // Define el tipo de la prop según tu necesidad
             required: true
+        },
+        appointmentId: {
+            type: Number,
+            required: true
+        },
+        appointments: {
+            type: Array,
+            required: true
         }
     },
     // mounted() {
@@ -21,8 +29,29 @@ export default {
         InputLabel,
         CustomButton,
     },
+    methods: {
+    },
     setup(props, { emit }) {
         const user = usePage().props.auth.user;
+        const localAppointments = ref([...props.appointments]); // Copia inmutable
+
+        function handleGetAppointments() {
+            axios
+                .get('/api/appointments', {
+                    params: {
+                        user_id: user.id,
+                    },
+                })
+                .then((response) => {
+                    props.appointments = response.data.map((appt) => ({
+                        ...appt,
+                        isOpen: false, // Inicializa 'isOpen' como false para cada cita
+                    }));
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        }
 
         const form2 = useForm({
             property_id: props.propertyId,
@@ -58,6 +87,7 @@ export default {
         const submitForm = async () => {
             const formData2 = new FormData();
             let applicationId = 0;
+            let documentPath = '';
 
             // Preparar los datos para el primer POST
             formData2.append('property_id', form2.property_id);
@@ -93,10 +123,40 @@ export default {
                     }
                 });
                 console.log('Documentos enviados exitosamente');
+                documentPath = response.data.Documents.document_path;
                 // alert('Documentos y aplicación enviados con éxito');
-                emit('closeModal'); // Cerrar el modal
             } catch (error) {
                 console.error('Error al enviar los documentos:', error.response.data);
+            }
+
+            const newFormData = new FormData();
+            newFormData.append('tenant_user_id', user.id);
+            newFormData.append('document_path', documentPath);
+
+            try {
+                const response = await axios.post('/api/properties/pass-user-documents', newFormData, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                emit('close-modal');
+                emit('refresh-appointments'); // Notifica al padre
+                console.log('User document path updated');
+            } catch (error) {
+                console.log(error);
+            }
+            const newFormData2 = new FormData();
+            newFormData2.append('appointment_id', props.appointmentId);
+            newFormData2.append('status', 'Applicated');
+            try {
+                const response = await axios.put('/api/appointments/update', newFormData2, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                console.log('Appointment status updated');
+            } catch (error) {
+                console.log(error);
             }
         };
 
@@ -106,8 +166,9 @@ export default {
             handleFileUpload,
             removeFile,
             submitForm,
+            emit
         };
-    },
+    }
 };
 </script>
 

@@ -129,6 +129,7 @@ import CustomButton from '@/Components/CustomButton.vue';
                                             <select id="status" name="status" v-model="appointmentForm.status"
                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-700 focus:ring focus:ring-green-700 focus:ring-opacity-50">
                                                 <option value="Pending">Pending</option>
+                                                <option value="Confirmed">Confirmed</option>
                                                 <option value="Approved">Approved</option>
                                                 <option value="Rejected">Rejected</option>
                                             </select>

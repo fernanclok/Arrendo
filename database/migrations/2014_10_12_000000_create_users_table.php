@@ -24,6 +24,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->date('registration_date');
+            $table->json('document_path')->nullable();
         });
     }
 

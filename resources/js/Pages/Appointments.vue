@@ -8,7 +8,7 @@ import CustomButton from '@/Components/CustomButton.vue';
 import { Head } from '@inertiajs/vue3';
 import axios from 'axios';
 import Identity from '../Components/Identity.vue';
-import { usePage } from '@inertiajs/vue3';
+import { usePage, useForm } from '@inertiajs/vue3';
 </script>
 
 <template>
@@ -109,7 +109,7 @@ import { usePage } from '@inertiajs/vue3';
                                         </button>
                                         <button type="button"
                                             class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white transition-colors duration-200 bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
-                                            @click.stop="handleModalToggle(appointment)">
+                                            @click.stop="handleApplication(appointment)">
                                             <i class="mr-2 mdi mdi-check"></i> Yes
                                         </button>
                                     </div>
@@ -145,8 +145,7 @@ import { usePage } from '@inertiajs/vue3';
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <!-- {{ console.log({id: selectedAppointment.property.id}) }} -->
-                                                <Identity :propertyId="selectedAppointment.property.id" @close-modal="closeModal" @close-appointment="toggleAccordion(appointment)"/>
+                                                <Identity :appointments="appointments" :propertyId="selectedAppointment.property.id" :appointmentId="selectedAppointment.id" @close-modal="closeModal" @close-appointment="toggleAccordion(appointment)" @refresh-appointments="handleGetAppointments"/>
                                             </div>
                                         </div>
                                     </div>
@@ -178,6 +177,70 @@ export default {
         };
     },
     methods: {
+        async submitFormWithExistingDocument(appointment) {
+            try {
+                // Verifica el valor de document_path antes del primer POST
+                if (!this.user.document_path) {
+                    console.error('Document path is not set!');
+                    return; // Sal de la función si el path no está definido
+                }
+
+                // Prepara los datos para la solicitud inicial
+                const formData2 = new FormData();
+                formData2.append('property_id', appointment.property.id);
+                formData2.append('tenant_user_id', this.user.id);
+                formData2.append('application_date', new Date().toISOString().split("T")[0]);
+                formData2.append('status', "Pending");
+                formData2.append('document_path', this.user.document_path);
+
+                // Primer POST: enviar la aplicación
+                const response = await axios.post('api/properties/applicate', formData2, {
+                    headers: { 'Content-Type': 'application/json' },
+                });
+
+                const applicationId = response.data.application;
+                console.log('Application submitted successfully:', response.data);
+
+                // Prepara los datos para el segundo POST
+                const formData = new FormData();
+                formData.append('application_id', applicationId);
+                // console.log('Document path:', user.document_path);
+                formData.append('document_path', this.user.document_path);
+
+                // Segundo POST: enviar documentos
+                const docResponse = await axios.post('/api/properties/pass-documents', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                });
+
+                console.log('Document submitted successfully:', docResponse.data);
+
+                const newFormData2 = new FormData();
+                newFormData2.append('appointment_id', appointment.id);
+                newFormData2.append('status', 'Applicated');
+
+                const statusResponse = await axios.put('/api/appointments/update', newFormData2, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                console.log('Appointment status updated:', statusResponse.data);
+
+                this.closeModal();
+                this.handleGetAppointments();
+            } catch (error) {
+                console.error('Error:', error.response ? error.response.data : error.message);
+            }
+        },
+        handleApplication(appointment) {
+            // Verifica si el usuario ya tiene documentos cargados
+            if (this.user.document_path) {
+                // Usa el documento existente y procede directamente
+                this.submitFormWithExistingDocument(appointment);
+            } else {
+                // Abre el modal para cargar documentos
+                this.handleModalToggle(appointment);
+            }
+        },
         toggleAccordion(appointment) {
             // Alterna el estado de 'isOpen' para el acordeón
             this.appointments.forEach((appt) => {

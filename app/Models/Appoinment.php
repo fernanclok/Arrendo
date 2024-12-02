@@ -36,7 +36,7 @@ class Appoinment extends Model
         $validator = Validator::make($attributes, [
             'status' => [
                 'required',
-                Rule::in(['Pending', 'Approved', 'Rejected']),
+                Rule::in(['Pending','Approved','Cancelled','Applicated','Rejected']),
             ],
         ]);
 
