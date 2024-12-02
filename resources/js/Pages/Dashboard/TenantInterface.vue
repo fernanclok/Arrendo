@@ -1,5 +1,5 @@
 <template>
-    <div class=" bg-gray-100 mx-auto px-6 py-8">
+    <div class="mx-auto px-6 py-8">
         <!-- Header -->
         <div class="bg-primary text-white p-6 rounded-lg shadow-lg mb-8 relative">
             <div class="flex justify-between items-start">
