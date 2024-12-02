@@ -46,10 +46,12 @@ import { usePage, useForm } from '@inertiajs/vue3';
                                     <div class="flex items-center space-x-4">
                                         <span :class="{
                                             'px-2 py-1 text-xs font-semibold rounded-full': true,
-                                            'bg-green-100 text-green-800': appointment.status === 'Confirmed',
                                             'bg-yellow-100 text-yellow-800': appointment.status === 'Pending',
-                                            'bg-red-100 text-red-800': appointment.status === 'Cancelled',
+                                            'bg-blue-100 text-blue-800': appointment.status === 'Confirmed',
+                                            'bg-red-100 text-red-800': appointment.status === 'Rejected',
                                             'bg-green-100 text-green-800': appointment.status === 'Approved',
+                                            'bg-gray-100 text-gray-800': appointment.status === 'Cancelled',
+                                            'bg-green-500 text-green-800': appointment.status === 'Applicated',
                                         }">
                                             {{ appointment.status }}
                                         </span>
@@ -77,9 +79,6 @@ import { usePage, useForm } from '@inertiajs/vue3';
                                     <p><strong>Status:</strong> {{ appointment.status }}</p>
                                     <p class="text-lg font-medium mt-4">Property Details</p>
                                     <ul class="list-disc ml-6 space-y-1">
-                                        <!-- <li><strong>Name:</strong> {{ appointment.property.name }}</li> -->
-                                        <!-- <li><strong>Address:</strong> {{ appointment.property.address }}</li> -->
-                                        <!-- <li><strong>Rental Rate:</strong> ${{ appointment.property.rental_rate }}</li> -->
                                         <li><strong>Availability:</strong> {{ appointment.property.availability }}</li>
                                         <li><i class="mr-2 mdi mdi-shower"></i><strong
                                                 class="text-gray-500">Bathrooms:</strong> {{
@@ -100,18 +99,18 @@ import { usePage, useForm } from '@inertiajs/vue3';
 
                                     <!-- Mostrar solo si el estado es Approved -->
                                     <div v-if="appointment.status === 'Approved'">
-                                        <h1 class="text-2xl font-semibold text-gray-900 mb-6">You want to proceed to the
-                                            application?</h1>
-                                        <button type="button"
-                                            class="inline-flex justify-center w-full px-4 py-2 mt-3 text-base font-medium text-gray-700 transition-colors duration-200 bg-white border border-red-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                                        <h1 class="text-xl font-semibold text-gray-900 mt-2">you are been approved!</h1>
+                                        <p class='text-sm mb-2'>Continue with the application?</p>
+                                        <CustomButton type="cancel"
+                                        class='mr-2'
                                             @click="cancelAppointment(appointment)">
                                             <i class="mr-2 mdi mdi-cancel"></i> No
-                                        </button>
-                                        <button type="button"
-                                            class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white transition-colors duration-200 bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
+                                        </CustomButton>
+                                        <CustomButton type="primary"
+                                        class='mr-2'
                                             @click.stop="handleApplication(appointment)">
                                             <i class="mr-2 mdi mdi-check"></i> Yes
-                                        </button>
+                                        </CustomButton>
                                     </div>
                                 </div>
 
@@ -120,19 +119,19 @@ import { usePage, useForm } from '@inertiajs/vue3';
                                     aria-labelledby="modal-title" role="dialog" aria-modal="true">
                                     <div
                                         class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-                                        <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75 backdrop-blur-sm"
+                                        <div class="fixed inset-0 transition-opacity bg-black bg-opacity-50 backdrop-blur-sm"
                                             aria-hidden="true" @click="showDetails = false"></div>
 
                                         <span class="hidden sm:inline-block sm:align-middle sm:h-screen"
                                             aria-hidden="true">&#8203;</span>
 
                                         <div
-                                            class="inline-block w-full max-w-4xl overflow-hidden text-left align-bottom transition-all transform bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg shadow-2xl sm:my-8 sm:align-middle sm:w-full animate-modal-appear">
+                                            class="inline-block w-full max-w-4xl overflow-hidden text-left align-bottom transition-all transform bg-gradient-to-br bg-white rounded-lg shadow-2xl sm:my-8 sm:align-middle sm:w-full animate-modal-appear">
                                             <div class="px-4 pt-5 pb-4 bg-opacity-30 sm:p-6 sm:pb-4">
                                                 <div class="sm:flex sm:items-start">
                                                     <div class="w-full mt-3 text-center sm:mt-0 sm:text-left">
                                                         <div class="flex items-center justify-between mb-4">
-                                                            <h3 class="text-2xl font-bold leading-6 text-white"
+                                                            <h3 class="text-2xl font-bold leading-6"
                                                                 id="modal-title">
                                                                 Upload the necesary documents
                                                             </h3>
@@ -226,9 +225,20 @@ export default {
                 console.log('Appointment status updated:', statusResponse.data);
 
                 this.closeModal();
+                this.emmiter.emit('show_notification', {
+                        title: 'Success',
+                        message: 'Application submitted successfully!',
+                        type: 'success',
+                    });
                 this.handleGetAppointments();
             } catch (error) {
                 console.error('Error:', error.response ? error.response.data : error.message);
+                this.closeModal();
+                this.emmiter.emit('show_notification', {
+                        title: 'Error',
+                        message: 'An error occurred while submitting the application.',
+                        type: 'error',
+                    });
             }
         },
         handleApplication(appointment) {

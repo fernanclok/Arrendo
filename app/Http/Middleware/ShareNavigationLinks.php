@@ -30,6 +30,7 @@ class ShareNavigationLinks
                     ['route' => 'TrackRequest', 'label' => 'Applications', 'icon' => 'account-question'],
                     ['route' => 'TenantContracts', 'label' => 'contracts', 'icon' => 'file'],
                     ['route' => 'myInvoices', 'label' => 'My Invoices', 'icon' => 'receipt-text-clock-outline'],
+                    ['route' => 'tenantPaymentHistory', 'label' => 'Payment History', 'icon' => 'cash'],
                     ['route' => 'maintenance', 'label' => 'Maintenance', 'icon' => 'hammer-wrench'],
                 ],
             ];
