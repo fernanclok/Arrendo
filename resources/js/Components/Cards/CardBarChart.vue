@@ -22,6 +22,7 @@
 
 <script>
 import Chart from "chart.js/auto";
+
 export default {
     props: {
         occupancyData: {
@@ -29,24 +30,36 @@ export default {
             required: true,
         },
     },
+    data() {
+        return {
+            chartInstance: null, // Referencia al gráfico
+        };
+    },
     mounted() {
         this.renderChart();
     },
+    watch: {
+        occupancyData: {
+            deep: true, // Observa cambios en profundidad
+            handler() {
+                this.updateChart(); // Llama a la función de actualización
+            },
+        },
+    },
     methods: {
         renderChart() {
-
             const monthNames = [
                 "January", "February", "March", "April",
                 "May", "June", "July", "August",
                 "September", "October", "November", "December",
             ];
 
-
             const labels = this.occupancyData.map((item) => monthNames[item.month - 1]);
             const notAvailableData = this.occupancyData.map((item) => item.not_available);
             const availableData = this.occupancyData.map((item) => item.available);
 
-            const config = {
+            const ctx = document.getElementById("bar-chart").getContext("2d");
+            this.chartInstance = new Chart(ctx, {
                 type: "bar",
                 data: {
                     labels: labels,
@@ -108,11 +121,35 @@ export default {
                         },
                     },
                 },
-            };
-
-            const ctx = document.getElementById("bar-chart").getContext("2d");
-            new Chart(ctx, config);
+            });
         },
+        updateChart() {
+            if (this.chartInstance) {
+                const monthNames = [
+                    "January", "February", "March", "April",
+                    "May", "June", "July", "August",
+                    "September", "October", "November", "December",
+                ];
+
+                const labels = this.occupancyData.map((item) => monthNames[item.month - 1]);
+                const notAvailableData = this.occupancyData.map((item) => item.not_available);
+                const availableData = this.occupancyData.map((item) => item.available);
+
+                // Actualizar datos
+                this.chartInstance.data.labels = labels;
+                this.chartInstance.data.datasets[0].data = availableData;
+                this.chartInstance.data.datasets[1].data = notAvailableData;
+
+                // Actualizar gráfico
+                this.chartInstance.update();
+            }
+        },
+    },
+    beforeDestroy() {
+        // Destruir el gráfico para evitar fugas de memoria
+        if (this.chartInstance) {
+            this.chartInstance.destroy();
+        }
     },
 };
 </script>

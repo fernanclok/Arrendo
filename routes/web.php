@@ -8,6 +8,7 @@ use App\Http\Controllers\MaintenanceController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Broadcasting\BroadcastController;
 
 /*
 |--------------------------------------------------------------------------
@@ -118,5 +119,14 @@ Route::get('/invoices', function () {
 Route::get('/my-invoices', function () {
     return Inertia::render('Invoice/MyInvoices');
 })->middleware(['auth', 'verified', 'role:admin,Tenant'])->name('myInvoices');
+
+//Payment History
+Route::get('/payment-history', function () {
+    return Inertia::render('PaymentHistory');
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('paymentHistory');
+
+// Ruta para autenticación de broadcasting
+Route::post('/broadcasting/auth', [BroadcastController::class, 'authenticate'])
+    ->middleware('auth');
 
 require __DIR__ . '/auth.php';

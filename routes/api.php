@@ -79,9 +79,13 @@ Route::prefix('appointments')->group(function () {
 // dashboard
 Route::get('/payment-history/{tenantUserId}', [DashboardController::class, 'getPaymentHistory']);
 Route::get('/rented-property/{tenantUserId}', [DashboardController::class, 'getRentedProperty']);
+
+//notifications
 Route::get('/notifications/{userId}', [DashboardController::class, 'getNotifications']);
 Route::put('/notifications/{id}/read', [DashboardController::class, 'markAsRead']);
 Route::put('/notifications/{id}/unread', [DashboardController::class, 'markAsUnread']);
+Route::post('/notifications', [DashboardController::class, 'sendNotification']);
+
 
 // rental application
 Route::prefix('rental-applications')->group(function () {
@@ -112,3 +116,8 @@ Route::prefix('Invoices')->group(function () {
     Route::patch('/invoices/{id}/invoice-paid', [InvoiceController::class, 'InvoicePaid']);
 });
 Route::post('/contracts/{contractId}/generate-invoices', [InvoiceController::class, 'generateInvoices']);
+
+//payment history
+Route::prefix('payment-history')->group(function () {
+    Route::get('/{userId}', [DashboardController::class, 'getPaymentHistory']);
+});

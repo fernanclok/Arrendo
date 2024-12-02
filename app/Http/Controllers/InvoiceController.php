@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Contract;
 use App\Models\Invoice;
+use App\Models\Payment_history;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Inertia\Inertia;
@@ -74,6 +75,15 @@ class InvoiceController extends Controller
             $invoice = Invoice::findOrFail($id);
             $invoice->payment_status = 'Paid';
             $invoice->save();
+
+            //si el pago se marca como pagado, entonces se debe agregar a la tabla payment_histories
+            $paymentHistory = new Payment_history([
+                'invoice_id' => $id,
+                'payment_date' => now(),
+                'amount_paid' => $invoice->total_amount,
+            ]);
+
+            $paymentHistory->save();
 
             return response()->json(['message' => 'Invoice marked as paid successfully.'], 200);
         } catch (\Exception $e) {
