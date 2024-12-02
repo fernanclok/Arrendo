@@ -28,6 +28,7 @@ class User extends Authenticatable
         'emergency_contact_name',
         'emergency_contact_phone',
         'registration_date',
+        'document_path',
     ];
 
     /**

@@ -256,7 +256,7 @@ class PropertyController extends Controller
 
         $property = new Property();
         $property->property_code = 'PTY-' .
-            $property->street = $validatedData['street'];
+        $property->street = $validatedData['street'];
         $property->number = $validatedData['number'];
         $property->city = $validatedData['city'];
         $property->state = $validatedData['state'];

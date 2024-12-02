@@ -19,7 +19,6 @@
         "vue": "^3.4.0"
     },
     "dependencies": {
-        "@esbuild/linux-x64": "^0.24.0",
         "@mdi/font": "^7.4.47",
         "@mdi/js": "^7.4.47",
         "@popperjs/core": "^2.11.8",

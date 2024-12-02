@@ -3,6 +3,7 @@
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
+use App\Models\Contract;
 use Illuminate\Foundation\Application;
 use App\Http\Controllers\MaintenanceController;
 use Illuminate\Support\Facades\Route;
@@ -49,9 +50,16 @@ Route::get('/my-properties', function () {
     ]);
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('myProperties');
 
-//search properties
 Route::get('/search-properties', function () {
-    return Inertia::render('SearchProperties');
+    $user = Auth::user();
+    $hasActiveContract = Contract::where('tenant_user_id', $user->id)
+        ->where('status', 'Active')
+        ->exists();
+
+    return Inertia::render('SearchProperties', [
+        'user' => $user,
+        'hasActiveContract' => $hasActiveContract
+    ]);
 })->middleware(['auth', 'verified', 'role:Tenant'])->name('searchProperties');
 
 // contracts
@@ -119,6 +127,17 @@ Route::get('/invoices', function () {
 Route::get('/my-invoices', function () {
     return Inertia::render('Invoice/MyInvoices');
 })->middleware(['auth', 'verified', 'role:admin,Tenant'])->name('myInvoices');
+
+//Payment History
+Route::get('/payment-history', function () {
+    return Inertia::render('PaymentHistory', [
+        'user' => auth()->user()
+    ]);
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('paymentHistory');
+
+Route::get('/payment-history/tenant', function () {
+    return Inertia::render('TenantPaymentHistory');
+})->middleware(['auth', 'verified', 'role:Tenant'])->name('tenantPaymentHistory');
 
 // Ruta para autenticación de broadcasting
 Route::post('/broadcasting/auth', [BroadcastController::class, 'authenticate'])

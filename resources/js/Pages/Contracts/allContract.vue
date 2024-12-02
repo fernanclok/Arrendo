@@ -220,6 +220,7 @@ onMounted(() => {
           <table class="min-w-full table-auto">
             <thead class="bg-gray-100 text-center text-sm text-gray-600">
               <tr>
+                <th class="px-6 py-4 font-semibold">Contract Code</th>
                 <th class="px-6 py-4 font-semibold">Property</th>
                 <th class="px-6 py-4 font-semibold">Property Address</th>
                 <th class="px-6 py-4 font-semibold">Tenant</th>
@@ -232,6 +233,7 @@ onMounted(() => {
             </thead>
             <tbody class="text-sm text-gray-700">
               <tr v-for="contract in paginatedContracts" :key="contract.id" class="border-b hover:bg-gray-50">
+                <td class="px-6 py-4">{{ contract.contract_code }}</td>
                 <td class="px-6 py-4">{{ contract.property.property_code }}</td>
                 <td class="px-6 py-4">{{ contract.property.street }} {{ contract.property.number }}, {{ contract.property.city }} {{ contract.property.state }}, {{ contract.property.postal_code }}</td>
                 <td class="px-6 py-4">{{ contract.tenant_user.first_name }} {{ contract.tenant_user.last_name }}</td>
@@ -308,15 +310,15 @@ onMounted(() => {
       <!-- Modal para renovar contrato -->
         <Modal :show="isRenewalModalOpen" @close="closeRenewalModal">
           <template #default>
-            <nav class="p-8 bg-gray-800 shadow-lg rounded-lg">
+            <nav class="p-8 bg-gray-100 shadow-lg rounded-lg">
               <div class="flex justify-between items-center">
-                <h1 class="text-2xl font-bold text-white">Renewal Contracts</h1>
+                <h1 class="text-2xl font-bold text-gray-900">Renewal Contracts</h1>
               </div>
               <div class="">
                 <form  @submit.prevent="renewalContract(selectedContractId)" class="mt-2 space-y-4 p-8 rounded-lg">
                   <nav class="flex justify-center space-x-2 w-full">
                         <div class="flex flex-col justify-start items-start text-start w-full">
-                        <InputLabel for="renewal_start_date" value="New Start Date" class="text-white"/>
+                        <InputLabel for="renewal_start_date" value="New Start Date" class="text-gray-900"/>
                         <TextInput
                             id="renewal_start_date"
                             type="date"
@@ -329,11 +331,11 @@ onMounted(() => {
                         <InputError class="mt-2" :message="form.errors.renewal_start_date" />
                         </div>
                         <div class="flex flex-col justify-start items-start text-start w-full">
-                        <InputLabel for="renewal_end_date" value="New End Date" class="text-white"/> 
+                        <InputLabel for="renewal_end_date" value="New End Date" class="text-gray-900"/> 
                         <TextInput
                             id="renewal_end_date"
                             type="date"
-                            class="w-full rounded-lg border-gray-300 text-black"
+                            class="w-full rounded-lg border-gray-300 text-gray-900"
                             v-model="form.renewal_end_date"
                             required
                             autofocus
@@ -343,7 +345,7 @@ onMounted(() => {
                         </div>
                     </nav>
                     <div class="flex flex-col justify-start items-start text-start">
-                        <InputLabel for="renewal_rental_amount" value="New Rental Amount" class="text-white" />
+                        <InputLabel for="renewal_rental_amount" value="New Rental Amount" class="text-gray-900" />
                         <input
                         id="renewal_rental_amount"
                         type="number"
@@ -369,15 +371,15 @@ onMounted(() => {
       <!-- Modal para terminar contrato -->
         <Modal :show="isTerminateModalOpen" @close="closeTerminateModal">
           <template #default>
-            <nav class="p-8 bg-gray-800">
+            <nav class="p-8 bg-gray-100">
               <div class="flex justify-between items-center">
-                <h1 class="text-2xl font-bold text-white">Terminate Contract</h1>
+                <h1 class="text-2xl font-bold text-gray-900">Terminate Contract</h1>
               </div>
               <div class="p-6">
                 <p class="text-red-300">Are you sure you want to end this contract?</p>
                 <div class="flex justify-end items-center space-x-4 mt-6">
                   <SecondaryButton @click="closeTerminateModal">Cancel</SecondaryButton>
-                  <CustomButton @click="terminateContract(selectedContractId)" class="bg-red-500 hover:bg-red-700 text-white">Terminate</CustomButton>
+                  <CustomButton @click="terminateContract(selectedContractId)" class="bg-red-500 hover:bg-red-700 text-gray-900">Terminate</CustomButton>
                 </div>
               </div>
             </nav>
