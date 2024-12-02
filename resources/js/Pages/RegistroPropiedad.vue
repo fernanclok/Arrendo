@@ -17,6 +17,7 @@ import { ref } from 'vue';
               class="text-sm font-medium hover:underline">
             {{ item.label }}
             </Link>
+            <a class="text-sm font-medium hover:underline">Contact Us</a>
           </nav>
 
          <!-- <div class="flex items-center space-x-2">
@@ -420,10 +421,8 @@ import { ref } from 'vue';
 
 <script>
 const navItems = [
-  { href: '/', label: 'Inicio' },
+  { href: '/', label: 'Welcome' },
   { href: '/properties', label: 'Properties' },
-  // { href: '/propietarios', label: 'For Owners' },
-  { href: '/contact', label: 'Contact Us' },
 ]
 
 export default {
