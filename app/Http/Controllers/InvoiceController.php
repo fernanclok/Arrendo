@@ -31,8 +31,13 @@ class InvoiceController extends Controller
         $invoices = Invoice::whereYear('issue_date', $year)
             ->whereMonth('issue_date', $month)
             ->where('payment_status', 'Pending')
+            ->with(['contract' => function ($query) {
+                $query->select('id', 'contract_code'); // Selecciona solo el id y contract_code
+            }])
             ->get();
 
+        // Log para depuración
+        Log::info('Invoices:', $invoices->toArray());
         return response()->json($invoices);
     }
 
@@ -102,14 +107,17 @@ class InvoiceController extends Controller
                 ->select(
                     'u.id as tenant_user_id',
                     DB::raw("CONCAT(u.first_name, ' ', u.last_name) as tenant_name"),
+                    'i.id as invoice_id',
                     'c.id as contract_id',
+                    'c.contract_code as contract_code',
                     'i.id as invoice_id',
                     'i.created_at as invoice_date',
                     'i.issue_date as issue_date',
+                    'i.evidence_path as evidence',
                     'i.total_amount as invoice_total',
                     'i.payment_status'
                 )
-                ->where('c.tenant_user_id', $request->id)
+                ->where('c.tenant_user_id', $request->user_id)
                 ->orderBy('i.issue_date', 'DESC')
                 ->get();
 
@@ -139,6 +147,43 @@ class InvoiceController extends Controller
             return $pdf->download("invoice-{$id}.pdf");
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error generating PDF', 'details' => $e->getMessage()], 500);
+        }
+    }
+
+    // function to update the evidence path of the invoice
+    public function updateEvidence(Request $request, $id)
+    {
+        try {
+            $invoice = Invoice::findOrFail($id);
+
+            if ($request->hasFile('evidence_file')) {
+                $files = [];
+                foreach ($request->file('evidence_file') as $file) {
+                    $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                    $extension = $file->getClientOriginalExtension();
+                    $timestamp = now()->format('YmdHis');
+
+                    // Reemplazar espacios por guiones bajos o quitarlos
+                    $sanitizedOriginalName = preg_replace('/\s+/', '_', $originalName);
+                    $newName = "{$sanitizedOriginalName}_{$timestamp}.{$extension}";
+                    $destinationPath = public_path('evidence_file');
+
+                    // Crear la carpeta si no existe
+                    if (!file_exists($destinationPath)) {
+                        mkdir($destinationPath, 0777, true);
+                    }
+
+                    $file->move($destinationPath, $newName);
+                    $files[] = "evidence_file/{$newName}";
+                }
+                $invoice->evidence_path = json_encode($files);
+            }
+
+            $invoice->save();
+
+            return response()->json(['message' => 'Evidence path updated successfully.'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error updating evidence path', 'details' => $e->getMessage()], 500);
         }
     }
 }

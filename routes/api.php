@@ -112,6 +112,7 @@ Route::prefix('maintenanceOwner')->group(function () {
 Route::prefix('Invoices')->group(function () {
     Route::get('/tenatn-invoices', [InvoiceController::class, 'MyInvoices']);
     Route::get('/invoices/{id}/pdf', [InvoiceController::class, 'generatePDF']);
+    Route::post('/invoices/{id}/update-evidence', [InvoiceController::class, 'updateEvidence']);
     Route::get('/invoices', [InvoiceController::class, 'index']);
     Route::patch('/invoices/{id}/invoice-paid', [InvoiceController::class, 'InvoicePaid']);
 });
