@@ -104,7 +104,7 @@ import { usePage, useForm } from '@inertiajs/vue3';
                                             application?</h1>
                                         <button type="button"
                                             class="inline-flex justify-center w-full px-4 py-2 mt-3 text-base font-medium text-gray-700 transition-colors duration-200 bg-white border border-red-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                                            @click="">
+                                            @click="cancelAppointment(appointment)">
                                             <i class="mr-2 mdi mdi-cancel"></i> No
                                         </button>
                                         <button type="button"
@@ -257,6 +257,18 @@ export default {
                 this.selectedAppointment = null;
             }
         },
+        async cancelAppointment(appointment) {
+            try {
+                const response = await axios.put('/api/appointments/update', {
+                    appointment_id: appointment.id,
+                    status: 'Cancelled',
+                });
+                console.log('Appointment cancelled:', response.data);
+                this.handleGetAppointments();
+            } catch (error) {
+                console.error('Error:', error.response ? error.response.data : error.message);
+            }
+        },
         handleModalToggle(appointment) {
             // Alterna el estado del modal
             if (this.selectedAppointment === appointment) {
@@ -295,9 +307,6 @@ export default {
         },
         editAppointment(id) {
             console.log(`Editing appointment with ID: ${id}`);
-        },
-        cancelAppointment(id) {
-            console.log(`Cancelling appointment with ID: ${id}`);
         },
         formatDateTime(date) {
             return new Date(date).toLocaleString();
