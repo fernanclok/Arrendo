@@ -205,7 +205,7 @@ import { ref } from 'vue';
 
                                     <div class="flex justify-between mt-6">
                                         <button @click="goToPreviousStep" class="px-6 py-2 bg-gray-300 text-gray-800 rounded-lg">Back</button>
-                                        <button @click="goToNextStep" class="px-6 py-2 bg-primary text-white rounded-lg">Continuae</button>
+                                        <button @click="goToNextStep" class="px-6 py-2 bg-primary text-white rounded-lg">Continue</button>
                                     </div>
                                 </div>
                                 <!---------------------------------------------------->
@@ -213,7 +213,7 @@ import { ref } from 'vue';
                                 
                                 <!-- Paso 3 -->
                                 <div v-if="currentStep === 3" class="bg-white rounded-lg shadow-md p-6 w-full max-w-4xl">
-                                    <h2 class="text-3xl font-semibold text-gray-800 mb-4 text-center">¡Add the comforts of your property!</h2>
+                                    <h2 class="text-3xl font-semibold text-gray-800 mb-4 text-center">Add the comforts of your property!</h2>
                                     <p class="text-gray-600 text-center mb-6">
                                         These optional fields improve the ranking of your publication.
                                     </p>
