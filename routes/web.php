@@ -3,6 +3,7 @@
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
+use App\Models\Contract;
 use Illuminate\Foundation\Application;
 use App\Http\Controllers\MaintenanceController;
 use Illuminate\Support\Facades\Route;
@@ -49,9 +50,16 @@ Route::get('/my-properties', function () {
     ]);
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('myProperties');
 
-//search properties
 Route::get('/search-properties', function () {
-    return Inertia::render('SearchProperties');
+    $user = Auth::user();
+    $hasActiveContract = Contract::where('tenant_user_id', $user->id)
+        ->where('status', 'Active')
+        ->exists();
+
+    return Inertia::render('SearchProperties', [
+        'user' => $user,
+        'hasActiveContract' => $hasActiveContract
+    ]);
 })->middleware(['auth', 'verified', 'role:Tenant'])->name('searchProperties');
 
 // contracts
