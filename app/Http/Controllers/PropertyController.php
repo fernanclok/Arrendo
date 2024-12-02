@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Comment;
+use App\Models\Contract;
 use Illuminate\Http\Request;
 use App\Models\Property;
 use Illuminate\Support\Facades\Log;
@@ -53,8 +54,13 @@ class PropertyController extends Controller
 
     public function getComments($id)
     {
+        $property_id = Contract::where('tenant_user_id', $id)->where('status', 'Active')->select('property_id')->first();
 
-        $comments = Comment::where('property_id', $id)
+        if(!$property_id) {
+            return response()->json("No property found");
+        }
+
+        $comments = Comment::where('property_id', $property_id->property_id)
             ->join('users', 'users.id', '=', 'comments.user_id')
             ->orderBy('comments.created_at', 'desc')
             ->select('comments.*', 'users.first_name as first_name', 'users.last_name as last_name')
