@@ -1,29 +1,30 @@
-<script setup>
-import DashboardLayout from "@/Layouts/DashboardLayout.vue";
-import { Head } from '@inertiajs/vue3';
-import CustomButton from '@/Components/CustomButton.vue';
-</script>
 <template>
-
-  <Head title="Request Evaluation" />
+  <Head title="Application Evaluation" />
 
   <DashboardLayout>
     <div class="py-2">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="rounded-lg">
           <div class="p-2">
-            <h1 class="text-3xl font-bold text-gray-800">Property Request Evaluation</h1>
+            <h1 class="text-3xl font-bold text-gray-800">Application Evaluation</h1>
             <p class="text-gray-600 mt-2">
-              Review and manage Property Request efficiently.
+              Review and manage applications efficiently.
             </p>
           </div>
           <div class="p-6 justify-center items-center">
             <!-- Tabs for filtering -->
             <div class="flex justify-center space-x-4 mb-6">
-              <button v-for="tab in tabs" :key="tab" @click="currentTab = tab" :class="{
-                'inline-block p-4 border-b-2 rounded-t-lg text-xl text-green-700 border-green-700 underline': currentTab === tab,
-                'inline-block p-4 border-b-2 rounded-t-lg text-xl hover:text-gray-600 hover:border-gray-300 text-gray-500 border-transparent': currentTab !== tab
-              }" class="px-4 py-2 rounded-lg" :style="currentTab === tab ? { 'text-underline-offset': '7px' } : {}">
+              <button
+                v-for="tab in tabs"
+                :key="tab"
+                @click="currentTab = tab"
+                :class="{
+                  'inline-block p-4 border-b-2 rounded-t-lg text-xl text-green-700 border-green-700 underline': currentTab === tab,
+                  'inline-block p-4 border-b-2 rounded-t-lg text-xl hover:text-gray-600 hover:border-gray-300 text-gray-500 border-transparent': currentTab !== tab
+                }"
+                class="px-4 py-2 rounded-lg"
+                :style="currentTab === tab ? { 'text-underline-offset': '7px' } : {}"
+              >
                 {{ tab }}
               </button>
             </div>
@@ -33,10 +34,16 @@ import CustomButton from '@/Components/CustomButton.vue';
               <p>Nothing to show</p>
             </div>
             <div v-else class="space-y-4">
-              <div v-for="solicitante in filteredSolicitantes" :key="solicitante.id"
-                class="bg-gray-50 p-4 rounded-lg shadow flex flex-col space-y-4">
-                <!-- Cabecera del solicitante -->
-                <div class="flex items-center justify-between cursor-pointer" @click="toggleInfo(solicitante.id)">
+              <div
+                v-for="solicitante in filteredSolicitantes"
+                :key="solicitante.id"
+                class="bg-gray-50 p-4 rounded-lg shadow flex flex-col space-y-4"
+              >
+                <!-- Applicant Header -->
+                <div
+                  class="flex items-center justify-between cursor-pointer"
+                  @click="toggleInfo(solicitante.id)"
+                >
                   <div class="flex items-center space-x-4">
                     <div>
                       <p class="font-medium text-gray-900">
@@ -48,26 +55,25 @@ import CustomButton from '@/Components/CustomButton.vue';
                     </div>
                   </div>
                   <div class="flex items-center space-x-4">
-                    <!-- Muestra el estado de la solicitud -->
-                    <span class="px-2 py-1 text-xs font-semibold rounded-full" :class="{
-                      'bg-green-100 text-green-600': solicitante.status === 'Approved',
-                      'bg-red-100 text-red-600': solicitante.status === 'Rejected',
-                      'bg-yellow-100 text-yellow-800': solicitante.status === 'Pending'
-                    }">
+                    <span
+                      class="px-2 py-1 text-xs font-semibold rounded-full"
+                      :class="{
+                        'bg-green-100 text-green-600': solicitante.status === 'Approved',
+                        'bg-red-100 text-red-600': solicitante.status === 'Rejected',
+                        'bg-yellow-100 text-yellow-800': solicitante.status === 'Pending'
+                      }"
+                    >
                       {{ solicitante.status }}
                     </span>
                     <i :class="solicitante.isExpanded ? 'mdi mdi-chevron-up' : 'mdi mdi-chevron-down'"></i>
                   </div>
                 </div>
 
-                <!-- Información adicional (Contenido del acordeón) -->
+                <!-- Expanded Details -->
                 <div v-if="solicitante.isExpanded" class="mt-4 text-gray-700">
-                  <p><strong>Applicant:</strong> {{ solicitante.tenant_user.first_name }} {{
-                    solicitante.tenant_user.last_name }}</p>
+                  <p><strong>Applicant:</strong> {{ solicitante.tenant_user.first_name }} {{ solicitante.tenant_user.last_name }}</p>
                   <p><strong>Property:</strong> {{ solicitante.property.street }}</p>
                   <p><strong>Requested:</strong> {{ solicitante.application_date }}</p>
-
-                  <!-- Display the approval/rejection date -->
                   <p v-if="solicitante.status === 'Approved'">
                     <strong>Approved on:</strong> {{ solicitante.approved_at }}
                   </p>
@@ -81,12 +87,10 @@ import CustomButton from '@/Components/CustomButton.vue';
                     <li><strong>Phone:</strong> {{ solicitante.tenant_user.phone }}</li>
                   </ul>
                   <div class="mt-4 flex space-x-3">
-                    <CustomButton type='primary' v-if="currentTab === 'Pending'" @click="approveRequest(solicitante.id)"
-                      class="py-2">
+                    <CustomButton type="primary" v-if="currentTab === 'Pending'" @click="approveRequest(solicitante.id)">
                       Approve
                     </CustomButton>
-                    <CustomButton type='cancel' v-if="currentTab === 'Pending'" @click="rejectRequest(solicitante.id)"
-                      class="py-2">
+                    <CustomButton type="cancel" v-if="currentTab === 'Pending'" @click="rejectRequest(solicitante.id)">
                       Reject
                     </CustomButton>
                   </div>
@@ -97,17 +101,21 @@ import CustomButton from '@/Components/CustomButton.vue';
         </div>
       </div>
 
-      <!-- Modal para confirmar creación de contrato -->
+      <!-- Contract Modal -->
       <div v-if="showContractModal" class="fixed inset-0 z-40 flex items-center justify-center bg-gray-800 bg-opacity-50">
         <div class="bg-white p-6 rounded-lg shadow-lg">
-          <h2 class="text-lg font-bold mb-4">¿Desea crear un contrato?</h2>
+          <h2 class="text-lg font-bold mb-4">¿Do you want to create a contract?</h2>
           <div class="flex space-x-4">
-            <button @click="handleContractDecision(true)"
-              class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">
-              Sí
+            <button
+              @click="handleContractDecision(true)"
+              class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+            >
+              Yes
             </button>
-            <button @click="handleContractDecision(false)"
-              class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">
+            <button
+              @click="handleContractDecision(false)"
+              class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+            >
               No
             </button>
           </div>
@@ -119,8 +127,12 @@ import CustomButton from '@/Components/CustomButton.vue';
 
 <script>
 import axios from "axios";
+import { Head } from "@inertiajs/vue3";
+import DashboardLayout from "@/Layouts/DashboardLayout.vue";
+import CustomButton from "@/Components/CustomButton.vue";
 
 export default {
+  components: { DashboardLayout, CustomButton, Head },
   data() {
     return {
       solicitantes: [],
@@ -166,38 +178,24 @@ export default {
     async handleContractDecision(createContract) {
       if (createContract) {
         try {
-          // Actualizar el estado a "Aprobado" antes de redirigir
           const response = await axios.post(`/api/rental-applications/${this.currentSolicitanteId}/approve`);
           this.updateStatus(
             this.currentSolicitanteId,
-            response.data.status || "Approved",
+            "Approved",
             response.data.approved_at
           );
-
-          // Redirigir a la página de creación de contrato
           this.$router.push(`/contracts/create/${this.currentSolicitanteId}`);
         } catch (error) {
-          console.error("Error updating and redirecting:", error);
+          console.error("Error creating contract:", error);
         }
       } else {
         this.showContractModal = false;
-        try {
-          // Actualizar el estado a "Aprobado"
-          const response = await axios.post(`/api/rental-applications/${this.currentSolicitanteId}/approve`);
-          this.updateStatus(
-            this.currentSolicitanteId,
-            response.data.status || "Approved",
-            response.data.approved_at
-          );
-        } catch (error) {
-          console.error("Error approving request:", error);
-        }
       }
     },
     async rejectRequest(id) {
       try {
         const response = await axios.post(`/api/rental-applications/${id}/reject`);
-        this.updateStatus(id, response.data.status || "Rejected", response.data.rejected_at);
+        this.updateStatus(id, "Rejected", response.data.rejected_at);
       } catch (error) {
         console.error("Error rejecting request:", error);
       }
@@ -212,6 +210,7 @@ export default {
   },
 };
 </script>
+
 
 
 <style scoped>
