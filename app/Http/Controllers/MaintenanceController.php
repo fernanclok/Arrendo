@@ -7,7 +7,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use App\Models\Contract;
 use App\Models\Maintenance_request;
-use App\Models\Property;
+
 
 class MaintenanceController extends Controller
 {
@@ -77,7 +77,7 @@ class MaintenanceController extends Controller
         // Obtener las solicitudes del usuario autenticado con sus relaciones
         $maintenanceRequests = Maintenance_request::where('tenant_user_id', $request->user_id)
             ->with('property') // Relación property
-            ->orderBy('priority', 'desc') // Ordenar según prioridad
+            ->orderBy('report_date', 'desc') // Ordenar según report_Date
             ->get();
     
         // Devolver respuesta JSON
