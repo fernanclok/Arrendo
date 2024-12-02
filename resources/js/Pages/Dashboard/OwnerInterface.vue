@@ -1,5 +1,5 @@
 <template>
-    <div class="relative md:ml- bg-blueGray-100">
+    <div class="relative">
         <header-stats :card-stats="cardStats" :auth="auth"/>
         <div class="px-4 md:px-10 mx-auto w-full -m-24">
             <component :is="component" :monthly-income="monthlyIncome" :occupancyData="occupancyData"
