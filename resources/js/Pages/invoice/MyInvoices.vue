@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import axios from 'axios';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
@@ -15,6 +15,9 @@ const user = usePage().props.auth.user;
 const invoices = ref([]);
 const isEvidencesopen = ref(false);
 const selectedInvoice = ref(null);
+const currentPage = ref(1);
+const invoicesperPage = 8;
+const paginatedInvoices = ref([]);
 
 
 const notification = ref({
@@ -124,6 +127,7 @@ try {
       type: 'success'
     });
     // Cerrar el modal
+    fetchInvoices();
     closeEvidencesModal();
     // Limpiar el formulario
     form.evidence_file = [];
@@ -132,15 +136,30 @@ try {
   }
 };
 
-//Funcion para pagar
-const InvoicePaid = async (invoiceId) => {
-    try {
-        await axios.patch(`/api/invoices/${invoiceId}/invoice-paid`);
-        fetchInvoices();
-    } catch (error) {
-        console.error('Error marking invoice as paid:', error);
+// Paginación
+const prevPage = () => {
+    if (currentPage.value > 1) {
+        currentPage.value--;
     }
 };
+
+const nextPage = () => {
+    if (currentPage.value < totalPages.value) {
+        currentPage.value++;
+    }
+};
+
+const totalPages = computed(() => {
+    return Math.ceil(invoices.value.length / invoicesperPage);
+});
+
+// Actualizar la lista de contratos paginados cuando cambie la página actual, los contratos o el criterio de búsqueda
+watch([invoices, currentPage], () => {
+    const start = (currentPage.value - 1) * invoicesperPage;
+    const end = currentPage.value * invoicesperPage;
+    paginatedInvoices.value = invoices.value.slice(start, end);
+});
+
 
 onMounted(fetchInvoices);
 </script>
@@ -148,8 +167,8 @@ onMounted(fetchInvoices);
 <template>
   <Head title="My Invoices" />
   <DashboardLayout>
-    <div class="shadow-lg rounded-lg overflow-hidden mx-4 md:mx-10">
-      <table class="w-full table-fixed">
+    <div class="shadow-lg rounded-lg overflow-hidden  mx-4 md:mx-10">
+      <table class="w-full table-fixed ">
         <thead>
           <tr class="bg-gray-100">
             <th class="w-1/4 py-4 px-6 text-left text-gray-600 font-bold uppercase">#</th>
@@ -164,7 +183,7 @@ onMounted(fetchInvoices);
           </tr>
         </thead>
         <tbody class="bg-white overflow-auto-scroll">
-          <tr v-for="(invoice, index) in invoices" :key="invoice.invoice_id">
+          <tr v-for="(invoice, index) in paginatedInvoices" :key="invoice.invoice_id">
             <td class="py-4 px-6">{{ index + 1 }}</td>
             <td class="py-4 px-6">{{ invoice.invoice_date }}</td>
             <td class="py-4 px-6">{{ invoice.contract_code }}</td>
@@ -175,22 +194,54 @@ onMounted(fetchInvoices);
               'bg-yellow-400 p-2 rounded-lg shadow-lg ': invoice.payment_status === 'Pending',
               'bg-green-400 p-2 rounded-lg shadow-lg ': invoice.payment_status === 'Paid',
             }">{{ invoice.payment_status }}</span></td>
-            <td >
-              <div v-if="invoice.evidence == null" class="py-4 px-6 block sm:flex gap-3 w-full" >
-              <CustomButton @click="generatePDF(invoice.invoice_id)">
-                <i class="mdi mdi-file text-xs"> PDF</i>
-              </CustomButton>
-              <CustomButton  @click="openEvidencesModal(invoice.invoice_id)">
-                <i class="mdi mdi-upload text-xs"> </i>
-              </CustomButton>
-            </div>
-            <div v-else class="py-4 px-6 block sm:flex gap-3">
-              <span class="underline bg-gray-100 p-2 rounded-lg shadow-lg font-extrabold">Wait for approval</span>
-            </div>
+            <td>
+              <div v-if="!invoice.evidence" class="py-4 px-6 block sm:flex gap-3 w-full">
+                <CustomButton @click="generatePDF(invoice.invoice_id)">
+                  <i class="mdi mdi-file text-xs"> PDF</i>
+                </CustomButton>
+                <CustomButton @click="openEvidencesModal(invoice.invoice_id)">
+                  <i class="mdi mdi-upload text-xs"> Upload Evidence</i>
+                </CustomButton>
+              </div>
+              <div v-else-if="invoice.payment_status === 'Paid'" class="py-4 px-6 block sm:flex gap-3">
+                <span class="bg-green-400 p-2 rounded-lg shadow-lg font-extrabold">Approved</span>
+              </div>
+              <div v-else class="py-4 px-6 block sm:flex gap-3">
+                <span class="underline bg-gray-100 p-2 rounded-lg shadow-lg font-extrabold">Wait for approval</span>
+              </div>
             </td>
           </tr>
         </tbody>
       </table>
+      <div class="flex justify-between items-center">
+        <!-- Botón de "Previous" -->
+        <SecondaryButton
+          @click="prevPage" 
+          :disabled="currentPage === 1" 
+          :class="{
+            'px-6 py-3  rounded-b-lg font-medium': true, 
+            'opacity-50 cursor-not-allowed': currentPage === 1
+          }" 
+          class="transition-all duration-200 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          Previous
+        </SecondaryButton>
+
+        <!-- Contador de páginas -->
+        <div class="flex space-x-2 items-center">
+          <span class="text-gray-600 font-medium">Page {{ currentPage }} of {{ totalPages }}</span>
+        </div>
+
+        <!-- Botón de "Next" -->
+        <SecondaryButton
+          @click="nextPage" 
+          :disabled="currentPage === totalPages" 
+          class="px-6 py-3  rounded-r-lg font-medium transition-all duration-200 ease-in-out " 
+          :class="{'opacity-50 cursor-not-allowed': currentPage === totalPages}"
+        >
+          Next
+        </SecondaryButton>
+      </div>
     </div>
     <!-- Modal para terminar contrato -->
     <Modal :show="isEvidencesopen" @close="closeEvidencesModal">
