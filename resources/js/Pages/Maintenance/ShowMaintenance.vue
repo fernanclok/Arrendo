@@ -7,6 +7,7 @@ import { Head, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import { ref, onMounted,computed } from 'vue';
 import { router } from '@inertiajs/vue3';
+import CreateMaintenanceForm from './CreateMaintenanceForm.vue';
 
 // Variables reactivas
 const user = usePage().props.auth.user;
@@ -39,12 +40,13 @@ const filterRequests = (filter) => {
 };
 // Obtener solicitudes al montar
 onMounted(fetchMaintenanceRequests);
-// Función para navegar a la página de creación
-const newMaintenance = () => {
-    router.visit('/maintenance/new');
-};
+// Propiedad computada para verificar si puedo editar o no
+const isEditable = computed(() => selectedRequest.value.status !== 'Completed');
+
 // Modal
 const openDetails = (request) => {
+   
+
     selectedRequest.value = {...request}; 
     isModalOpen.value = true;
 };
@@ -74,6 +76,21 @@ const saveChanges = async () => {
         alert('An error occurred while saving changes.');
     }
 };
+
+const isCreateModalOpen = ref(false);
+
+const openCreateModal = () => {
+    isCreateModalOpen.value = true;
+};
+
+const closeCreateModal = () => {
+    isCreateModalOpen.value = false;
+};
+const handleRequestCreated = async () => {
+    isCreateModalOpen.value = false; // Cierra el modal
+    await fetchMaintenanceRequests(); // Actualiza la lista de solicitudes
+};
+
 </script>
 
 <template>
@@ -83,7 +100,7 @@ const saveChanges = async () => {
             <h1 class="text-2xl font-bold mb-4">Your Maintenance Requests Tenant</h1>
             <!-- Botón para nueva solicitud -->
             <div class="flex justify-end mb-7">
-                <CustomButton @click="newMaintenance">
+                <CustomButton @click="openCreateModal">
                     New Maintenance Request
                 </CustomButton>
             </div>
@@ -237,6 +254,7 @@ const saveChanges = async () => {
                             id="description" 
                             v-model="selectedRequest.description" 
                             rows="4" 
+                            :disabled="!isEditable"
                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                         ></textarea>
                     </div>
@@ -245,6 +263,7 @@ const saveChanges = async () => {
                         <select 
                             id="priority" 
                             v-model="selectedRequest.priority" 
+                            :disabled="!isEditable"
                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                         >
                             <option value="Low">Low</option>
@@ -261,14 +280,20 @@ const saveChanges = async () => {
                         />
                     </div>
                     <div class="flex justify-end gap-4 mt-4">
-                        <SecondaryButton @click="closeModal">
+                        <SecondaryButton @click="closeModal" >
                             Close
                         </SecondaryButton>
-                        <CustomButton @click="saveChanges">
+                        <CustomButton @click="saveChanges" :disabled="!isEditable" lass="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-300 disabled:cursor-not-allowed">
                             Save Changes
                         </CustomButton>
                     </div>
                 </div>
+            </template>
+        </Modal>
+
+        <Modal :show="isCreateModalOpen" @close="closeCreateModal">
+            <template #default>
+                <CreateMaintenanceForm @requestCreated="handleRequestCreated" />
             </template>
         </Modal>
     </DashboardLayout>

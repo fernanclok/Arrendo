@@ -1,6 +1,4 @@
 <script setup>
-import DashboardLayout from '@/Layouts/DashboardLayout.vue';
-import Dropdown from '@/Components/Dropdown.vue';
 import { Head, usePage,router } from '@inertiajs/vue3';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
@@ -8,6 +6,7 @@ import axios from 'axios';
 // Estado inicial del formulario
 
 const user = usePage().props.auth.user;
+const emit = defineEmits(['requestCreated']);
 
 const form = ref({
     tenant_user_id: user.id,
@@ -109,7 +108,8 @@ const submitForm = async () => {
             },
         });
         showNotification('success', response.data.message || 'Maintenance request submitted successfully!');
-        router.get('/maintenance');
+        emit('requestCreated');
+        
     } catch (error) {
         const errorMessage = error.response?.data?.message || 'There was an error submitting the request.';
         showNotification('error', errorMessage);
@@ -120,8 +120,8 @@ const submitForm = async () => {
 </script>
 
 <template>
-    <DashboardLayout>
-        <Head title="Create Maintenance Request" />
+    
+        
         <section class="p-8">
             <h1 class="text-2xl font-bold mb-4">Create Maintenance Request</h1>
             <!-- Notificación -->
@@ -201,5 +201,5 @@ const submitForm = async () => {
                 </div>
             </form>
         </section>
-    </DashboardLayout>
+    
 </template>

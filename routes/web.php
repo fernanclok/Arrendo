@@ -100,11 +100,7 @@ Route::get('/appointment-request', function () {
 //Maintenance
 Route::get('/maintenance', function () {
     return Inertia::render('Maintenance/ShowMaintenance');
-})->middleware([])->name('maintenance');
-
-Route::get('/maintenance/new', function(){
-    return Inertia::render('Maintenance/CreateMaintenance');
-})->middleware(['auth', 'verified', 'role:admin,Tenant,Owner'])->name('maintenanceNew');
+})->middleware(['auth', 'verified', 'role:admin,Tenant'])->name('maintenance');
 
 //MaintenanceOwner
 Route::get('/maintenanceOwner', function () {

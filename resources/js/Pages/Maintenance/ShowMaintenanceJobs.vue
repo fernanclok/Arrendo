@@ -44,7 +44,10 @@ onMounted(() => {
     fetchMaintenanceRequests();
 });
 //modal 
+const isEditable = computed(() => selectedRequest.value?.status !== 'Completed');
 const openDetails = (request) => {
+    if (request.status === 'Completed') {
+    }
     selectedRequest.value = { ...request }; 
     isModalOpen.value = true; 
 };
@@ -283,6 +286,7 @@ const filterRequests = (filter) => {
                             <select 
                                 id="status" 
                                 v-model="selectedRequest.status" 
+                                :disabled="!isEditable"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                             >
                                 <option value="Pending">Pending</option>
@@ -295,6 +299,7 @@ const filterRequests = (filter) => {
                             <textarea
                                 id="owner_note"
                                 v-model="selectedRequest.owner_note"
+                                :disabled="!isEditable"
                                 rows="3"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                                 placeholder="Add a note for the tenant..."
@@ -306,6 +311,7 @@ const filterRequests = (filter) => {
                                 type="number"
                                 id="maintenance_cost"
                                 v-model="selectedRequest.maintenance_cost"
+                                :disabled="!isEditable"
                                 step="0.01"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                                 placeholder="Enter maintenance cost..."
@@ -324,7 +330,8 @@ const filterRequests = (filter) => {
                             <SecondaryButton @click="closeModal" type="secondary">
                                 Close
                             </SecondaryButton>
-                            <CustomButton @click="saveChanges" type="primary">
+                            <CustomButton @click="saveChanges" type="primary" :disabled="!isEditable"
+    class="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-300 disabled:cursor-not-allowed">
                                 Save Changes
                             </CustomButton>
                         </div>
