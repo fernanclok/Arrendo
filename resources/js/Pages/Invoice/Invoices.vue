@@ -1,5 +1,8 @@
 <script setup>
+import CustomButton from '@/Components/CustomButton.vue';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
+import Modal from '@/Components/Modal.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { Head } from '@inertiajs/vue3';
 import { ref, onMounted, watch } from 'vue';
 
@@ -7,6 +10,8 @@ import { ref, onMounted, watch } from 'vue';
 const invoices = ref([]);
 const selectedMonth = ref(new Date().getMonth() + 1); // Mes actual
 const selectedYear = ref(new Date().getFullYear()); // Año actual
+const ispayopen = ref(false);
+const selectedInvoice = ref(null);
 
 // Obtener los recobos por mes y año
 const fetchInvoices = async () => {
@@ -26,6 +31,7 @@ const fetchInvoices = async () => {
 const InvoicePaid = async (invoiceId) => {
   try {
     await axios.patch(`/api/Invoices/invoices/${invoiceId}/invoice-paid`);
+    closePaymentmodal();
     fetchInvoices();
   } catch (error) {
     console.error('Error al marcar como pagado:', error);
@@ -50,6 +56,17 @@ const generatePDF = async (invoiceId) => {
     }
 };
 
+// Abrir modal de terminación
+const openPaymentmodal = (invoiceID) => {
+    selectedInvoice.value = invoiceID;
+    ispayopen.value = true;
+};
+
+const closePaymentmodal = () => {
+    ispayopen.value = false;
+    selectedInvoice.value = null;
+};
+
 // Mostrar los recibos
 onMounted(() => {
   fetchInvoices();
@@ -62,68 +79,84 @@ watch([selectedMonth, selectedYear], fetchInvoices);
 <template>
   <Head title="Invoices" />
   <DashboardLayout>
-    <div class="shadow-lg rounded-lg overflow-hidden mx-4 md:mx-10">
+    <nav class="p-8  bg-gray-100 rounded-lg shadow-lg">
       <h1 class="text-2xl font-semibold text-gray-900">Invoices Owner</h1>
-      <div class="mb-4 flex gap-4 items-center">
-        <div>
-          <label for="month" class="block text-sm font-medium text-gray-700">Mes</label>
-          <select 
-            id="month" 
-            v-model="selectedMonth" 
-            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-          >
-            <option v-for="month in 12" :key="month" :value="month">
-              {{ new Date(0, month - 1).toLocaleString('es', { month: 'long' }) }}
-            </option>
-          </select>
-        </div>
-        <div>
-          <label for="year" class="block text-sm font-medium text-gray-700">Año</label>
-          <select 
-            id="year" 
-            v-model="selectedYear" 
-            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-          >
-            <option v-for="year in 5" :key="year" :value="new Date().getFullYear() - (5 - year)">
-              {{ new Date().getFullYear() - (5 - year) }}
-            </option>
-          </select>
-        </div>
+        <div class="mb-4 flex gap-4 items-center">
+            <div class="w-full">
+            <label for="month" class="block text-sm font-medium text-gray-700">Mes</label>
+            <select 
+              id="month" 
+              v-model="selectedMonth" 
+              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option v-for="month in 12" :key="month" :value="month">
+                {{ new Date(0, month - 1).toLocaleString('es', { month: 'long' }) }}
+              </option>
+            </select>
+          </div>
+          <div class="w-full">
+            <label for="year" class="block text-sm font-medium text-gray-700">Año</label>
+            <select 
+              id="year" 
+              v-model="selectedYear" 
+              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option v-for="year in 10" :key="year" :value="new Date().getFullYear() - (5 - year)">
+                {{ new Date().getFullYear() - (5 - year) }}
+              </option>
+            </select>
+          </div>
       </div>
+    </nav>
+    <div class="shadow-lg rounded-lg overflow-hidden mx-4 md:mx-10 mt-8">
       <table class="w-full table-fixed">
         <thead>
           <tr class="bg-gray-100">
-            <th class="w-1/4 py-4 px-6 text-left text-gray-600 font-bold uppercase">Contract</th>
-            <th class="w-1/4 py-4 px-6 text-left text-gray-600 font-bold uppercase">Issue Date</th>
-            <th class="w-1/4 py-4 px-6 text-left text-gray-600 font-bold uppercase">Total Amount</th>
-            <th class="w-1/4 py-4 px-6 text-left text-gray-600 font-bold uppercase">Payment Status</th>
-            <th class="w-1/4 py-4 px-6 text-left text-gray-600 font-bold uppercase">Actions</th>
+            <th class="w-1/4 py-4 px-6 text-center text-gray-600 font-bold uppercase ">Contract</th>
+            <th class="w-1/4 py-4 px-6 text-center text-gray-600 font-bold uppercase">Issue Date</th>
+            <th class="w-1/4 py-4 px-6 text-center text-gray-600 font-bold uppercase">Total Amount</th>
+            <th class="w-1/4 py-4 px-6 text-center text-gray-600 font-bold uppercase">Payment Status</th>
+            <th class="w-1/4 py-4 px-6 text-center text-gray-600 font-bold uppercase">Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="invoice in invoices" :key="invoice.id">
-            <td class="py-4 px-6 text-gray-600">{{ invoice.contract_id }}</td>
-            <td class="py-4 px-6 text-gray-600">{{ invoice.issue_date }}</td>
-            <td class="py-4 px-6 text-gray-600">{{ invoice.total_amount }}</td>
-            <td class="py-4 px-6 text-gray-600">{{ invoice.payment_status }}</td>
-            <td class="py-4 px-6">
-              <button 
-                @click="InvoicePaid(invoice.id)" 
-                class="bg-green-500 text-white px-2 py-1 rounded text-sm"
+            <td class="py-4 px-6 text-gray-600 text-center">{{ invoice.contract.contract_code }}</td>
+            <td class="py-4 px-6 text-gray-600 text-center">{{ invoice.issue_date }}</td>
+            <td class="py-4 px-6 text-gray-600 text-center">{{ invoice.total_amount }}</td>
+            <td class="py-4 px-6 text-gray-900 text-center"><span class="bg-yellow-400 p-2 rounded-lg shadow-lg ">{{ invoice.payment_status }}</span></td>
+            <td class="py-4 px-6 space-x-3 text-center">
+              <SecondaryButton
+                @click="openPaymentmodal(invoice.id)"
+                class=" text-gray-900 px-2 py-1 rounded text-xl"
               >
                 Payment
-              </button>
+              </SecondaryButton>
               
-              <button 
-                @click="generatePDF(invoice.id)" 
-                class="bg-blue-500 text-white px-2 py-1 rounded text-sm"
-              >
-                PDF
-              </button>
+              <CustomButton @click="generatePDF(invoice.id)">
+                <i class="mdi mdi-file text-xs"> PDF</i>
+              </CustomButton>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
+      <!-- Modal para terminar contrato -->
+      <Modal :show="ispayopen" @close="closePaymentmodal">
+          <template #default>
+            <nav class="p-8 bg-gray-100">
+              <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-gray-900">Payment verification</h1>
+              </div>
+              <div class="p-6">
+                <p class="text-red-600">This invoice was payed?</p>
+                <div class="flex justify-end items-center space-x-4 mt-6">
+                  <SecondaryButton @click="closePaymentmodal">No</SecondaryButton>
+                  <CustomButton @click="InvoicePaid(selectedInvoice)" class="bg-red-500 hover:bg-red-700 text-gray-900">yes</CustomButton>
+                </div>
+              </div>
+            </nav>
+          </template>
+        </Modal>
   </DashboardLayout>
 </template>
