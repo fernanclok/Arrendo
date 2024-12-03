@@ -23,20 +23,21 @@ class InvoiceController extends Controller
 
     public function index(Request $request)
     {
-        // Obtenemos el mes y el año de la solicitud (por defecto, el mes y año actuales)
         $month = $request->query('month', now()->month);
         $year = $request->query('year', now()->year);
 
-        // Filtrar recibos por mes y año
+        // Evidencia del path
         $invoices = Invoice::whereYear('issue_date', $year)
             ->whereMonth('issue_date', $month)
             ->where('payment_status', 'Pending')
-            ->with(['contract' => function ($query) {
-                $query->select('id', 'contract_code'); // Selecciona solo el id y contract_code
-            }])
+            ->with([
+                'contract' => function ($query) {
+                    $query->select('id', 'contract_code');
+                }
+            ])
+            ->select('id', 'issue_date', 'total_amount', 'payment_status', 'contract_id', 'evidence_path')
             ->get();
 
-        // Log para depuración
         return response()->json($invoices);
     }
 

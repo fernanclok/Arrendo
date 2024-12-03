@@ -56,11 +56,12 @@ onMounted(() => {
 
 <template>
     <Head title="Contracts" />
+    
     <DashboardLayout>
+      <div class="p-2">
+      <h1 class="text-3xl font-bold text-gray-800">My Contracts</h1>
+    </div>
       <div class="p-6">
-        <div class="p-4">
-            <h1 class="text-2xl font-semibold text-gray-800">My Contracts</h1>
-        </div>
         <!-- Tabla de Contratos -->
         <div class="overflow-x-auto bg-white shadow-lg rounded-lg">
           <table class="min-w-full table-auto">

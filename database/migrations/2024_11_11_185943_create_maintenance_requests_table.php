@@ -20,6 +20,9 @@ return new class extends Migration
             $table->enum('priority', ['Low', 'Medium', 'High']);
             $table->enum('status', ['Pending', 'In Progress', 'Completed']);
             $table->string('evidence');
+            $table->text('owner_note')->nullable(); 
+            $table->decimal('maintenance_cost', 10, 2)->nullable(); 
+            $table->timestamp('date_review')->nullable(); 
             $table->timestamps();
         });
     }

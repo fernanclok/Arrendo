@@ -167,10 +167,10 @@ onMounted(fetchInvoices);
 <template>
   <Head title="My Invoices" />
   <DashboardLayout>
+    <div class="p-2">
+            <h1 class="text-3xl font-bold text-gray-800">{{ user.first_name }} Invoices <span class="text-xs">(tenant)</span></h1>
+          </div>
     <div class="shadow-lg rounded-lg overflow-hidden  mx-4 md:mx-10">
-      <nav class="p-4 bg-gray-100 rounded-lg shadow-lg mb-4 w-fit">
-        <h1 class="text-2xl font-semibold text-gray-900">{{ user.first_name }} Invoices <span class="text-xs">(tenant)</span></h1>
-      </nav>
       <table class="w-full table-fixed ">
         <thead>
           <tr class="bg-gray-100">

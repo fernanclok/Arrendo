@@ -1,5 +1,8 @@
 <template>
-    <div class=" bg-gray-100 mx-auto px-6 py-8">
+    <div class="p-2">
+        <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
+    </div>
+    <div class="mx-auto px-6 py-8">
         <!-- Header -->
         <div class="bg-primary text-white p-6 rounded-lg shadow-lg mb-8 relative">
             <div class="flex justify-between items-start">
@@ -7,7 +10,6 @@
                     <h1 class="text-3xl font-bold">Payment Summary</h1>
                     <p class="text-sm text-gray-200 mt-1">Check your payment status and history</p>
                 </div>
-                <NotificationDropdown :auth="auth" />
             </div>
 
             <!-- Summary Cards -->
@@ -47,7 +49,8 @@
                             </p>
                         </div>
                     </div>
-                    <p class="text-sm text-gray-500 mt-3">Date: {{ nextPaymentDate ? formatDate(nextPaymentDate) : 'No scheduled payments' }}</p>
+                    <p class="text-sm text-gray-500 mt-3">Date: {{ nextPaymentDate ? formatDate(nextPaymentDate) :
+                        'Noscheduled payments' }}</p>
                 </div>
             </div>
         </div>
@@ -142,7 +145,7 @@
                 </div>
             </div>
         </div>
-        <!-- Contracts and Comments -->
+        <!-- Contratos y Comentarios organizados -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-5">
             <!-- Contract Table -->
             <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
@@ -174,7 +177,6 @@
                         </tbody>
                     </table>
                 </div>
-                <!-- Pagination Controls -->
                 <div class="mt-4 flex justify-between items-center">
                     <button @click="previousContractPage" :disabled="currentContractPage <= 1"
                         class="bg-primary text-white px-4 py-2 rounded disabled:opacity-50">
@@ -189,9 +191,9 @@
             </div>
 
             <!-- Contratos y Comentarios organizados -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-5">
-                <!-- Contract Table -->
-                <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <!-- <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-5"> -->
+            <!-- Contract Table -->
+            <!-- <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
                     <h3 class="text-lg font-semibold text-gray-700 mb-4 flex justify-between">Contracts</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full table-auto text-left">
@@ -221,7 +223,6 @@
                             </tbody>
                         </table>
                     </div>
-                    <!-- Pagination Controls -->
                     <div class="mt-4 flex justify-between items-center">
                         <button @click="previousContractPage" :disabled="currentContractPage <= 1"
                             class="bg-primary text-white px-4 py-2 rounded disabled:opacity-50">
@@ -233,13 +234,37 @@
                             Next
                         </button>
                     </div>
-                </div>
+                </div> -->
 
-                <!-- Comments section-->
-                <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <!-- Comments section-->
+            <!-- <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
                     <h3 class="text-lg font-semibold text-gray-700 mb-4">Comments</h3>
 
-                    <!-- Input para agregar comentario -->
+                    <div class="flex items-center space-x-4 mb-6">
+                        <input type="text"
+                            class="flex-1 border border-gray-300 rounded-lg p-2 focus:ring focus:ring-green-500 focus:outline-none"
+                            placeholder="Leave a comment..." v-model="newComment">
+                        <div class="flex items-center space-x-1">
+                            <button v-for="n in 5" :key="n" @click="setRating(n)"
+                                :class="n <= rating ? 'text-yellow-500' : 'text-gray-400 hover:text-yellow-500'">
+                                <icon :class="n <= rating ? 'mdi mdi-star' : 'mdi mdi-star-outline'"></icon>
+                            </button>
+                        </div>
+                        <button
+                            class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50"
+                            @click="addComment" :disabled="!newComment || !rating">
+                            <i class="mdi mdi-send"></i>
+                        </button>
+                    </div>
+                </div> -->
+            <!-- </div> -->
+
+            <!-- Comments section-->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Comments</h3>
+
+                <!-- Input para agregar comentario -->
+                <div v-if="property.property_id">
                     <div class="flex items-center space-x-4 mb-6">
                         <input type="text"
                             class="flex-1 border border-gray-300 rounded-lg p-2 focus:ring focus:ring-green-500 focus:outline-none"
@@ -265,7 +290,8 @@
                                 <span class="text-sm text-gray-500">{{ new Date(comment.created_at).toLocaleDateString()
                                     }}</span>
                                 <div class="flex">
-                                    <icon v-for="n in 5" :key="n" :class="n <= comment.comment_rate ? 'mdi mdi-star' : 'mdi mdi-star-outline'"
+                                    <icon v-for="n in 5" :key="n"
+                                        :class="n <= comment.comment_rate ? 'mdi mdi-star' : 'mdi mdi-star-outline'"
                                         class="text-yellow-500 text-lg"></icon>
                                 </div>
                             </div>
@@ -277,8 +303,11 @@
                         </div>
                     </div>
                 </div>
-
+                <div v-else>
+                    <p class="text-gray-500">You need to be tenant of a property to leave a comment</p>
+                </div>
             </div>
+
         </div>
     </div>
 </template>
@@ -287,7 +316,7 @@
 
 <script>
 
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, isValid } from 'date-fns';
 import { es } from 'date-fns/locale';
 import 'v-calendar/dist/style.css';
 import VCalendar from 'v-calendar';
@@ -447,7 +476,7 @@ export default {
     },
     methods: {
         getComments() {
-            axios.get(`/api/comments/2`)
+            axios.get(`/api/comments/${this.auth.user.id}`)
                 .then(response => {
                     this.comments = response.data;
                 })
@@ -592,7 +621,7 @@ export default {
         },
 
 
-        async fetchContracts() {
+        async fetchContractsData() {
             this.isLoading = true;
             try {
 
@@ -601,12 +630,9 @@ export default {
                     console.error("User ID is not available");
                     return;
                 }
-                const response = await axios.get('/api/contracts/tenant/contracts', {
-                    params: {
-                        user_id: userId,
-                    }
-                });
+                const response = await axios.get(`/api/tenant/contracts/${userId}`);
                 this.contractsData = response.data;
+                console.log('Contracts:', this.contractsData);
             } catch (error) {
                 console.error(error);
             } finally {
@@ -626,7 +652,7 @@ export default {
     mounted() {
         this.fetchPaymentsData();
         this.refreshInterval = setInterval(this.fetchPayments, 30000);
-        this.fetchContracts();
+        this.fetchContractsData();
         this.fetchProperty();
         this.getComments();
     },

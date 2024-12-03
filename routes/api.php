@@ -47,7 +47,7 @@ Route::get('/zones', [ZoneController::class, 'getZones']);
 
 //Comments
 Route::prefix('comments')->group(function () {
-    Route::get('/{propertyId}', [PropertyController::class, 'getComments']);
+    Route::get('/{userId}', [PropertyController::class, 'getComments']);
     Route::post('/', [PropertyController::class, 'createComment']);
 });
 
@@ -68,6 +68,8 @@ Route::prefix('properties')->group(function () {
     Route::post('/pass-documents', [RentalApplicationController::class, 'passDocuments']);
     Route::post('/pass-user-documents', [RentalApplicationController::class, 'updateUserDocuments']);
     Route::post('/user-applications', [RentalApplicationController::class, 'applicationsMadeByUser']);
+
+    Route::get('/file/{filePath}', [RentalApplicationController::class, 'showUserFile']);
 });
 
 Route::get('/properties/{id}', [PropertyController::class, 'show']);
@@ -84,6 +86,7 @@ Route::prefix('appointments')->group(function () {
 // dashboard
 Route::get('/payment-history/{tenantUserId}', [DashboardController::class, 'getPaymentHistory']);
 Route::get('/rented-property/{tenantUserId}', [DashboardController::class, 'getRentedProperty']);
+Route::get('/tenant/contracts/{tenantUserId}', [DashboardController::class, 'getTenantContracts']);
 
 //notifications
 Route::get('/notifications/{userId}', [DashboardController::class, 'getNotifications']);
@@ -102,10 +105,13 @@ Route::prefix('rental-applications')->group(function () {
 //Maintenace
 Route::prefix('maintenance')->group(function () {
     Route::get('/', [MaintenanceController::class, 'index']);
-    Route::post('/store', [MaintenanceController::class, 'store']);
-    Route::patch('/{id}', [MaintenanceController::class, 'update']);
+    Route::get('/maintenancesReqOwner', [MaintenanceController::class, 'getRequestsByProperty']);
     Route::get('/getPropertyByTenant', [MaintenanceController::class, 'getPropertyByTenant']);
+    Route::post('/store', [MaintenanceController::class, 'store']);
+    Route::patch('/{id}',[MaintenanceController::class, 'update']);
+    Route::put('/maintenancesReqOwner/{id}', [MaintenanceController::class, 'updateRequest']);
 });
+
 //MaintenaceOwner
 Route::prefix('maintenanceOwner')->group(function () {
     Route::get('/properties', [MaintenanceController::class, 'getProperties']);
