@@ -11,6 +11,37 @@
             </div>
         </div>
 
+
+        <!-- Filter -->
+        <div class="px-4 py-2">
+            <div class="flex space-x-4">
+                <label class="flex items-center">
+                    <input type="radio" name="statusFilter" value="All" v-model="statusFilter" class="mr-2">
+                    All
+                </label>
+                <label class="flex items-center">
+                    <input type="radio" name="statusFilter" value="Active" v-model="statusFilter"
+                        class="mr-2 bg-green-500">
+                    Active
+                </label>
+                <label class="flex items-center">
+                    <input type="radio" name="statusFilter" value="Pending Renewal" v-model="statusFilter"
+                        class="mr-2 bg-yellow-500">
+                    Pending Renewal
+                </label>
+                <label class="flex items-center">
+                    <input type="radio" name="statusFilter" value="Terminated" v-model="statusFilter"
+                        class="mr-2 bg-red-500">
+                    Terminated
+                </label>
+                <label class="flex items-center">
+                    <input type="radio" name="statusFilter" value="For Rent" v-model="statusFilter"
+                        class="mr-2 bg-gray-500">
+                    For Rent
+                </label>
+            </div>
+        </div>
+
         <!-- Table -->
         <div class="block w-full overflow-x-auto">
             <table class="items-center w-full bg-transparent border-collapse">
@@ -43,7 +74,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="property in paginatedProperties" :key="property.property_id">
+                    <tr v-for="(property, index) in paginatedProperties" :key="`${property.property_id}-${index}`">
                         <th
                             class="truncate max-w-xs border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left">
                             {{ property.property_address }}
@@ -51,7 +82,8 @@
                         <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                             <div class="flex items-center">
                                 <i class="mdi mdi-account-circle mr-2 text-gray-400"></i>
-                                {{ property.tenant_name || 'No tenant' }}
+                                {{ property.tenant_name && property.tenant_name.trim() !== '' ? property.tenant_name :
+                                    'No tenant' }}
                             </div>
                         </td>
                         <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
@@ -69,7 +101,7 @@
                             <div class="flex flex-col gap-2">
                                 <span :class="getStatusClasses(property.contract_status)">
                                     <i class="mdi" :class="getStatusIcon(property.contract_status)"></i>
-                                    {{ property.contract_status }}
+                                    {{ property.contract_status || 'For Rent' }}
                                 </span>
                             </div>
                         </td>
@@ -161,21 +193,34 @@ export default {
             rowsPerPage: 10, // Número de filas por página
             isModalOpen: false, // Controla si el modal está abierto o no
             selectedProperty: null,
-            isViewOnly: false
+            isViewOnly: false,
+            statusFilter: 'All',
         };
     },
     computed: {
-        // Filtrar las propiedades que se mostrarán en la página actual
+        filteredProperties() {
+            return this.propertiesData.filter(property => {
+                if (this.statusFilter === 'All') return true;
+                if (this.statusFilter === 'For Rent') {
+                    return !property.contract_status || property.contract_status.trim() === '';
+                }
+                return property.contract_status === this.statusFilter;
+            });
+        },
+
+        // Paginación de las propiedades filtradas
         paginatedProperties() {
             const startIndex = (this.currentPage - 1) * this.rowsPerPage;
             const endIndex = startIndex + this.rowsPerPage;
-            return this.propertiesData.slice(startIndex, endIndex);
+            return this.filteredProperties.slice(startIndex, endIndex); // Pagina solo las propiedades filtradas
         },
-        // Calcular el número total de páginas
+
+        // Calcular el número total de páginas basado en las propiedades filtradas
         totalPages() {
-            return Math.ceil(this.propertiesData.length / this.rowsPerPage);
+            return Math.ceil(this.filteredProperties.length / this.rowsPerPage); // Páginas de las propiedades filtradas
         }
     },
+
     methods: {
         getStatusClasses(status) {
             const baseClasses = "px-2 py-1 text-xs rounded-full flex items-center gap-1 ";
@@ -245,6 +290,15 @@ export default {
             }
             this.closeModal(); // Cierra el modal
         },
+    }, mounted() {
+
+    },
+    watch: {
+        statusFilter(newValue) {
+            // Reinicia el paginado a la primera página cuando cambie el filtro
+            this.currentPage = 1;
+        }
     }
+
 }
 </script>

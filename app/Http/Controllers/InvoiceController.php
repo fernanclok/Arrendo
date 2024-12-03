@@ -1,0 +1,200 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\Contract;
+use App\Models\Invoice;
+use App\Models\Payment_history;
+use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Inertia\Inertia;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+
+class InvoiceController extends Controller
+{
+
+    /*public function index()
+    {
+        $invoices = Invoice::all();
+        return response()->json($invoices);
+    }*/
+
+    public function index(Request $request)
+    {
+        // Obtenemos el mes y el año de la solicitud (por defecto, el mes y año actuales)
+        $month = $request->query('month', now()->month);
+        $year = $request->query('year', now()->year);
+
+        // Filtrar recibos por mes y año
+        $invoices = Invoice::whereYear('issue_date', $year)
+            ->whereMonth('issue_date', $month)
+            ->where('payment_status', 'Pending')
+            ->with(['contract' => function ($query) {
+                $query->select('id', 'contract_code'); // Selecciona solo el id y contract_code
+            }])
+            ->get();
+
+        // Log para depuración
+        Log::info('Invoices:', $invoices->toArray());
+        return response()->json($invoices);
+    }
+
+
+    public function generateInvoices($contractId)
+    {
+        try {
+            // Obtener el contrato
+            $contract = Contract::findOrFail($contractId);
+
+            $startDate = Carbon::parse($contract->start_date);
+            $endDate = Carbon::parse($contract->end_date);
+            $totalAmount = $contract->rental_amount;
+
+            $invoices = [];
+            while ($startDate <= $endDate) {
+                $invoice = new Invoice([
+                    'contract_id' => $contractId,
+                    'issue_date' => $startDate->format('Y-m-d'),
+                    'total_amount' => $totalAmount,
+                    'payment_status' => 'Pending',
+                ]);
+
+                // Guardar la factura
+                $invoice->save();
+                $invoices[] = $invoice;
+
+               // iterar sobre las facturas y agregarlas a la tabla payment_histories
+                $paymentHistory = new Payment_history([
+                    'invoice_id' => $invoice->id,
+                    'payment_date' => null,
+                    'amount_paid' => 0,
+                ]);
+
+                dd($paymentHistory);
+
+                $paymentHistory->save();
+
+                $startDate->addMonth();
+            }
+
+            return response()->json($invoices, 201);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error generating invoices', 'details' => $e->getMessage()], 500);
+        }
+    }
+
+    public function InvoicePaid($id)
+    {
+        try {
+            $invoice = Invoice::findOrFail($id);
+            $invoice->payment_status = 'Paid';
+            $invoice->save();
+
+            //si el pago se marca como pagado, entonces se debe agregar a la tabla payment_histories
+            $paymentHistory = new Payment_history([
+                'invoice_id' => $id,
+                'payment_date' => now(),
+                'amount_paid' => $invoice->total_amount,
+            ]);
+
+            $paymentHistory->save();
+
+            return response()->json(['message' => 'Invoice marked as paid successfully.'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error updating payment status', 'details' => $e->getMessage()], 500);
+        }
+    }
+
+
+    public function MyInvoices(Request $request)
+    {
+        try {
+
+            $history = DB::table('users as u')
+                ->join('contracts as c', 'u.id', '=', 'c.tenant_user_id')
+                ->join('invoices as i', 'c.id', '=', 'i.contract_id')
+                ->select(
+                    'u.id as tenant_user_id',
+                    DB::raw("CONCAT(u.first_name, ' ', u.last_name) as tenant_name"),
+                    'i.id as invoice_id',
+                    'c.id as contract_id',
+                    'c.contract_code as contract_code',
+                    'i.id as invoice_id',
+                    'i.created_at as invoice_date',
+                    'i.issue_date as issue_date',
+                    'i.evidence_path as evidence',
+                    'i.total_amount as invoice_total',
+                    'i.payment_status'
+                )
+                ->where('c.tenant_user_id', $request->user_id)
+                ->orderBy('i.issue_date', 'DESC')
+                ->get();
+
+            return response()->json($history);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json(['error' => 'Error retrieving payment history', 'details' => $e->getMessage()], 500);
+        }
+    }
+
+
+    public function generatePDF($id)
+    {
+        try {
+            // Obtener la factura
+            $invoice = Invoice::findOrFail($id);
+
+            // Preparar los datos para la vista
+            $data = [
+                'invoice' => $invoice,
+            ];
+
+            // Generar el PDF usando una vista específicayvdh\DomPDF\Facade\Pd
+            $pdf = Pdf::loadView('pdf.invoice', $data);
+
+            // Descargar el PDF
+            return $pdf->download("invoice-{$id}.pdf");
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error generating PDF', 'details' => $e->getMessage()], 500);
+        }
+    }
+
+    // function to update the evidence path of the invoice
+    public function updateEvidence(Request $request, $id)
+    {
+        try {
+            $invoice = Invoice::findOrFail($id);
+
+            if ($request->hasFile('evidence_file')) {
+                $files = [];
+                foreach ($request->file('evidence_file') as $file) {
+                    $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                    $extension = $file->getClientOriginalExtension();
+                    $timestamp = now()->format('YmdHis');
+
+                    // Reemplazar espacios por guiones bajos o quitarlos
+                    $sanitizedOriginalName = preg_replace('/\s+/', '_', $originalName);
+                    $newName = "{$sanitizedOriginalName}_{$timestamp}.{$extension}";
+                    $destinationPath = public_path('evidence_file');
+
+                    // Crear la carpeta si no existe
+                    if (!file_exists($destinationPath)) {
+                        mkdir($destinationPath, 0777, true);
+                    }
+
+                    $file->move($destinationPath, $newName);
+                    $files[] = "evidence_file/{$newName}";
+                }
+                $invoice->evidence_path = json_encode($files);
+            }
+
+            $invoice->save();
+
+            return response()->json(['message' => 'Evidence path updated successfully.'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error updating evidence path', 'details' => $e->getMessage()], 500);
+        }
+    }
+}

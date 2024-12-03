@@ -63,6 +63,11 @@ class Property extends Model
         return $this->belongsTo(Zone::class, 'zone_id');
     }
 
+    public function comments()
+    {
+        return $this->hasMany(Comment::class, 'property_id');
+    }
+
     public function validateAvailability(array $attributes)
     {
         $validator = Validator::make($attributes, [

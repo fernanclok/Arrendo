@@ -8,10 +8,8 @@ import TenantInterface from './Dashboard/TenantInterface.vue';
 
 const { props } = usePage();
 
-console.log(props.auth.user.role);
-
 const isOwner = computed(() => {
-    return props.auth.user.role === 'Owne';
+    return props.auth.user.role === 'Owner';
 });
 
 </script>
@@ -20,7 +18,7 @@ const isOwner = computed(() => {
 
     <Head title="Dashboard" />
     <DashboardLayout>
-        <div class="relative md:ml- bg-blueGray-100">
+        <div class="relative">
 
             <OwnerInterface v-if="isOwner" v-bind="props" />
 

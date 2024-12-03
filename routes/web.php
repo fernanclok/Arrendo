@@ -3,11 +3,13 @@
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
+use App\Models\Contract;
 use Illuminate\Foundation\Application;
 use App\Http\Controllers\MaintenanceController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Broadcasting\BroadcastController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,31 +43,29 @@ Route::get('/properties', function () {
     return Inertia::render('Properties');
 })->name('properties');
 
-// Route::get('/detailprop', function () {
-//     return Inertia::render('DetailPropertie');  ---que show con esto al que le toco
-// })->name('detailproperties');
-
 //my properties
-Route::get('/my-properties', function() {
+Route::get('/my-properties', function () {
     return Inertia::render('MyProperties', [
         'user' => auth()->user()
     ]);
-})->middleware(['auth','verified','role:admin,Owner'])->name('myProperties');
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('myProperties');
 
-//search properties
 Route::get('/search-properties', function () {
-    return Inertia::render('SearchProperties');
+    $user = Auth::user();
+    $hasActiveContract = Contract::where('tenant_user_id', $user->id)
+        ->where('status', 'Active')
+        ->exists();
+
+    return Inertia::render('SearchProperties', [
+        'user' => $user,
+        'hasActiveContract' => $hasActiveContract
+    ]);
 })->middleware(['auth', 'verified', 'role:Tenant'])->name('searchProperties');
 
 // contracts
 Route::get('/contracts', function () {
     return Inertia::render('Contracts/showContract');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('contracts');
-
-Route::middleware('auth')->group(function () {
-    Route::get('/contracts/all', [ContractController::class, 'index'])->name('contracts.index');  // que rollo con esto si ya no se ocupa eliminenlo
-    Route::post('/contract', [ContractController::class, 'store'])->name('contracts.store');
-});
 
 Route::get('/manage/contracts', function () {
     return Inertia::render('Contracts/manageContracts');
@@ -79,6 +79,10 @@ Route::get('/all-contracts', function () {
     return Inertia::render('Contracts/allContract');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('AllContracts');
 
+Route::get('/all-contracts/tenant', function () {
+    return Inertia::render('Contracts/tenantContracts');
+})->middleware(['auth', 'verified', 'role:Tenant'])->name('TenantContracts');
+
 // rental applications
 Route::get('/TrackRequest', function () {
     return Inertia::render('TrackRequest');
@@ -88,24 +92,25 @@ Route::get('/EvaluateRequest', function () {
     return Inertia::render('EvaluateRequest');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('EvaluateRequest');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/contracts/all', [ContractController::class, 'index'])->name('contracts.index');
-    Route::post('/contract', [ContractController::class, 'store'])->name('contracts.store');
-});
-
 //appointments
 Route::get('/appointments', function () {
     return Inertia::render('Appointments', [
         'user' => auth()->user()
     ]);
-})->middleware(['auth', 'verified', 'role:admin,Tenant,Owner'])->name('appointments');
+})->middleware(['auth', 'verified', 'role:admin,Tenant'])->name('appointments');
+
+Route::get('/appointment-request', function () {
+    return Inertia::render('AppointmentRequest', [
+        'user' => auth()->user()
+    ]);
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('appointmentRequest');
 
 //Maintenance
 Route::get('/maintenance', function () {
     return Inertia::render('Maintenance/ShowMaintenance');
 })->middleware([])->name('maintenance');
 
-Route::get('/maintenance/new', function(){
+Route::get('/maintenance/new', function () {
     return Inertia::render('Maintenance/CreateMaintenance');
 })->middleware(['auth', 'verified', 'role:admin,Tenant,Owner'])->name('maintenanceNew');
 
@@ -114,9 +119,28 @@ Route::get('/maintenanceOwner', function () {
     return Inertia::render('Maintenance/ShowMaintenanceJobs');
 })->middleware(['auth', 'verified', 'role:admin,Owner'])->name('maintenanceOwner');
 
-//Registro propiedades
-Route::get('/registro-propiedad', function () {
-    return Inertia::render('RegistroPropiedad'); // Nombre del componente Vue
-})->name('registro.propiedad');
+// Invoices
+Route::get('/invoices', function () {
+    return Inertia::render('Invoice/Invoices');
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('invoices');
+
+Route::get('/my-invoices', function () {
+    return Inertia::render('Invoice/MyInvoices');
+})->middleware(['auth', 'verified', 'role:admin,Tenant'])->name('myInvoices');
+
+//Payment History
+Route::get('/payment-history', function () {
+    return Inertia::render('PaymentHistory', [
+        'user' => auth()->user()
+    ]);
+})->middleware(['auth', 'verified', 'role:admin,Owner'])->name('paymentHistory');
+
+Route::get('/payment-history/tenant', function () {
+    return Inertia::render('TenantPaymentHistory');
+})->middleware(['auth', 'verified', 'role:Tenant'])->name('tenantPaymentHistory');
+
+// Ruta para autenticación de broadcasting
+Route::post('/broadcasting/auth', [BroadcastController::class, 'authenticate'])
+    ->middleware('auth');
 
 require __DIR__ . '/auth.php';
