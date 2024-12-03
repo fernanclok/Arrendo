@@ -126,4 +126,7 @@ Route::post('/contracts/{contractId}/generate-invoices', [InvoiceController::cla
 //payment history
 Route::prefix('payment-history')->group(function () {
     Route::get('/', [PaymentHistoryController::class, 'getPaymentHistoriesByOwner']);
+    Route::get('/get/tenant', [PaymentHistoryController::class, 'getPaymentHistoriesByTenant']);
+    Route::get('/get/tenants-history', [PaymentHistoryController::class, 'getTenantsforHistory']);
+    Route::get('/get/unpaid-invoices', [PaymentHistoryController::class, 'getUnpaidInvoices']);
 });
