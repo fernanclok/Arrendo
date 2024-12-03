@@ -190,7 +190,7 @@ import { Head, usePage } from '@inertiajs/vue3';
                                     <div class="flex items-center justify-between mb-4">
                                         <h3 class="text-2xl font-bold leading-6" id="modal-title">
                                             {{ selectedProperty.colony }} {{ selectedProperty.street }}, {{
-                                            selectedProperty.number }}
+                                                selectedProperty.number }}
                                         </h3>
                                         <button @click="showDetails = false"
                                             class="text-gray-400 transition-colors duration-200 hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
@@ -425,6 +425,23 @@ export default {
                 }
             }
         },
+
+        // Send notification to user
+        async sendNotification(senderId, receiverId, notificationType, message) {
+            try {
+                await axios.post('/api/notifications', {
+                    sender_id: senderId,
+                    receiver_id: receiverId,
+                    notification_type: notificationType,
+                    message: message,
+                    sent_date: new Date().toISOString(), // Fecha actual en formato ISO
+                    read_status: false, // Estado inicial como no leído
+                });
+            } catch (error) {
+                console.error('Error sending notification:', error);
+            }
+        },
+
         checkUserAppointment() {
             this.hasAppointment = this.selectedProperty.appointments.some(appointment => {
                 return appointment.user.id === this.user.id && appointment.appointment_status !== 'Rejected' && appointment.appointment_status !== 'Cancelled';
@@ -508,6 +525,12 @@ export default {
                         message: `Appointment requested successfully! Check the status in <a href="/appointments" class="text-green-700 underline">Appointments</a>.`,
                         type: 'success'
                     });
+                    this.sendNotification(
+                        this.user.id,
+                        this.selectedProperty.owner_user_id,
+                        "ApplicationApproved",
+                        `Your application for the property at ${this.selectedProperty.street} has been approved.`
+                    );
                 })
                 .catch(error => {
                     console.error("Error applying to listing:", error.response?.data || error);
