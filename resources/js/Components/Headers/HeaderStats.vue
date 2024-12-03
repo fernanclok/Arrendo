@@ -1,13 +1,10 @@
-<template>
-    <div class="relative bg-primary md:pt-10 pb-32 pt-12">
+<template> <!-- Header Section -->
+    <div class="p-2">
+            <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
+          </div>
+    <div class="relative bg-primary ml-3 md:pt-10 pb-32 pt-12">
         <div class="px-4 md:px-10 mx-auto w-full sm:mt-10 xs:mt-10">
-            <!-- Header Section -->
-            <div class="flex justify-between items-center">
-                <!-- Dashboard Title -->
-                <p class="text-white text-sm uppercase font-semibold p-4">
-                    Dashboard
-                </p>
-            </div>
+
 
             <!-- Cards Section -->
             <div>

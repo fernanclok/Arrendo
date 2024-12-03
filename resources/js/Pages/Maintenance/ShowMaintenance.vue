@@ -94,10 +94,12 @@ const handleRequestCreated = async () => {
 </script>
 
 <template>
+<Head title="Maintenance Requests" />
     <DashboardLayout>
-        <Head title="Maintenance Requests" />
+        <div class="p-2">
+            <h1 class="text-3xl font-bold text-gray-800">Your Maintenance Requests Tenant</h1>
+          </div>
         <section class="p-8">
-            <h1 class="text-2xl font-bold mb-4">Your Maintenance Requests Tenant</h1>
             <!-- Botón para nueva solicitud -->
             <div class="flex justify-end mb-7">
                 <CustomButton @click="openCreateModal">

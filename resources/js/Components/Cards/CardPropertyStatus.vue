@@ -120,10 +120,10 @@
         <!-- Pagination Controls -->
         <div class="px-4 py-3 flex justify-between items-center">
             <button @click="previousPage" :disabled="currentPage <= 1"
-                class="bg-indigo-500 text-white px-3 py-1 rounded">Previous</button>
+                class="bg-primary text-white px-3 py-1 rounded">Previous</button>
             <span>Page {{ currentPage }} of {{ totalPages }}</span>
             <button @click="nextPage" :disabled="currentPage >= totalPages"
-                class="bg-indigo-500 text-white px-3 py-1 rounded">Next</button>
+                class="bg-primary text-white px-3 py-1 rounded">Next</button>
         </div>
     </div>
 
