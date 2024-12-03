@@ -29,6 +29,17 @@ class Property extends Model
         'property_photos_path',
         'owner_user_id',
         'zone_id',
+
+        'colony', 
+        'half_bathrooms', 
+        'surface_built', 
+        'total_surface', 
+        'antiquity', 
+        'maintenance', 
+        'state_conservation', 
+        'wineries', 
+        'closets', 
+        'levels', 
     ];
 
     public function ownerUser()
@@ -44,6 +55,11 @@ class Property extends Model
     public function zone()
     {
         return $this->belongsTo(Zone::class, 'zone_id');
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class, 'property_id');
     }
 
     public function validateAvailability(array $attributes)

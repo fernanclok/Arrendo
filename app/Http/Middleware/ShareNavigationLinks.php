@@ -15,23 +15,28 @@ class ShareNavigationLinks
             $allowedRoutes = [
                 'Owner' => [
                     ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'monitor-dashboard'],
-                    ['route' => 'contracts', 'label' => 'contracts', 'icon' => 'file'],
-                    ['route' => 'appointments', 'label' => 'Appointments', 'icon' => 'calendar'],
                     ['route' => 'myProperties', 'label' => 'My Properties', 'icon' => 'home'],
-                    ['route' => 'EvaluateRequest', 'label' => 'Request', 'icon' => 'account-question']
+                    ['route' => 'appointmentRequest', 'label' => 'Appointments', 'icon' => 'calendar'],
+                    ['route' => 'EvaluateRequest', 'label' => 'Request', 'icon' => 'account-question'],
+                    ['route' => 'AllContracts', 'label' => 'contracts', 'icon' => 'file'],
+                    ['route' => 'invoices', 'label' => 'Invoices', 'icon' => 'receipt-text'],
+                    ['route' => 'paymentHistory', 'label' => 'Payment History', 'icon' => 'cash'],
+                    ['route' => 'maintenanceOwner', 'label' => 'Maintenance', 'icon' => 'hammer-wrench'],
                 ],
                 'Tenant' => [
                     ['route' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'monitor-dashboard'],
                     ['route' => 'searchProperties', 'label' => 'Properties', 'icon' => 'home'],
                     ['route' => 'appointments', 'label' => 'Appointments', 'icon' => 'calendar'],
-                    ['route' => 'maintenance','label' => 'Maintenance','icon'=> 'hammer-wrench'],
-                    ['route' => 'TrackRequest', 'label' => 'Request', 'icon' => 'account-question'],
-                    ['route' => 'tenantRequest', 'label' => 'My Properties', 'icon' => 'application-edit'],
+                    ['route' => 'TrackRequest', 'label' => 'Applications', 'icon' => 'account-question'],
+                    ['route' => 'TenantContracts', 'label' => 'contracts', 'icon' => 'file'],
+                    ['route' => 'myInvoices', 'label' => 'My Invoices', 'icon' => 'receipt-text-clock-outline'],
+                    ['route' => 'tenantPaymentHistory', 'label' => 'Payment History', 'icon' => 'cash'],
+                    ['route' => 'maintenance', 'label' => 'Maintenance', 'icon' => 'hammer-wrench'],
                 ],
             ];
 
             $userRole = Auth::user() ? Auth::user()->role : null;
-           
+
 
             // Si el usuario es un administrador o superadministrador, devolver todas las rutas
             if (in_array($userRole, ['admin', 'superadmin'])) {

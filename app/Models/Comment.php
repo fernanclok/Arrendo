@@ -11,7 +11,18 @@ class Comment extends Model
 
     protected $fillable = [
         'comment',
-        'comment_calification',
+        'comment_rate',
         'property_id',
+        'user_id' //add this field
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function property()
+    {
+        return $this->belongsTo(Property::class);
+    }
 }

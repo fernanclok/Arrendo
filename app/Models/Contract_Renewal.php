@@ -11,6 +11,8 @@ class Contract_renewal extends Model
 {
     use HasFactory;
 
+    protected $table = 'contracts_renewals';
+
     protected $fillable = [
         'contract_id',
         'renewal_start_date',

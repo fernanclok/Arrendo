@@ -4,71 +4,6 @@ import TextInput from '@/Components/TextInput.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import axios from 'axios';
 import { ref } from 'vue';
-
-// Datos falsos para las propiedades
-// const properties = ref([
-//     {
-//         id: 1,
-//         title: 'Beautiful Family House',
-//         description: 'A beautiful house located in a serene environment.',
-//         price: 1200,
-//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-//         address: '123 Main St',
-//         rooms: 3,
-//         bathrooms: 2,
-//     },
-//     {
-//         id: 2,
-//         title: 'Modern Apartment',
-//         description: 'A modern apartment with all the amenities you need.',
-//         price: 900,
-//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-//         address: '456 Elm St',
-//         rooms: 2,
-//         bathrooms: 1,
-//     },
-//     {
-//         id: 3,
-//         title: 'Cozy Cottage',
-//         description: 'A cozy cottage perfect for a small family.',
-//         price: 700,
-//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-//         address: '789 Oak St',
-//         rooms: 2,
-//         bathrooms: 1,
-//     },
-//     {
-//         id: 4,
-//         title: 'Cozy Cottage',
-//         description: 'A cozy cottage perfect for a small family.',
-//         price: 700,
-//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-//         address: '789 Oak St',
-//         rooms: 2,
-//         bathrooms: 1,
-//     },
-//     {
-//         id: 5,
-//         title: 'Cozy Cottage',
-//         description: 'A cozy cottage perfect for a small family.',
-//         price: 700,
-//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-//         address: '789 Oak St',
-//         rooms: 2,
-//         bathrooms: 1,
-//     },
-//     {
-//         id: 6,
-//         title: 'Cozy Cottage',
-//         description: 'A cozy cottage perfect for a small family.',
-//         price: 700,
-//         image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtRykGihh_JvnEOQvO6I7yMkN3T45h2LhDw&s',
-//         address: '789 Oak St',
-//         rooms: 2,
-//         bathrooms: 1,
-//     },
-// ]);
-
 </script>
 
 <template>
@@ -87,15 +22,12 @@ import { ref } from 'vue';
                             class="text-sm font-medium hover:underline">
                         {{ item.label }}
                         </Link>
+                        <a class="text-sm font-medium hover:underline">Contact Us</a>
                     </nav>
 
                     <div class="flex items-center space-x-2">
-                        <Link href="registro-propiedad"
-                            class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-white text-gray-800 hover:bg-gray-100 focus:bg-gray-100 active:bg-gray-200 focus:ring-gray-300">
-                        Publicar
-                        </Link>
                         <Link href="/login"
-                            class="inline-flex items-center px-3 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-primary text-white hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:ring-blue-500">
+                            class="inline-flex items-center px-3 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-primary text-white hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:ring-green-500">
                         Log In
                         </Link>
                     </div>
@@ -109,6 +41,7 @@ import { ref } from 'vue';
             <div :class="{ 'w-full': !showDetails, 'w-full md:w-3/4': showDetails }" class="p-4 h-full overflow-y-auto">
                 <h1 class="text-3xl font-bold mb-6">Properties in Rent</h1>
                 <div class="mb-6">
+                    
                     <div class="flex gap-2 mt-1">
                         <select id="zoneSelect" v-model="propertiesSpecifications.selectedZone"
                             class="flex-[3] px-3 py-2 border-gray-300 focus:border-green-700 focus:ring-green-700 rounded-md shadow-sm">
@@ -118,13 +51,13 @@ import { ref } from 'vue';
 
                         <div class="flex-[2] flex flex-col space-y-1">
                             <div class="text-sm font-medium text-gray-600">
-                                <b>Maximum Price:</b> {{ displayPrice }}
+                                <b>Maximum Price:</b> {{ displayPrice }} $MXN
                             </div>
                             <input type="range" v-model="selectedPrice" :min="0" :max="priceOptions.length - 1" step="1"
                                 class="w-full focus:ring-green-500" />
                             <div class="flex justify-between text-sm text-gray-500">
                                 <span v-for="(price, index) in priceOptions" :key="index">
-                                    {{ price }}
+                                    {{ price }} 
                                 </span>
                             </div>
                         </div>
@@ -134,6 +67,9 @@ import { ref } from 'vue';
                         </CustomButton>
                         <CustomButton v-else @click="toggleFilters" type="primary" class="py-2 ml-2">
                             Hide Filters
+                        </CustomButton>
+                        <CustomButton @click="refreshFilters" type="primary" class="py-2 w-32">
+                            <i class="mdi mdi-refresh mr-2"></i> REFRESH FILTERS 
                         </CustomButton>
                     </div>
 
@@ -175,9 +111,6 @@ import { ref } from 'vue';
                                     </div>
 
                                     <div class="col-span-1 flex flex-col items-center justify-center space-y-4">
-                                        <CustomButton @click="refreshFilters" type="primary" class="py-2 w-32">
-                                            <i class="mdi mdi-refresh mr-2"></i> REFRESH
-                                        </CustomButton>
                                         <CustomButton @click="filterProperties" type="primary" class="py-2 w-32">
                                             <i class="mdi mdi-magnify mr-2"></i> SEARCH
                                         </CustomButton>
@@ -188,6 +121,14 @@ import { ref } from 'vue';
                     </transition>
                 </div>
 
+                <div v-if="!hasInitialFilterChanged">
+                    <div class="bg-white shadow-md rounded-lg overflow-hidden h-full md:h-auto transform transition duration-300 mb-6">
+                        <div class="p-2 text-center">
+                            <h2 class="text-xl font-bold mb-2">No filters applied</h2>
+                            <p class="text-gray-600 mb-2">You are currently watching all the properties.</p>
+                        </div>
+                    </div>
+                </div>
                 <!-- Sección de tarjetas de propiedades con scroll interno en móviles -->
                 <div
                     class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 h-full overflow-y-auto md:h-auto md:overflow-visible">
@@ -200,40 +141,40 @@ import { ref } from 'vue';
                             class="w-full h-48 object-cover" v-if="property.property_photos_path.length" />
                         <div class="p-4">
                             <h2 class="text-xl font-bold mb-2">{{ property.zone_name }}</h2>
-                            <p class="text-gray-600 mb-2">{{ property.city }} {{ property.state }} , {{ property.street
-                                }}, {{ property.number }}</p>
+                            <p class="text-gray-600 mb-2">{{ property.city }}, {{ property.state }} , 
+                                {{ property.colony }} {{ property.street}} {{ property.number }}</p>
                             <div class="flex justify-between items-center mb-2">
                                 <span class="flex items-center">
                                     <!-- SVG Icon for rooms -->
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8 10h.01M12 10h.01M16 10h.01M9 16h6M4 6h16M4 6a2 2 0 012-2h12a2 2 0 012 2M4 6v12a2 2 0 002 2h12a2 2 0 002-2V6">
-                                        </path>
-                                    </svg>
+                                    <icon class="mdi mdi-bed mr-2"></icon>
                                     {{ property.total_rooms }} rooms
                                 </span>
-                                <span class="flex items-center">
+                                <span v-if="property.half_bathrooms > 0" class="flex items-center">
                                     <!-- SVG Icon for bathrooms -->
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8c-1.657 0-3 1.343-3 3v4h6v-4c0-1.657-1.343-3-3-3zM5 20h14a2 2 0 002-2v-5a2 2 0 00-2-2H5a2 2 0 00-2 2v5a2 2 0 002 2z">
-                                        </path>
-                                    </svg>
+                                    <icon class="mdi mdi-toilet mr-2"></icon>{{ property.total_bathrooms }} bathrooms +
+                                    {{ property.half_bathrooms }} (<icon class="mdi mdi-fraction-one-half mr-1">)</icon>
+                                </span>
+                                <span v-else class="flex items-center">
+                                    <!-- SVG Icon for bathrooms -->
+                                    <icon class="mdi mdi-toilet mr-2"></icon>
                                     {{ property.total_bathrooms }} bathrooms
+                                </span>
+                                <span v-if="property.rental_rate != null" class="flex items-center">
+                                    <!-- SVG Icon for bathrooms -->
+                                    <icon class="mdi mdi-star mr-2"></icon>
+                                    {{ property.rental_rate }} 
+                                </span>
+                                <span v-else class="flex items-center">
+                                    <!-- SVG Icon for bathrooms -->
+                                    <icon class="mdi mdi-star mr-2"></icon>
+                                    No rated yet
                                 </span>
                             </div>
                         </div>
                         <div class="bg-gray-100 px-4 py-3 flex justify-between items-center">
                             <span class="text-lg font-bold flex items-center">
-                                <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8c-1.657 0-3 1.343-3 3v4h6v-4c0-1.657-1.343-3-3-3zM5 20h14a2 2 0 002-2v-5a2 2 0 00-2-2H5a2 2 0 00-2 2v5a2 2 0 002 2z">
-                                    </path>
-                                </svg>
-                                ${{ property.property_price }}
+                                <icon class="mdi mdi-cash mr-2"></icon>
+                                {{ property.property_price }} $MXN
                             </span>
                             <CustomButton v-if="property.id != activePropertyId" type="primary"
                                 @click="toggleDetails(property.id)">
@@ -244,47 +185,130 @@ import { ref } from 'vue';
                             </CustomButton>
                         </div>
                     </div>
-                    <div v-else class="text-center text-gray-500 col-span-3">
+                    <div v-else class="text-center text-gray-500 col-span-3 mt-60">
                         <p>No properties found with the applied filters.</p>
                     </div>
                 </div>
             </div>
 
-            <div class="absolute top-0 right-0 h-full w-full md:w-1/4 bg-gray-100 p-4 overflow-y-auto transition-transform duration-300 transform"
-                :class="{ 'translate-x-full': !showDetails, 'translate-x-0': showDetails }">
-                <!-- Encabezado principal -->
-                <h2 class="text-2xl font-bold mb-4">{{ selectedProperty.street }}, {{ selectedProperty.number }}</h2>
-                <p class="text-gray-600">
-                    Zona: {{ selectedProperty.zone_name }}, {{ selectedProperty.city }}, {{ selectedProperty.state }} -
-                    CP {{ selectedProperty.postal_code }}
-                </p>
+            <div v-if="showDetails" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title"
+                role="dialog" aria-modal="true">
+                <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+                    <div class="fixed inset-0 transition-opacity bg-black bg-opacity-50 backdrop-blur-sm"
+                        aria-hidden="true" @click="showDetails = false"></div>
 
-                <!-- Especificaciones clave -->
-                <div class="mt-4">
-                    <p><strong>Precio:</strong> ${{ selectedProperty.property_price }}</p>
-                    <p><strong>Habitaciones:</strong> {{ selectedProperty.total_rooms }}</p>
-                    <p><strong>Baños:</strong> {{ selectedProperty.total_bathrooms }}</p>
-                    <p><strong>Metros cuadrados:</strong> {{ selectedProperty.total_m2 }}</p>
-                    <p><strong>Estacionamiento:</strong> {{ selectedProperty.have_parking ? "Sí" : "No" }}</p>
-                    <p><strong>Acepta mascotas:</strong> {{ selectedProperty.accept_mascots ? "Sí" : "No" }}</p>
-                </div>
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-                <!-- Detalles adicionales -->
-                <div class="mt-4">
-                    <h3 class="text-lg font-bold">Detalles:</h3>
-                    <p class="text-gray-700">{{ selectedProperty.property_details }}</p>
-                </div>
+                    <div
+                        class="inline-block w-full max-w-4xl overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-2xl sm:my-8 sm:align-middle sm:w-full animate-modal-appear">
+                        <div class="px-4 pt-5 pb-4 bg-opacity-30 sm:p-6 sm:pb-4">
+                            <div class="sm:flex sm:items-start">
+                                <div class="w-full mt-3 text-center sm:mt-0 sm:text-left">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <h3 class="text-2xl font-bold leading-6" id="modal-title">
+                                           {{ selectedProperty.colony }} {{ selectedProperty.street }}, {{ selectedProperty.number }}
+                                        </h3>
+                                        <button @click="showDetails = false"
+                                            class="text-gray-400 transition-colors duration-200 hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                                            <span class="sr-only">Close</span>
+                                            <i class="text-2xl mdi mdi-close" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                    <p class="mb-4 text-sm text-gray-500">
+                                        <i class="mr-2 mdi mdi-map-marker"></i>
+                                        {{ selectedProperty.zone_name }}, {{ selectedProperty.city }}, {{
+                                            selectedProperty.state }} - CP {{ selectedProperty.postal_code }}
+                                    </p>
 
-                <!-- Galería de fotos -->
-                <div v-if="selectedProperty.property_photos_path" class="mt-4">
-                    <h3 class="text-lg font-bold">Fotos:</h3>
-                    <img v-for="(url, key) in selectedProperty.property_photos_path" :key="key" :src="url"
-                        alt="Property photo" class="w-full h-auto mb-2 rounded" />
-                </div>
+                                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                        <div class="p-4 rounded-lg">
+                                            <h4 class="mb-2 text-lg font-semibold">Key Specifications</h4>
+                                            <ul class="space-y-2">
+                                                <li><i class="mr-2 mdi mdi-currency-usd"></i><strong
+                                                        class="text-gray-500">Price:</strong> {{
+                                                            selectedProperty.property_price }} MXN$</li>
+                                                <li><i class="mr-2 mdi mdi-bed"></i><strong
+                                                        class="text-gray-500">Rooms:</strong> {{
+                                                            selectedProperty.total_rooms }}</li>
+                                                <li><i class="mr-2 mdi mdi-shower"></i><strong
+                                                        class="text-gray-500">Bathrooms:</strong> {{
+                                                            selectedProperty.total_bathrooms }}</li>
+                                                <li><i class="mr-2 mdi mdi-fraction-one-half"></i><strong
+                                                        class="text-gray-500">Half bathrooms:</strong> {{
+                                                            selectedProperty.half_bathrooms }}</li>
+                                                <li><i class="mr-2 mdi mdi-ruler"></i><strong
+                                                        class="text-gray-500">Square Meters:</strong> {{
+                                                            selectedProperty.total_m2 }}</li>
+                                                <li><i class="mr-2 mdi mdi-car"></i><strong
+                                                        class="text-gray-500">Parking:</strong> {{
+                                                            selectedProperty.have_parking ? "Yes" : "No" }}</li>
+                                                <li><i class="mr-2 mdi mdi-paw"></i><strong class="text-gray-500">Pets
+                                                        Allowed:</strong> {{
+                                                            selectedProperty.accept_mascots ? "Yes" : "No" }}</li>
+                                            </ul>
+                                        </div>
+                                        <div class="p-4 rounded-lg">
+                                            <h4 class="mb-2 text-lg font-semibold">Details</h4>
+                                            <p class="text-gray-500">{{ selectedProperty.property_details }}</p>
+                                            <div class=" mt-1 mb-4">
+                                                <h3 class="text-lg font-semibold text-gray-700 mb-2">Comments ({{ selectedProperty.comments.length }})</h3>
+                                                <div v-if="selectedProperty.comments && selectedProperty.comments.length > 0" class="space-y-4 overflow-y-auto max-h-40">
+                                                    <div 
+                                                        v-for="comment in [...selectedProperty.comments].reverse()" 
+                                                        :key="comment.id" 
+                                                        class="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm"
+                                                    >
+                                                        <div class="flex items-center justify-between mb-2">
+                                                            <span class="text-sm text-gray-500">{{ new Date(comment.created_at).toLocaleDateString() }}</span>
+                                                            <div class="flex">
+                                                                <icon 
+                                                                    v-for="n in 5" 
+                                                                    :key="n"
+                                                                    :class="n <= comment.comment_rate ? 'mdi mdi-star' : 'mdi mdi-star-outline'" 
+                                                                    class="text-yellow-500 text-lg"
+                                                                ></icon>
+                                                            </div>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <p class="text-gray-700 font-medium">{{ comment.user.first_name }} {{ comment.user.last_name }}</p>
+                                                        </div>
+                                                        <p class="text-gray-600 whitespace-normal break-words">{{ comment.comment }}</p>
+                                                    </div>
+                                                </div>
+                                                <div v-else class="text-gray-500 text-center mt-4">
+                                                    <p>No comments found for this property.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                <!-- Botones -->
-                <div class="mt-4 flex justify-between">
-                    <CustomButton @click="showDetails = false">Close</CustomButton>
+                                    <div v-if="selectedProperty.property_photos_path" class="mb-6">
+                                        <h4 class="mb-2 text-lg font-semibold">Photos</h4>
+                                        <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+                                            <div v-for="(url, key) in selectedProperty.property_photos_path" :key="key"
+                                                class="relative overflow-hidden rounded-lg group aspect-w-16 aspect-h-9">
+                                                <img :src="url" :alt="`Property photo ${key + 1}`"
+                                                    class="object-cover w-full h-full transition-transform duration-300 transform group-hover:scale-110" />
+                                                <div
+                                                    class="absolute inset-0 transition-opacity duration-300 bg-black bg-opacity-0 group-hover:bg-opacity-50">
+                                                </div>
+                                                <div
+                                                    class="absolute inset-0 flex items-center justify-center transition-opacity duration-300 opacity-0 group-hover:opacity-100">
+                                                    <i class="text-3xl text-white mdi mdi-magnify"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-4 py-3 bg-gray-200 bg-opacity-50 sm:px-6 sm:flex sm:flex-row-reverse">
+                            <Link href="/login"
+                            class="inline-flex items-center px-3 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-primary text-white hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:ring-green-500">
+                        Log In to Schedule a Visit
+                        </Link>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -330,19 +354,18 @@ import { ref } from 'vue';
 <script>
 const navItems = [
     { href: '/', label: 'Home' },
-    { href: '/properties', label: 'Properties' },
-    { href: '/propietarios', label: 'Para propietarios' },
-    { href: '/contact', label: 'Contact' },
+    { href: '/properties', label: 'Properties' }
 ]
 
 export default {
     data() {
         return {
+            hasInitialFilterChanged: false,
             showDetails: false,
             showFilters: false,
             activePropertyId: null,
             priceOptions: ["5000", "7000", "10000", "+10000"],
-            selectedPrice: 0,
+            selectedPrice: 3,
             isRefreshing: false,
             selectedProperty: {},
             properties: [],
@@ -399,6 +422,8 @@ export default {
                 });
         },
         filterProperties() {
+            this.hasInitialFilterChanged = true;
+
             var selectedZoneName = this.zones.find(zone => zone.id == this.propertiesSpecifications.selectedZone);
 
             var filters = {
@@ -429,12 +454,13 @@ export default {
                 allowPets: false,
                 parking: false,
             };
-            this.selectedPrice = 0;
+            this.selectedPrice = 3;
 
             this.getProperties();
 
             setTimeout(() => {
                 this.isRefreshing = false;
+                this.hasInitialFilterChanged = false;
             }, 0); 
         },
     },
@@ -446,11 +472,13 @@ export default {
         },
         selectedPrice(newVal) {
             if (!this.isRefreshing) {
+                this.hasInitialFilterChanged = true;
                 this.filterProperties();
             }
         },
         'propertiesSpecifications.selectedZone': function() {
             if (!this.isRefreshing) {
+                this.hasInitialFilterChanged = true;
                 this.filterProperties();
             }
         },

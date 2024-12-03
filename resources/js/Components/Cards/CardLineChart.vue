@@ -20,6 +20,7 @@
         </div>
     </div>
 </template>
+
 <script>
 import { Chart } from "chart.js/auto";
 
@@ -30,49 +31,34 @@ export default {
             required: true,
         },
     },
+    data() {
+        return {
+            chart: null, // Referencia al gráfico
+        };
+    },
+    watch: {
+        // Observar cambios en los datos
+        monthlyIncome: {
+            handler() {
+                this.updateChart();
+            },
+            deep: true,
+        },
+    },
     mounted() {
         this.$nextTick(() => {
-            // Etiquetas de los meses (siempre estarán en este orden)
-            const monthNames = [
-                "January", "February", "March", "April",
-                "May", "June", "July", "August",
-                "September", "October", "November", "December",
-            ];
+            this.renderChart(); // Renderizar el gráfico inicialmente
+        });
+    },
+    methods: {
+        renderChart() {
+            const { previousYearData, currentYearData, monthNames, previousYear, currentYear } =
+                this.prepareChartData();
 
-            // Crear una estructura base de datos para asegurarnos de que todos los meses estén presentes
-            const currentYear = new Date().getFullYear();
-            const previousYear = currentYear - 1;
-
-            const baseData = (year) => monthNames.map((_, index) => ({
-                year: year,
-                month: index + 1, // 1 = January, 2 = February...
-                total_income: 0, // Valor por defecto
-            }));
-
-            // Combinar los datos base con los datos del backend
-            const completeData = [...baseData(previousYear), ...baseData(currentYear)];
-
-            this.monthlyIncome.forEach(item => {
-                const match = completeData.find(data => data.year === item.year && data.month === item.month);
-                if (match) {
-                    match.total_income = item.total_income; // Actualizar con el dato real
-                }
-            });
-
-            // Separar datos por año
-            const previousYearData = completeData
-                .filter(item => item.year === previousYear)
-                .map(item => item.total_income);
-
-            const currentYearData = completeData
-                .filter(item => item.year === currentYear)
-                .map(item => item.total_income);
-
-            // Configurar el gráfico
             const config = {
                 type: "line",
                 data: {
-                    labels: monthNames, // Siempre de enero a diciembre
+                    labels: monthNames,
                     datasets: [
                         {
                             label: previousYear,
@@ -120,11 +106,57 @@ export default {
                 },
             };
 
-            // Crear el gráfico
             const ctx = document.getElementById("line-chart").getContext("2d");
-            window.myLine = new Chart(ctx, config);
-        });
+            this.chart = new Chart(ctx, config);
+        },
+        updateChart() {
+            if (this.chart) {
+                const { previousYearData, currentYearData } = this.prepareChartData();
+                this.chart.data.datasets[0].data = previousYearData;
+                this.chart.data.datasets[1].data = currentYearData;
+                this.chart.update(); // Actualizar el gráfico
+            }
+        },
+        prepareChartData() {
+            const monthNames = [
+                "January", "February", "March", "April",
+                "May", "June", "July", "August",
+                "September", "October", "November", "December",
+            ];
+
+            const currentYear = new Date().getFullYear();
+            const previousYear = currentYear - 1;
+
+            const baseData = (year) =>
+                monthNames.map((_, index) => ({
+                    year: year,
+                    month: index + 1,
+                    total_income: 0,
+                }));
+
+            const completeData = [...baseData(previousYear), ...baseData(currentYear)];
+
+            this.monthlyIncome.forEach((item) => {
+                const match = completeData.find(
+                    (data) =>
+                        Number(data.year) === Number(item.year) &&
+                        Number(data.month) === Number(item.month)
+                );
+                if (match) {
+                    match.total_income = item.total_income;
+                }
+            });
+
+            const previousYearData = completeData
+                .filter((item) => item.year === previousYear)
+                .map((item) => item.total_income);
+
+            const currentYearData = completeData
+                .filter((item) => item.year === currentYear)
+                .map((item) => item.total_income);
+
+            return { previousYearData, currentYearData, monthNames, previousYear, currentYear };
+        },
     },
 };
-
 </script>

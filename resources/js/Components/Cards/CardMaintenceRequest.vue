@@ -8,11 +8,11 @@
                     </h3>
                 </div>
                 <div class="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
-                    <button
-                        class="bg-indigo-500 text-white active:bg-indigo-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                        type="button">
+                    <Link
+                        href="/maintenanceOwner"
+                        class="bg-indigo-500 text-white active:bg-indigo-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150">
                         See all
-                    </button>
+                    </Link>
                 </div>
             </div>
         </div>
@@ -34,42 +34,49 @@
                             Priority
                         </th>
                         <th
-                            class="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left min-w-140-px">
-                            Status</th>
+                            class="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                            Status
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="request in maintenanceRequests" :key="request.property">
                         <th
                             class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left">
-                            {{ request.id }}
+                            {{ request.property_id }}
                         </th>
                         <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                             {{ request.report_date }}
                         </td>
                         <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                            {{ request.priority }}
+                            <span :class="getUrgencyClasses(request.priority)">
+                                <i class="mdi" :class="getUrgencyIcon(request.priority)"></i>
+                                {{ request.priority }}
+                            </span>
                         </td>
                         <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                             <span v-if="request.status" :class="getPaymentStatusClasses(request.status)">
-                                <i class="fas" :class="getPaymentIcon(request.status)"></i>
+                                <i class="mdi" :class="getPaymentIcon(request.status)"></i>
                                 {{ request.status }}
                             </span>
                         </td>
                     </tr>
                 </tbody>
-
             </table>
         </div>
     </div>
 </template>
 
-
 <script>
+import { Link } from "@inertiajs/vue3";
+
 export default {
-        props: {
-            maintenanceRequests: Array,
-        },
+    props: {
+        maintenanceRequests: Array,
+    },
+    components: {
+        Link,
+    },
 
     methods: {
         getPaymentStatusClasses(status) {
@@ -89,15 +96,38 @@ export default {
         getPaymentIcon(status) {
             switch (status) {
                 case "Resolved":
-                    return "fa-check-circle";
+                    return "mdi-check-circle";
                 case "In Progress":
-                    return "fa-spinner fa-spin";
+                    return "mdi-refresh";
                 case "Pending":
-                    return "fa-hourglass-half";
+                    return "mdi-timer-sand-paused";
+                default:
+                    return "";
+            }
+        },
+
+        getUrgencyClasses(urgency) {
+            const baseClasses = "px-2 py-1 text-xs rounded-full flex items-center gap-1 ";
+            switch (urgency) {
+                case "High":
+                    return baseClasses + "bg-red-100 text-red-800";
+                case "Medium":
+                    return baseClasses + "bg-blue-100 text-blue-800";
+                default:
+                    return baseClasses + "bg-gray-100 text-gray-800";
+            }
+        },
+
+        getUrgencyIcon(urgency) {
+            switch (urgency) {
+                case "High":
+                    return "mdi-alert-circle";
+                case "Medium":
+                    return "mdi-information-outline";
                 default:
                     return "";
             }
         }
-    }
+    },
 };
 </script>

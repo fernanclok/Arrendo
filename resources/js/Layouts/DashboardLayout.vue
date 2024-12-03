@@ -4,6 +4,7 @@ import { ref, onMounted, watch } from 'vue';
 import NavLink from "@/Components/NavLink.vue";
 import DropdownLink from "@/Components/DropdownLink.vue";
 import NotificationCard from "@/Components/NotificationCard.vue";
+import NotificationDropdown from "@/Components/Dropdowns/NotificationDropdown.vue";
 
 
 const { props } = usePage();
@@ -105,6 +106,12 @@ watch(isSidebarOpen, (newValue) => {
                     </svg>
                 </button>
             </div>
+
+            <!-- Notifications -->
+            <div class="absolute right-10 top-6">
+                <NotificationDropdown :auth="props.auth" />
+            </div>
+
             <div>
                 <header class="bg-white shadow" v-if="$slots.header">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">

@@ -5,6 +5,7 @@ import CustomButton from '@/Components/CustomButton.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import InputError from '@/Components/InputError.vue';
+import { ref } from 'vue';
 </script>
 
 <template>
@@ -24,114 +25,254 @@ import InputError from '@/Components/InputError.vue';
                             </CustomButton>
                         </div>
 
-                        <div v-if="isAddingProperty" class="mb-6 bg-gray-100 p-4 rounded-lg">
-                            <h2 class="text-lg font-semibold mb-4">Add New Property</h2>
-                            <form @submit.prevent="handleCreateProperty" class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <InputLabel for="street" value="Street" />
-                                    <TextInput type="text" id="street" v-model="newProperty.street" required
-                                        class="mt-1 block w-full mx-auto" />
-                                    <InputError class="mt-2" :message="newProperty.errors.street" />
+                        <div v-if="isAddingProperty" class="mb-6 bg-gray-100 p-4 rounded-lg min-h-screen flex flex-col items-center justify-center">
+                                <!-- Stepper Header -->
+                                <div class="w-full max-w-4xl mb-6">
+                                <div class="flex justify-between">
+                                    <span :class="['step', { 'text-primary font-bold': currentStep === 1 }]">Main information</span>
+                                    <span :class="['step', { 'text-primary font-bold': currentStep === 2 }]">Pictures</span>
+                                    <span :class="['step', { 'text-primary font-bold': currentStep === 3 }]">Extras</span>
                                 </div>
-                                <div>
-                                    <InputLabel for="number" value="Number" />
-                                    <TextInput type="text" id="number" v-model="newProperty.number" required
-                                        class="mt-1 block w-full mx-auto" />
-                                    <InputError class="mt-2" :message="newProperty.errors.number" />
+                                <div class="h-1 bg-gray-200 my-2">
+                                    <div class="h-1 bg-primary" :style="{ width: (currentStep / 3) * 100 + '%' }"></div>
                                 </div>
-                                <div>
-                                    <InputLabel for="city" value="City" />
-                                    <TextInput type="text" id="city" v-model="newProperty.city" required
-                                        class="mt-1 block w-full mx-auto" />
-                                    <InputError class="mt-2" :message="newProperty.errors.city" />
                                 </div>
-                                <div>
-                                    <InputLabel for="state" value="State" />
-                                    <TextInput type="text" id="state" v-model="newProperty.state" required
-                                        class="mt-1 block w-full mx-auto" />
-                                    <InputError class="mt-2" :message="newProperty.errors.state" />
+                            <!---<h2 class="text-lg font-semibold mb-4">Add New Property</h2>-->
+                            <form @submit.prevent="handleCreateProperty" class="grid gap-8 w-full max-w-4xl">
+
+                                <!-- Paso 1 -->
+                                <div v-if="currentStep === 1" class="bg-white rounded-lg shadow-md p-6 w-full max-w-4xl">
+                                    <h2 class="text-3xl font-semibold text-gray-800 mb-4 text-center">¡Let’s start creating your post!</h2>
+                                    <p class="text-gray-600 text-center mb-6">
+                                        Complete your property information step by step.
+                                    </p>
+                                
+                                    <div>
+                                        <InputLabel for="street" value="Street" />
+                                        <TextInput type="text" id="street" v-model="newProperty.street" required
+                                            class="mt-1 block w-full mx-auto" />
+                                        <InputError class="mt-2" :message="newProperty.errors.street" />
+                                    </div>
+                                    <div>
+                                        <InputLabel for="number" value="Number" />
+                                        <TextInput type="text" id="number" v-model="newProperty.number" required
+                                            class="mt-1 block w-full mx-auto" />
+                                        <InputError class="mt-2" :message="newProperty.errors.number" />
+                                    </div>
+                                    <div>
+                                        <InputLabel for="colony" value="Colony" />
+                                        <TextInput type="text" id="colony" v-model="newProperty.colony" 
+                                            class="mt-1 block w-full mx-auto" />
+                                        <InputError class="mt-2" :message="newProperty.errors.colony" />
+                                    </div>
+                                    <div>
+                                        <InputLabel for="city" value="City" />
+                                        <TextInput type="text" id="city" v-model="newProperty.city" required
+                                            class="mt-1 block w-full mx-auto" />
+                                        <InputError class="mt-2" :message="newProperty.errors.city" />
+                                    </div>
+                                    <div>
+                                        <InputLabel for="state" value="State" />
+                                        <TextInput type="text" id="state" v-model="newProperty.state" required
+                                            class="mt-1 block w-full mx-auto" />
+                                        <InputError class="mt-2" :message="newProperty.errors.state" />
+                                    </div>
+                                    <div>
+                                        <InputLabel for="postal_code" value="Postal Code" />
+                                        <TextInput type="text" id="postal_code" v-model="newProperty.postal_code" required
+                                            class="mt-1 block w-full mx-auto" />
+                                        <InputError class="mt-2" :message="newProperty.errors.postal_code" />
+                                    </div>
+                                    <div>
+                                        <InputLabel for="zone" value="Zone" />
+                                        <select id="zone" v-model="newProperty.zone_id" required
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                            <option v-for="zone in zones" :key="zone.id" :value="zone.id">{{ zone.name }}
+                                            </option>
+                                        </select>
+                                        <InputError class="mt-2" :message="newProperty.errors.zone_id" />
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-medium text-gray-800 mt-8 mb-4">Main Features</h3>
+                                        <InputLabel for="total_rooms" value="Total Rooms" />
+                                        <TextInput type="number" id="total_rooms" v-model="newProperty.total_rooms" required
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                                        <InputError class="mt-2" :message="newProperty.errors.total_rooms" />
+                                    </div>
+                                    <div>
+                                        <InputLabel for="total_bathrooms" value="Total Bathrooms" />
+                                        <TextInput type="number" id="total_bathrooms" v-model="newProperty.total_bathrooms"
+                                            required
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                                        <InputError class="mt-2" :message="newProperty.errors.total_bathrooms" />
+                                    </div>
+                                    <div>
+                                        <InputLabel for="half_bathrooms" value="Half Bathrooms" />
+                                        <TextInput type="number" id="half_bathrooms" v-model="newProperty.half_bathrooms" 
+                                            class="mt-1 block w-full mx-auto" />
+                                        <InputError class="mt-2" :message="newProperty.errors.half_bathrooms" />
+                                    </div>
+                                    <div>
+                                        <InputLabel for="have_parking" value="Parking Available" />
+                                        <select id="have_parking" v-model="newProperty.have_parking" required
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                            <option value="1">Yes</option>
+                                            <option value="0">No</option>
+                                        </select>
+                                        <InputError class="mt-2" :message="newProperty.errors.have_parking" />
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-medium text-gray-800 mt-8 mb-4">antiquity</h3>
+                                        <InputLabel for="antiquity" value="Antiquity (years)" />
+                                        <TextInput type="number" id="antiquity" v-model="newProperty.antiquity" 
+                                            class="mt-1 block w-full mx-auto" />
+                                        <InputError class="mt-2" :message="newProperty.errors.antiquity" />
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-medium text-gray-800 mt-8 mb-4">Surface</h3>
+                                        <InputLabel for="surface_built" value="Surface Built (m²)" />
+                                        <TextInput type="number" id="surface_built" v-model="newProperty.surface_built" 
+                                            class="mt-1 block w-full mx-auto" />
+                                        <InputError class="mt-2" :message="newProperty.errors.surface_built" />
+                                    </div>
+                                    <div>
+                                        <InputLabel for="total_m2" value="Total Area (m²)" />
+                                        <TextInput type="number" id="total_m2" v-model="newProperty.total_m2" required
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                                        <InputError class="mt-2" :message="newProperty.errors.total_m2" />
+                                    </div>
+                                    <div>
+                                        <InputLabel for="total_surface" value="Total Surface (m²)" />
+                                        <TextInput type="number" id="total_surface" v-model="newProperty.total_surface" 
+                                            class="mt-1 block w-full mx-auto" />
+                                        <InputError class="mt-2" :message="newProperty.errors.total_surface" />
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-medium text-gray-800 mt-8 mb-4">Price</h3>
+                                        <InputLabel for="property_price" value="Property Price" />
+                                        <TextInput type="number" id="property_price" v-model="newProperty.property_price"
+                                            required
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                                        <InputError class="mt-2" :message="newProperty.errors.property_price" />
+                                    </div>
+                                    <div>
+                                        <InputLabel for="maintenance" value="Maintenance" />
+                                        <TextInput type="number" id="maintenance" v-model="newProperty.maintenance" 
+                                            class="mt-1 block w-full mx-auto" />
+                                        <InputError class="mt-2" :message="newProperty.errors.maintenance" />
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-medium text-gray-800 mt-8 mb-4">Describe the property</h3>
+                                        <InputLabel for="availability" value="Availability" />
+                                        <select id="availability" v-model="newProperty.availability" required
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                            <option value="Available">Available</option>
+                                            <option value="Not Available">Not Available</option>
+                                        </select>
+                                        <InputError class="mt-2" :message="newProperty.errors.availability" />
+                                    </div>
+                                    <div>
+                                        <InputLabel for="property_details" value="Property Details" />
+                                        <textarea id="property_details" v-model="newProperty.property_details" required
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"></textarea>
+                                        <InputError class="mt-2" :message="newProperty.errors.property_details" />
+                                    </div>
+
+                                    <div class="flex justify-end mt-6">
+                                        <button 
+                                            @click="() => { if (validateCurrentStep()) goToNextStep(); }" 
+                                            class="px-6 py-2 bg-primary text-white rounded-lg">
+                                            Continue
+                                        </button>
+                                    </div>
                                 </div>
-                                <div>
-                                    <InputLabel for="postal_code" value="Postal Code" />
-                                    <TextInput type="text" id="postal_code" v-model="newProperty.postal_code" required
-                                        class="mt-1 block w-full mx-auto" />
-                                    <InputError class="mt-2" :message="newProperty.errors.postal_code" />
+                                <!---------------------------------------------------->
+
+
+                                <!-- Paso 2 -->
+                                <div v-if="currentStep === 2" class="bg-white rounded-lg shadow-md p-6 w-full max-w-4xl">
+                                    <h2 class="text-3xl font-semibold text-gray-800 mb-4 text-center">
+                                        ¡Share photos and videos of the property!
+                                        </h2>
+                                        <p class="text-gray-600 text-center mb-6">
+                                            Upload between 5 and 20 photos. Once uploaded, drag and drop to change its order.
+                                        </p>
+                                
+                                    <div>
+                                        <InputLabel for="property_photos" value="" />
+                                        <input type="file" id="property_photos" @change="handleFileUpload" multiple
+                                            accept="image/*"
+                                            class="mt-1 block w-full shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 
+                                            focus:ring-opacity-50 border-2 border-dashed border-primary p-6 rounded-lg text-center" />
+                                        <InputError class="mt-2" :message="newProperty.errors.property_photos" />
+                                    </div>
+
+                                    <div class="flex justify-between mt-6">
+                                        <button @click="goToPreviousStep" class="px-6 py-2 bg-gray-300 text-gray-800 rounded-lg">Back</button>
+                                        <button @click="goToNextStep" class="px-6 py-2 bg-primary text-white rounded-lg">Continue</button>
+                                    </div>
                                 </div>
-                                <div>
-                                    <InputLabel for="availability" value="Availability" />
-                                    <select id="availability" v-model="newProperty.availability" required
-                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                        <option value="Available">Available</option>
-                                        <option value="Not Available">Not Available</option>
-                                    </select>
-                                    <InputError class="mt-2" :message="newProperty.errors.availability" />
+                                <!---------------------------------------------------->
+
+                                
+                                <!-- Paso 3 -->
+                                <div v-if="currentStep === 3" class="bg-white rounded-lg shadow-md p-6 w-full max-w-4xl">
+                                    <h2 class="text-3xl font-semibold text-gray-800 mb-4 text-center">Add the comforts of your property!</h2>
+                                    <p class="text-gray-600 text-center mb-6">
+                                        These optional fields improve the ranking of your publication.
+                                    </p>
+                                
+                                    <div>
+                                        <InputLabel for="accept_mascots" value="Accept Mascots" />
+                                        <select id="accept_mascots" v-model="newProperty.accept_mascots" required
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                            <option value="1">Yes</option>
+                                            <option value="0">No</option>
+                                        </select>
+                                        <InputError class="mt-2" :message="newProperty.errors.accept_mascots" />
+                                    </div>
+                                    <div>
+                                        <InputLabel for="state_conservation" value="State of Conservation" />
+                                        <TextInput type="text" id="state_conservation" v-model="newProperty.state_conservation" 
+                                            class="mt-1 block w-full mx-auto" />
+                                        <InputError class="mt-2" :message="newProperty.errors.state_conservation" />
+                                    </div>
+                                    <div>
+                                        <InputLabel for="closets" value="Closets" />
+                                        <TextInput type="number" id="closets" v-model="newProperty.closets" 
+                                            class="mt-1 block w-full mx-auto" />
+                                        <InputError class="mt-2" :message="newProperty.errors.closets" />
+                                    </div>
+                                    <div>
+                                        <InputLabel for="wineries" value="Wineries" />
+                                        <TextInput type="number" id="wineries" v-model="newProperty.wineries" 
+                                            class="mt-1 block w-full mx-auto" />
+                                        <InputError class="mt-2" :message="newProperty.errors.wineries" />
+                                    </div>
+                                    <div>
+                                        <InputLabel for="levels" value="Levels" />
+                                        <TextInput type="number" id="levels" v-model="newProperty.levels" 
+                                            class="mt-1 block w-full mx-auto" />
+                                        <InputError class="mt-2" :message="newProperty.errors.levels" />
+                                    </div>
+
+
+                                    <div class="col-span-2 flex justify-end space-x-2 mt-5">
+                                    <button @click="goToPreviousStep" class="px-6 py-2 bg-gray-300 text-gray-800 rounded-lg">Back</button>
+                                    <CustomButton 
+                                        type="cancel" 
+                                        @click="resetStep" 
+                                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">
+                                        Cancel
+                                    </CustomButton>
+                                    <CustomButton type="submit"
+                                        class="bg-primary text-white hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:ring-green-500">
+                                        Add Property
+                                    </CustomButton>
+                                    </div>
                                 </div>
-                                <div>
-                                    <InputLabel for="total_bathrooms" value="Total Bathrooms" />
-                                    <TextInput type="number" id="total_bathrooms" v-model="newProperty.total_bathrooms"
-                                        required
-                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
-                                    <InputError class="mt-2" :message="newProperty.errors.total_bathrooms" />
-                                </div>
-                                <div>
-                                    <InputLabel for="total_rooms" value="Total Rooms" />
-                                    <TextInput type="number" id="total_rooms" v-model="newProperty.total_rooms" required
-                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
-                                    <InputError class="mt-2" :message="newProperty.errors.total_rooms" />
-                                </div>
-                                <div>
-                                    <InputLabel for="total_m2" value="Total Area (m²)" />
-                                    <TextInput type="number" id="total_m2" v-model="newProperty.total_m2" required
-                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
-                                    <InputError class="mt-2" :message="newProperty.errors.total_m2" />
-                                </div>
-                                <div>
-                                    <InputLabel for="have_parking" value="Parking Available" />
-                                    <select id="have_parking" v-model="newProperty.have_parking" required
-                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                        <option value="1">Yes</option>
-                                        <option value="0">No</option>
-                                    </select>
-                                    <InputError class="mt-2" :message="newProperty.errors.have_parking" />
-                                </div>
-                                <div>
-                                    <InputLabel for="accept_mascots" value="Accept Mascots" />
-                                    <select id="accept_mascots" v-model="newProperty.accept_mascots" required
-                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                        <option value="1">Yes</option>
-                                        <option value="0">No</option>
-                                    </select>
-                                    <InputError class="mt-2" :message="newProperty.errors.accept_mascots" />
-                                </div>
-                                <div>
-                                    <InputLabel for="property_price" value="Property Price" />
-                                    <TextInput type="number" id="property_price" v-model="newProperty.property_price"
-                                        required
-                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
-                                    <InputError class="mt-2" :message="newProperty.errors.property_price" />
-                                </div>
-                                <div>
-                                    <InputLabel for="property_details" value="Property Details" />
-                                    <textarea id="property_details" v-model="newProperty.property_details" required
-                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"></textarea>
-                                    <InputError class="mt-2" :message="newProperty.errors.property_details" />
-                                </div>
-                                <div>
-                                    <InputLabel for="zone" value="Zone" />
-                                    <select id="zone" v-model="newProperty.zone_id" required
-                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                        <option v-for="zone in zones" :key="zone.id" :value="zone.id">{{ zone.name }}
-                                        </option>
-                                    </select>
-                                    <InputError class="mt-2" :message="newProperty.errors.zone_id" />
-                                </div>
-                                <div>
-                                    <InputLabel for="property_photos" value="Property Photos" />
-                                    <input type="file" id="property_photos" @change="handleFileUpload" multiple
-                                        accept="image/*"
-                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
-                                    <InputError class="mt-2" :message="newProperty.errors.property_photos" />
-                                </div>
+
+
                                 <!-- Contenedor para vistas previas -->
                                 <div class="mt-4 grid grid-cols-3 gap-4">
                                     <div v-for="(photo, index) in newProperty.property_photos" :key="index"
@@ -144,7 +285,7 @@ import InputError from '@/Components/InputError.vue';
                                         </button>
                                     </div>
                                 </div>
-                                <div class="col-span-2 flex justify-end space-x-2">
+                                <!--<div class="col-span-2 flex justify-end space-x-2">
                                     <CustomButton type="cancel" @click="isAddingProperty = false"
                                         class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">
                                         Cancel
@@ -154,6 +295,7 @@ import InputError from '@/Components/InputError.vue';
                                         Add Property
                                     </CustomButton>
                                 </div>
+                            -->
                             </form>
                         </div>
 
@@ -219,25 +361,207 @@ import InputError from '@/Components/InputError.vue';
                         </div>
 
                         <!-- modal details -->
-                        <div v-if="showDetails"
-                            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                            <div class="bg-white p-6 rounded-lg max-w-3xl w-full">
-                                <div class="flex justify-between items-center mb-4">
-                                    <h2 class="text-xl font-semibold">Property Details</h2>
-                                    <button @click="showDetails = false" class="text-gray-500 hover:text-gray-700">
-                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M6 18L18 6M6 6l12 12"></path>
-                                        </svg>
-                                    </button>
+                        <div v-if="showDetails" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                        <div class="bg-white p-6 rounded-lg max-w-3xl w-full shadow-xl">
+                        <!-- Header Section -->
+                        <div class="relative flex justify-between items-center mb-6">
+                            <h2 class="text-3xl font-semibold text-gray-800 text-center w-full">Property Details</h2>
+                            <button @click="showDetails = false" class="absolute top-0 right-0 text-gray-500 hover:text-gray-700 focus:outline-none mr-4 mt-4">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Property Information Section -->
+                        <div class="flex justify-center ml-10 mr-10">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 text-gray-700 w-full max-w-6xl p-6 bg-white rounded-lg shadow-md">
+                                <div class="flex flex-col justify-center items-start">
+                                    <p><strong class="font-medium">Street:</strong> {{ activeProperty.street }}</p>
+                                    <p><strong class="font-medium">Number:</strong> {{ activeProperty.number }}</p>
+                                    <p><strong class="font-medium">Colony:</strong> {{ activeProperty.colony }}</p>
+                                    <p><strong class="font-medium">City:</strong> {{ activeProperty.city }}</p>
+                                    <p><strong class="font-medium">State:</strong> {{ activeProperty.state }}</p>
+                                    <p><strong class="font-medium">Postal Code:</strong> {{ activeProperty.postal_code }}</p>
+                                </div>
+                                <div class="flex flex-col justify-center items-start">
+                                    <p><strong class="font-medium">Availability:</strong> {{ activeProperty.availability }}</p>
+                                    <p><strong class="font-medium">Bedrooms:</strong> {{ activeProperty.total_rooms }}</p>
+                                    <p><strong class="font-medium">Bathrooms:</strong> {{ activeProperty.total_bathrooms }}</p>
+                                    <p><strong class="font-medium">Half Bathrooms:</strong> {{ activeProperty.half_bathrooms }}</p>
+                                    <p><strong class="font-medium">Closets:</strong> {{ activeProperty.closets }}</p>
+                                    <p><strong class="font-medium">Parking:</strong> {{ activeProperty.have_parking }}</p>
+                                </div>
+                                <div class="flex flex-col justify-center items-start">
+                                    <p><strong class="font-medium">Wineries:</strong> {{ activeProperty.wineries }}</p>
+                                    <p><strong class="font-medium">Levels:</strong> {{ activeProperty.levels }}</p>
+                                    <p><strong class="font-medium">Price:</strong> ${{ activeProperty.property_price }}</p>
+                                    <p><strong class="font-medium">Maintenance:</strong> ${{ activeProperty.maintenance }}</p>
+                                    <p><strong class="font-medium">Surface Built:</strong> {{ activeProperty.surface_built }} m²</p>
+                                    <p><strong class="font-medium">TotalS urface:</strong> {{ activeProperty.total_surface }} m²</p>
+                                </div>
+                                <div class="flex flex-col justify-center items-start">
+                                    <p><strong class="font-medium">Accept Pets:</strong> {{ activeProperty.accept_mascots }}</p>
+                                    <p><strong class="font-medium">Antiquity:</strong> {{ activeProperty.antiquity }} years</p>
+                                    <p><strong class="font-medium">State of Conservation:</strong> {{ activeProperty.state_conservation }}</p>
+                                    <p><strong class="font-medium">Property Details:</strong> {{ activeProperty.property_details }}</p>
                                 </div>
                             </div>
                         </div>
 
-
+                        <!-- Botones de acción (Editar y Eliminar) fuera del contenedor -->
+                        <div class="mt-4 flex justify-end space-x-4 ml-10 mr-10">
+                            <CustomButton type="primary" @click="toggleEdit(activeProperty.id)" class="bg-yellow-500 text-white hover:bg-yellow-600">
+                                Edit
+                            </CustomButton>
+                            <CustomButton type="danger" @click="handleDeleteProperty(activeProperty.id)" class="bg-red-500 text-white hover:bg-red-600">
+                                Delete
+                            </CustomButton>
                         </div>
+
+                            
+                            <!-- Formulario de edición (cuando isEditingProperty sea true) -->
+                            <div v-if="isEditingProperty" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                                <div class="bg-white p-8 rounded-lg max-w-4xl w-full shadow-xl">
+                                    <!-- Header del formulario -->
+                                    <div class="flex justify-between items-center p-6 border-b border-gray-200">
+                                        <h2 class="text-3xl font-semibold text-gray-800 text-center w-full">Edit Property</h2>
+                                        <button @click="isEditingProperty = false" class="text-gray-500 hover:text-gray-700 focus:outline-none">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    <!-- Contenido del formulario Edit -->
+                                    <div class="p-6 overflow-y-auto max-h-[70vh]">
+                                        <form @submit.prevent="handleEditProperty" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                            <!-- Campos del formulario -->
+                                            <div class="flex flex-col">
+                                                <InputLabel for="street" value="Street" />
+                                                <TextInput type="text" id="street" v-model="newProperty.street" required 
+                                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-500" />
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <InputLabel for="number" value="Number" />
+                                                <TextInput type="text" id="number" v-model="newProperty.number" required 
+                                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-500" />
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <InputLabel for="colony" value="Colony" />
+                                                <TextInput type="text" id="colony" v-model="newProperty.colony" required 
+                                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-500" />
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <InputLabel for="city" value="City" />
+                                                <TextInput type="text" id="city" v-model="newProperty.city" required 
+                                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-500" />
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <InputLabel for="state" value="State" />
+                                                <TextInput type="text" id="state" v-model="newProperty.state" required 
+                                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-500" />
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <InputLabel for="postal_code" value="Postal Code" />
+                                                <TextInput type="text" id="postal_code" v-model="newProperty.postal_code" 
+                                                required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-500" />
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <InputLabel for="availability" value="Availability" />
+                                                <TextInput type="text" id="availability" v-model="newProperty.availability" required 
+                                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-500" />
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <InputLabel for="total_rooms" value="Bedrooms" />
+                                                <TextInput type="number" id="total_rooms" v-model="newProperty.total_rooms" required 
+                                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-500" />
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <InputLabel for="total_bathrooms" value="Bathrooms" />
+                                                <TextInput type="number" id="total_bathrooms" v-model="newProperty.total_bathrooms" required 
+                                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-500" />
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <InputLabel for="half_bathrooms" value="Half Bathrooms" />
+                                                <TextInput type="number" id="half_bathrooms" v-model="newProperty.half_bathrooms" required 
+                                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-500" />
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <InputLabel for="closets" value="Closets" />
+                                                <TextInput type="number" id="closets" v-model="newProperty.closets" required 
+                                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-500" />
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <InputLabel for="have_parking" value="Parking" />
+                                                <TextInput type="text" id="have_parking" v-model="newProperty.have_parking" required 
+                                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-500" />
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <InputLabel for="wineries" value="Wineries" />
+                                                <TextInput type="number" id="wineries" v-model="newProperty.wineries" required 
+                                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-500" />
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <InputLabel for="levels" value="Levels" />
+                                                <TextInput type="number" id="levels" v-model="newProperty.levels" required 
+                                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-500" />
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <InputLabel for="property_price" value="Property Price" />
+                                                <TextInput type="number" id="property_price" v-model="newProperty.property_price" required 
+                                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-500" />
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <InputLabel for="maintenance" value="Maintenance" />
+                                                <TextInput type="number" id="maintenance" v-model="newProperty.maintenance" required 
+                                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-500" />
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <InputLabel for="surface_built" value="Surface Built" />
+                                                <TextInput type="number" id="surface_built" v-model="newProperty.surface_built" required 
+                                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-500" />
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <InputLabel for="total_m2" value="Total m2" />
+                                                <TextInput type="number" id="total_m2" v-model="newProperty.total_m2" required 
+                                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-500" />
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <InputLabel for="accept_mascots" value="Accept Mascots" />
+                                                <TextInput type="text" id="accept_mascots" v-model="newProperty.accept_mascots" required 
+                                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-500" />
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <InputLabel for="antiquity" value="Antiquity" />
+                                                <TextInput type="number" id="antiquity" v-model="newProperty.antiquity" required 
+                                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-500" />
+                                            </div>
+                                            <div class="sm:col-span-2 flex flex-col">
+                                                <InputLabel for="property_details" value="Property Details" />
+                                                <textarea id="property_details" v-model="newProperty.property_details" required 
+                                                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:border-blue-500"></textarea>
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                    <!-- Footer con botones -->
+                                    <div class="flex justify-end p-6 border-t border-gray-200 space-x-4">
+                                        <button @click="isEditingProperty = false" type="button" class="py-2 px-4 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
+                                            Cancel
+                                        </button>
+                                        <button @click="handleEditProperty" type="submit" class="py-2 px-4 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                                            Save Changes
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                         </div>
+                      </div>
+
                     </div>
+                 </div>
                 </div>
             </div>
     </DashboardLayout>
@@ -252,9 +576,11 @@ export default {
         return {
             properties: [],
             zones: [],
-            activePropertyId: null,
+            activeProperty: [],
             showDetails: false,
             isAddingProperty: false,
+            isEditingProperty: false,
+            currentStep: 1,
             newProperty: {
                 street: '',
                 number: '',
@@ -271,6 +597,17 @@ export default {
                 property_details: '',
                 property_photos: [],
                 zone_id: null,
+
+                colony: '', 
+                half_bathrooms: 0, 
+                surface_built: null, 
+                total_surface: null, 
+                antiquity: null, 
+                maintenance: null, 
+                state_conservation: '', 
+                wineries: null, 
+                closets: null, 
+                levels: null, 
                 errors: {
                     street: null,
                     number: null,
@@ -286,7 +623,18 @@ export default {
                     property_price: null,
                     property_details: null,
                     property_photos: null,
-                    zone_id: null
+                    zone_id: null,
+
+                    colony: null, 
+                    half_bathrooms: null, 
+                    surface_built: null, 
+                    total_surface: null, 
+                    antiquity: null, 
+                    maintenance: null, 
+                    state_conservation: null, 
+                    wineries: null, 
+                    closets: null, 
+                    levels: null, 
                 }
 
             }
@@ -302,9 +650,90 @@ export default {
             this.handleGetZones();
         },
         toggleDetails(id) {
-            this.activePropertyId = id;
-            this.showDetails = true;
+            axios.get(`/api/properties/${id}`)
+                .then(response => {
+                    this.activeProperty = response.data;
+                    this.showDetails = true;
+        })
+        .catch(error => {
+            console.error(error);
+        });
         },
+
+        toggleEdit(id) {
+            axios.get(`/api/properties/${id}`)
+                .then(response => {
+                    this.newProperty = { ...response.data };  // Cargar los datos de la propiedad
+                    console.log(this.newProperty); // Verificar los datos cargados
+                    this.isEditingProperty = true;  // Mostrar el formulario de edición
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        },
+
+        handleEditProperty() {
+        const propertyData = {
+            id: this.newProperty.id,
+            street: this.newProperty.street || '',
+            number: this.newProperty.number || '',
+            city: this.newProperty.city || '',
+            state: this.newProperty.state || '',
+            postal_code: this.newProperty.postal_code || '',
+            availability: this.newProperty.availability || 'Available',
+            total_bathrooms: parseFloat(this.newProperty.total_bathrooms) || 0,
+            total_rooms: parseInt(this.newProperty.total_rooms, 10) || 0,
+            total_m2: parseInt(this.newProperty.total_m2, 10) || 0,
+            have_parking: Boolean(this.newProperty.have_parking),
+            accept_mascots: Boolean(this.newProperty.accept_mascots),
+            property_price: parseFloat(this.newProperty.property_price) || 0,
+            property_details: this.newProperty.property_details || '',
+            colony: this.newProperty.colony || '',
+            half_bathrooms: parseInt(this.newProperty.half_bathrooms, 10) || 0,
+            surface_built: parseInt(this.newProperty.surface_built, 10) || 0,
+            maintenance: parseFloat(this.newProperty.maintenance) || 0,
+            antiquity: parseInt(this.newProperty.antiquity, 10) || 0,
+            levels: parseInt(this.newProperty.levels, 10) || 0,
+            wineries: parseInt(this.newProperty.wineries, 10) || 0,
+            state_conservation: this.newProperty.state_conservation || '',
+        };
+
+        axios.put(`/api/properties/${propertyData.id}`, propertyData)
+            .then(response => {
+                console.log('Property updated successfully:', response.data);
+
+                // Actualizar la propiedad activa con los nuevos datos
+                this.activeProperty = response.data;
+
+                // Actualizar la lista de propiedades local
+                const index = this.properties.findIndex(property => property.id === response.data.id);
+                if (index !== -1) {
+                    this.properties[index] = response.data;
+                }
+
+                // Cerrar el formulario de edición
+                this.isEditingProperty = false;
+            })
+            .catch(error => {
+                console.error('Error:', error.response.data.errors);
+            });
+    },
+
+        handleDeleteProperty(id) {
+        if (confirm('Are you sure you want to delete this property?')) {
+            axios.delete(`/api/properties/${id}`)
+                .then(response => {
+                    // Eliminar la propiedad de la lista localmente
+                    this.properties = this.properties.filter(property => property.id !== id);
+                    alert(response.data.message);  // Mostrar mensaje de éxito
+                    this.showDetails = false; // Cerrar la vista de detalles
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+        },
+
         handleGetZones() {
             axios.get('/api/zones')
                 .then(response => {
@@ -381,9 +810,11 @@ export default {
                 postal_code: '',
                 availability: 'Available',
                 total_bathrooms: 0,
+                
                 total_rooms: 0,
                 total_m2: 0,
                 have_parking: 0,
+                half_bathrooms: 0,
                 accept_mascots: 0,
                 property_price: 0,
                 property_details: '',
@@ -407,7 +838,64 @@ export default {
                     zone_id: null
                 }
             };
-        }
+        },
+        resetStep() {
+            this.isAddingProperty = false;
+            this.currentStep = 1;
+        },
+        validateCurrentStep() {
+            const errors = {};
+
+            if (this.currentStep === 1) {
+                // Validaciones del paso 1
+                if (!this.newProperty.street) errors.street = "Street is required.";
+                if (!this.newProperty.number) errors.number = "Number is required.";
+                if (!this.newProperty.city) errors.city = "City is required.";
+                if (!this.newProperty.state) errors.state = "State is required.";
+                if (!this.newProperty.postal_code) errors.postal_code = "Postal Code is required.";
+                if (!this.newProperty.zone_id) errors.zone_id = "Zone is required.";
+                if (!this.newProperty.total_rooms) errors.total_rooms = "Total Rooms is required.";
+                if (!this.newProperty.total_bathrooms) errors.total_bathrooms = "Total Bathrooms is required.";
+                if (!this.newProperty.property_price) errors.property_price = "Property Price is required.";
+                if (!this.newProperty.total_m2) errors.total_m2 = "Total m2 is required.";
+                if (!this.newProperty.property_details) errors.property_details = "Property Details is required.";
+            }
+
+            if (this.currentStep === 2) {
+                // Validaciones del paso 2
+                if (!this.newProperty.property_photos || this.newProperty.property_photos.length < 1) {
+                    errors.property_photos = "You must upload at least 1 photo.";
+                }
+            }
+
+            if (this.currentStep === 3) {
+                // Validaciones del paso 3 (si se requieren)
+                if (!this.newProperty.accept_mascots) errors.accept_mascots = "Accept Mascots selection is required.";
+            }
+
+            this.newProperty.errors = errors;
+
+            // Si no hay errores, la validación pasa
+            return Object.keys(errors).length === 0;
+        },
+        goToNextStep() {
+            if (this.validateCurrentStep()) {
+                this.currentStep++;
+            } else {
+
+            }
+        },
+        goToPreviousStep() {
+            if (this.currentStep > 1) {
+                this.currentStep--;
+            }
+        },
     }
 }
+
+// Función para agregar la propiedad (último paso)
+const addProperty = () => {
+  alert("¡Propiedad agregada exitosamente!");
+};
+
 </script>
