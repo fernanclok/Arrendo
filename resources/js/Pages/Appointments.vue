@@ -74,8 +74,8 @@ import { usePage, useForm } from '@inertiajs/vue3';
                                     </p>
                                     <p v-if="appointment.confirmation_date"><strong>Owner approved your appointment
                                             at:</strong> {{
-                                        formatDateTime(appointment.confirmation_date)
-                                        }}</p>
+                                                formatDateTime(appointment.confirmation_date)
+                                            }}</p>
                                     <p><strong>Status:</strong> {{ appointment.status }}</p>
                                     <p class="text-lg font-medium mt-4">Property Details</p>
                                     <ul class="list-disc ml-6 space-y-1">
@@ -101,13 +101,11 @@ import { usePage, useForm } from '@inertiajs/vue3';
                                     <div v-if="appointment.status === 'Approved'">
                                         <h1 class="text-xl font-semibold text-gray-900 mt-2">you are been approved!</h1>
                                         <p class='text-sm mb-2'>Continue with the application?</p>
-                                        <CustomButton type="cancel"
-                                        class='mr-2'
+                                        <CustomButton type="cancel" class='mr-2'
                                             @click="cancelAppointment(appointment)">
                                             <i class="mr-2 mdi mdi-cancel"></i> No
                                         </CustomButton>
-                                        <CustomButton type="primary"
-                                        class='mr-2'
+                                        <CustomButton type="primary" class='mr-2'
                                             @click.stop="handleApplication(appointment)">
                                             <i class="mr-2 mdi mdi-check"></i> Yes
                                         </CustomButton>
@@ -131,8 +129,7 @@ import { usePage, useForm } from '@inertiajs/vue3';
                                                 <div class="sm:flex sm:items-start">
                                                     <div class="w-full mt-3 text-center sm:mt-0 sm:text-left">
                                                         <div class="flex items-center justify-between mb-4">
-                                                            <h3 class="text-2xl font-bold leading-6"
-                                                                id="modal-title">
+                                                            <h3 class="text-2xl font-bold leading-6" id="modal-title">
                                                                 Upload the necesary documents
                                                             </h3>
                                                             <button @click="showDetails = false"
@@ -144,7 +141,11 @@ import { usePage, useForm } from '@inertiajs/vue3';
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <Identity :appointments="appointments" :propertyId="selectedAppointment.property.id" :appointmentId="selectedAppointment.id" @close-modal="closeModal" @close-appointment="toggleAccordion(appointment)" @refresh-appointments="handleGetAppointments"/>
+                                                <Identity :appointments="appointments"
+                                                    :propertyId="selectedAppointment.property.id"
+                                                    :appointmentId="selectedAppointment.id" @close-modal="closeModal"
+                                                    @close-appointment="toggleAccordion(appointment)"
+                                                    @refresh-appointments="handleGetAppointments" />
                                             </div>
                                         </div>
                                     </div>
@@ -176,6 +177,23 @@ export default {
         };
     },
     methods: {
+
+        // Send notification to user
+        async sendNotification(senderId, receiverId, notificationType, message) {
+            try {
+                await axios.post('/api/notifications', {
+                    sender_id: senderId,
+                    receiver_id: receiverId,
+                    notification_type: notificationType,
+                    message: message,
+                    sent_date: new Date().toISOString(), // Fecha actual en formato ISO
+                    read_status: false, // Estado inicial como no leído
+                });
+            } catch (error) {
+                console.error('Error sending notification:', error);
+            }
+        },
+
         async submitFormWithExistingDocument(appointment) {
             try {
                 // Verifica el valor de document_path antes del primer POST
@@ -226,19 +244,36 @@ export default {
 
                 this.closeModal();
                 this.emmiter.emit('show_notification', {
-                        title: 'Success',
-                        message: 'Application submitted successfully!',
-                        type: 'success',
-                    });
+                    title: 'Success',
+                    message: 'Application submitted successfully!',
+                    type: 'success',
+                });
                 this.handleGetAppointments();
+
+                try {
+                    // Obtener el propietario de la propiedad
+                    const propertyResponse = await axios.get(`/api/properties/getPropertyDetails/${props.propertyId}`);
+                    const ownerId = propertyResponse.data.owner_id; // Suponiendo que el API devuelve el ID del propietario
+
+                    // Enviar notificación al propietario
+                    await sendNotification(
+                        this.user.id, // ID del inquilino como remitente
+                        ownerId, // ID del propietario como receptor
+                        'NewApplication',
+                        `A tenant has applied for your property at ${propertyResponse.data.street}.`
+                    );
+                } catch (error) {
+                    console.error('Error enviando la notificación:', error.response?.data || error);
+                }
+
             } catch (error) {
                 console.error('Error:', error.response ? error.response.data : error.message);
                 this.closeModal();
                 this.emmiter.emit('show_notification', {
-                        title: 'Error',
-                        message: 'An error occurred while submitting the application.',
-                        type: 'error',
-                    });
+                    title: 'Error',
+                    message: 'An error occurred while submitting the application.',
+                    type: 'error',
+                });
             }
         },
         handleApplication(appointment) {
@@ -273,6 +308,21 @@ export default {
                     appointment_id: appointment.id,
                     status: 'Cancelled',
                 });
+                try {
+                    // Obtener el propietario de la propiedad
+                    const propertyResponse = await axios.get(`/api/properties/getPropertyDetails/${props.propertyId}`);
+                    const ownerId = propertyResponse.data.owner_id; // Suponiendo que el API devuelve el ID del propietario
+
+                    // Enviar notificación al propietario
+                    await sendNotification(
+                        this.user.id, // ID del inquilino como remitente
+                        ownerId, // ID del propietario como receptor
+                        'NewApplication',
+                        `A tenant has canceled appointment ${propertyResponse.data.street}.`
+                    );
+                } catch (error) {
+                    console.error('Error enviando la notificación:', error.response?.data || error);
+                }
                 console.log('Appointment cancelled:', response.data);
                 this.handleGetAppointments();
             } catch (error) {
