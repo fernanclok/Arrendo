@@ -111,7 +111,8 @@ import CustomButton from '@/Components/CustomButton.vue';
                                             </ul>
                                         </div>
                                     </div>
-                                    <div class="mt-4" v-if="appointment.status !== 'Rejected' && appointment.status !== 'Cancelled' && appointment.status !== 'Approved' && appointment.status !== 'Applicated'">
+                                    <div class="mt-4"
+                                        v-if="appointment.status !== 'Rejected' && appointment.status !== 'Cancelled' && appointment.status !== 'Approved' && appointment.status !== 'Applicated'">
                                         <CustomButton type="primary" @click="openChangeStatusModal(appointment)"
                                             class="py-2">
                                             change status</CustomButton>
@@ -187,6 +188,24 @@ export default {
         };
     },
     methods: {
+
+        sendNotification(senderId, receiverId, notificationType, message) {
+            axios.post('/api/notifications', {
+                sender_id: senderId,
+                receiver_id: receiverId,
+                notification_type: notificationType,
+                message: message,
+                sent_date: new Date().toISOString(),
+                read_status: false,
+            })
+                .then(() => {
+                    console.log('Notification sent successfully');
+                })
+                .catch((error) => {
+                    console.error('Error sending notification:', error);
+                });
+        },
+
         toggleAccordion(appointment) {
             this.appointments.forEach((appt) => {
                 if (appt.id === appointment.id) {
@@ -235,6 +254,15 @@ export default {
                         message: 'Appointment status updated successfully.',
                         type: 'success',
                     });
+
+                    // Enviar notificación sobre el cambio de estado
+                    const notificationMessage = `The status of your appointment has been changed to ${this.appointmentForm.status}.`;
+                    this.sendNotification(
+                        this.user.id,
+                        this.appointmentForm.user_id, // ID del usuario al que se le envía la notificación
+                        'Status Update',
+                        notificationMessage
+                    );
                 })
                 .catch(() => {
                     this.emmiter.emit('show_notification', {
