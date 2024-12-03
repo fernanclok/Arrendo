@@ -75,11 +75,20 @@
                   <p><strong>Property:</strong> {{ solicitante.property.street }}</p>
                   <p><strong>Requested:</strong> {{ solicitante.application_date }}</p>
                   <p v-if="solicitante.status === 'Approved'">
-                    <strong>Approved on:</strong> {{ solicitante.approved_at }}
+                    <strong>Approved on:</strong> {{ formatDate(solicitante.updated_at) }}
                   </p>
                   <p v-if="solicitante.status === 'Rejected'">
-                    <strong>Rejected on:</strong> {{ solicitante.rejected_at }}
+                    <strong>Rejected on:</strong> {{ formatDate(solicitante.updated_at) }}
                   </p>
+                  <p><strong>Documents:</strong></p>
+                <ul>
+                  <li v-for="(file, index) in solicitante.documents" :key="index">
+                    <a :href="getDocumentUrl(file)" target="_blank" rel="noopener noreferrer"
+                      class="text-blue-500 underline hover:text-blue-700">
+                      Show Document {{ index + 1 }}
+                    </a>
+                  </li>
+                </ul>
 
                   <p class="mt-2"><strong>Applicant Information:</strong></p>
                   <ul class="list-disc list-inside text-gray-700">
@@ -130,6 +139,8 @@ import axios from "axios";
 import { Head } from "@inertiajs/vue3";
 import DashboardLayout from "@/Layouts/DashboardLayout.vue";
 import CustomButton from "@/Components/CustomButton.vue";
+import PreviewModal from '@/Components/PreviewModal.vue';
+
 
 export default {
   components: { DashboardLayout, CustomButton, Head },
@@ -140,6 +151,8 @@ export default {
       tabs: ["Pending", "Approved", "Rejected"],
       showContractModal: false,
       currentSolicitanteId: null,
+      selectedFile: null, // Ruta del archivo seleccionado
+      selectedFileType: null, // Tipo de archivo seleccionado
     };
   },
   computed: {
@@ -159,6 +172,7 @@ export default {
         this.solicitantes = response.data.map((solicitante) => ({
           ...solicitante,
           isExpanded: false,
+          documents: JSON.parse(solicitante.tenant_user.document_path || "[]"),
         }));
       } catch (error) {
         console.error("Error fetching solicitantes:", error);
@@ -207,6 +221,34 @@ export default {
           : solicitante
       );
     },
+    getFileName(filePath) {
+        return filePath.split().pop();
+      },
+      showDocument(filePath) {
+        console.log("Mostrar documento:", filePath);
+        // Aquí llamaremos al modal en el paso siguiente
+      },
+      showDocument(filePath) {
+        // Determinar el tipo de archivo
+        const fileType = filePath.endsWith(".pdf") ? "pdf" : "image";
+        // Configurar las propiedades del modal
+        this.selectedFile = `/storage/${filePath}`; // Ajusta el path según tu servidor Laravel
+        this.selectedFileType = fileType;
+        this.showModal = true;
+      },
+      closeModal() {
+        this.showModal = false;
+        this.selectedFile = null;
+        this.selectedFileType = null;
+      },
+      getDocumentUrl(filePath) {
+        let file = filePath.replace('application_files/', '');
+        console.log("File path:", file);
+        return `api/properties/file/${file}`; // Cambia la base del path según tu configuración
+      },
+      formatDate(date) {
+        return new Date(date).toLocaleDateString();
+      },
   },
 };
 </script>
