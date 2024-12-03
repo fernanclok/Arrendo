@@ -29,8 +29,8 @@ import { ref } from 'vue';
                                 <!-- Stepper Header -->
                                 <div class="w-full max-w-4xl mb-6">
                                 <div class="flex justify-between">
-                                    <span :class="['step', { 'text-primary font-bold': currentStep === 1 }]">Principales</span>
-                                    <span :class="['step', { 'text-primary font-bold': currentStep === 2 }]">Multimedia</span>
+                                    <span :class="['step', { 'text-primary font-bold': currentStep === 1 }]">Main information</span>
+                                    <span :class="['step', { 'text-primary font-bold': currentStep === 2 }]">Pictures</span>
                                     <span :class="['step', { 'text-primary font-bold': currentStep === 3 }]">Extras</span>
                                 </div>
                                 <div class="h-1 bg-gray-200 my-2">
@@ -179,7 +179,11 @@ import { ref } from 'vue';
                                     </div>
 
                                     <div class="flex justify-end mt-6">
-                                        <button @click="goToNextStep" class="px-6 py-2 bg-primary text-white rounded-lg">Continue</button>
+                                        <button 
+                                            @click="() => { if (validateCurrentStep()) goToNextStep(); }" 
+                                            class="px-6 py-2 bg-primary text-white rounded-lg">
+                                            Continue
+                                        </button>
                                     </div>
                                 </div>
                                 <!---------------------------------------------------->
@@ -205,7 +209,7 @@ import { ref } from 'vue';
 
                                     <div class="flex justify-between mt-6">
                                         <button @click="goToPreviousStep" class="px-6 py-2 bg-gray-300 text-gray-800 rounded-lg">Back</button>
-                                        <button @click="goToNextStep" class="px-6 py-2 bg-primary text-white rounded-lg">Continuae</button>
+                                        <button @click="goToNextStep" class="px-6 py-2 bg-primary text-white rounded-lg">Continue</button>
                                     </div>
                                 </div>
                                 <!---------------------------------------------------->
@@ -213,7 +217,7 @@ import { ref } from 'vue';
                                 
                                 <!-- Paso 3 -->
                                 <div v-if="currentStep === 3" class="bg-white rounded-lg shadow-md p-6 w-full max-w-4xl">
-                                    <h2 class="text-3xl font-semibold text-gray-800 mb-4 text-center">¡Add the comforts of your property!</h2>
+                                    <h2 class="text-3xl font-semibold text-gray-800 mb-4 text-center">Add the comforts of your property!</h2>
                                     <p class="text-gray-600 text-center mb-6">
                                         These optional fields improve the ranking of your publication.
                                     </p>
@@ -255,7 +259,9 @@ import { ref } from 'vue';
 
                                     <div class="col-span-2 flex justify-end space-x-2 mt-5">
                                     <button @click="goToPreviousStep" class="px-6 py-2 bg-gray-300 text-gray-800 rounded-lg">Back</button>
-                                    <CustomButton type="cancel" @click="isAddingProperty = false"
+                                    <CustomButton 
+                                        type="cancel" 
+                                        @click="resetStep" 
                                         class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">
                                         Cancel
                                     </CustomButton>
@@ -395,7 +401,7 @@ import { ref } from 'vue';
                                     <p><strong class="font-medium">TotalS urface:</strong> {{ activeProperty.total_surface }} m²</p>
                                 </div>
                                 <div class="flex flex-col justify-center items-start">
-                                    <p><strong class="font-medium">Accept Mascots:</strong> {{ activeProperty.accept_mascots }}</p>
+                                    <p><strong class="font-medium">Accept Pets:</strong> {{ activeProperty.accept_mascots }}</p>
                                     <p><strong class="font-medium">Antiquity:</strong> {{ activeProperty.antiquity }} years</p>
                                     <p><strong class="font-medium">State of Conservation:</strong> {{ activeProperty.state_conservation }}</p>
                                     <p><strong class="font-medium">Property Details:</strong> {{ activeProperty.property_details }}</p>
@@ -574,6 +580,7 @@ export default {
             showDetails: false,
             isAddingProperty: false,
             isEditingProperty: false,
+            currentStep: 1,
             newProperty: {
                 street: '',
                 number: '',
@@ -592,7 +599,7 @@ export default {
                 zone_id: null,
 
                 colony: '', 
-                half_bathrooms: null, 
+                half_bathrooms: 0, 
                 surface_built: null, 
                 total_surface: null, 
                 antiquity: null, 
@@ -803,9 +810,11 @@ export default {
                 postal_code: '',
                 availability: 'Available',
                 total_bathrooms: 0,
+                
                 total_rooms: 0,
                 total_m2: 0,
                 have_parking: 0,
+                half_bathrooms: 0,
                 accept_mascots: 0,
                 property_price: 0,
                 property_details: '',
@@ -829,27 +838,60 @@ export default {
                     zone_id: null
                 }
             };
-        }
+        },
+        resetStep() {
+            this.isAddingProperty = false;
+            this.currentStep = 1;
+        },
+        validateCurrentStep() {
+            const errors = {};
+
+            if (this.currentStep === 1) {
+                // Validaciones del paso 1
+                if (!this.newProperty.street) errors.street = "Street is required.";
+                if (!this.newProperty.number) errors.number = "Number is required.";
+                if (!this.newProperty.city) errors.city = "City is required.";
+                if (!this.newProperty.state) errors.state = "State is required.";
+                if (!this.newProperty.postal_code) errors.postal_code = "Postal Code is required.";
+                if (!this.newProperty.zone_id) errors.zone_id = "Zone is required.";
+                if (!this.newProperty.total_rooms) errors.total_rooms = "Total Rooms is required.";
+                if (!this.newProperty.total_bathrooms) errors.total_bathrooms = "Total Bathrooms is required.";
+                if (!this.newProperty.property_price) errors.property_price = "Property Price is required.";
+                if (!this.newProperty.total_m2) errors.total_m2 = "Total m2 is required.";
+                if (!this.newProperty.property_details) errors.property_details = "Property Details is required.";
+            }
+
+            if (this.currentStep === 2) {
+                // Validaciones del paso 2
+                if (!this.newProperty.property_photos || this.newProperty.property_photos.length < 1) {
+                    errors.property_photos = "You must upload at least 1 photo.";
+                }
+            }
+
+            if (this.currentStep === 3) {
+                // Validaciones del paso 3 (si se requieren)
+                if (!this.newProperty.accept_mascots) errors.accept_mascots = "Accept Mascots selection is required.";
+            }
+
+            this.newProperty.errors = errors;
+
+            // Si no hay errores, la validación pasa
+            return Object.keys(errors).length === 0;
+        },
+        goToNextStep() {
+            if (this.validateCurrentStep()) {
+                this.currentStep++;
+            } else {
+
+            }
+        },
+        goToPreviousStep() {
+            if (this.currentStep > 1) {
+                this.currentStep--;
+            }
+        },
     }
 }
-
-//AQUI COMIENZAN LOS STEPS
-// Control del paso actual
-const currentStep = ref(1);
-
-// Función para avanzar al siguiente paso
-const goToNextStep = () => {
-  if (currentStep.value < 3) {
-    currentStep.value++;
-  }
-};
-
-// Función para retroceder al paso anterior
-const goToPreviousStep = () => {
-  if (currentStep.value > 1) {
-    currentStep.value--;
-  }
-};
 
 // Función para agregar la propiedad (último paso)
 const addProperty = () => {

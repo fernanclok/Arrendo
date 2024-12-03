@@ -25,7 +25,7 @@ import { Head, usePage } from '@inertiajs/vue3';
 
                         <div class="flex-[2] flex flex-col space-y-1">
                             <div class="text-sm font-medium text-gray-600">
-                                <b>Maximum Price:</b> {{ displayPrice }}
+                                <b>Maximum Price:</b> {{ displayPrice }} $MXN
                             </div>
                             <input type="range" v-model="selectedPrice" :min="0" :max="priceOptions.length - 1" step="1"
                                 class="w-full focus:ring-green-500" />
@@ -41,6 +41,9 @@ import { Head, usePage } from '@inertiajs/vue3';
                         </CustomButton>
                         <CustomButton v-else @click="toggleFilters" type="primary" class="py-2 ml-2">
                             Hide Filters
+                        </CustomButton>
+                        <CustomButton @click="refreshFilters" type="primary" class="py-2 w-32">
+                            <i class="mdi mdi-refresh mr-2"></i> REFRESH FILTERS
                         </CustomButton>
                     </div>
 
@@ -82,9 +85,6 @@ import { Head, usePage } from '@inertiajs/vue3';
                                     </div>
 
                                     <div class="col-span-1 flex flex-col items-center justify-center space-y-4">
-                                        <CustomButton @click="refreshFilters" type="primary" class="py-2 w-32">
-                                            <i class="mdi mdi-refresh mr-2"></i> REFRESH
-                                        </CustomButton>
                                         <CustomButton @click="filterProperties" type="primary" class="py-2 w-32">
                                             <i class="mdi mdi-magnify mr-2"></i> SEARCH
                                         </CustomButton>
@@ -95,23 +95,25 @@ import { Head, usePage } from '@inertiajs/vue3';
                     </transition>
                 </div>
 
-                <!-- Sección de tarjetas de propiedades con scroll interno en móviles -->
-                <div
-                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 h-full overflow-y-auto md:h-auto md:overflow-visible">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
                     <div v-if="properties && properties.length > 0" v-for="property in properties" :key="property.id"
-                        :class="[
-                            'bg-white shadow-md rounded-lg overflow-hidden h-full md:h-auto transform transition duration-300',
-                            { 'scale-105 shadow-xl': activePropertyId === property.id }
-                        ]">
+                        class="bg-white shadow-md rounded-lg flex flex-col justify-between h-full transform transition duration-300"
+                        :class="{ 'scale-105 shadow-xl': activePropertyId === property.id }">
+
+                        <!-- Imagen de la propiedad -->
                         <img :src="property.property_photos_path[0]" alt="Property Photo"
                             class="w-full h-48 object-cover" v-if="property.property_photos_path.length" />
-                        <div class="p-4">
+
+                        <!-- Contenido -->
+                        <div class="p-4 flex-grow">
                             <h2 class="text-xl font-bold mb-2">{{ property.zone_name }}</h2>
-                            <p class="text-gray-600 mb-2">{{ property.city }} {{ property.state }} , {{ property.street
-                                }}, {{ property.number }}</p>
+                            <p class="text-gray-600 mb-2">
+                                {{ property.city }}, {{ property.state }}, {{ property.colony }} {{ property.street }}
+                                {{ property.number }}
+                            </p>
                             <div class="flex justify-between items-center mb-2">
                                 <span class="flex items-center">
-                                    <!-- SVG Icon for rooms -->
+                                    <!-- Icono de habitaciones -->
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -120,18 +122,30 @@ import { Head, usePage } from '@inertiajs/vue3';
                                     </svg>
                                     {{ property.total_rooms }} rooms
                                 </span>
-                                <span class="flex items-center">
+                                <span v-if="property.half_bathrooms > 0" class="flex items-center">
                                     <!-- SVG Icon for bathrooms -->
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8c-1.657 0-3 1.343-3 3v4h6v-4c0-1.657-1.343-3-3-3zM5 20h14a2 2 0 002-2v-5a2 2 0 00-2-2H5a2 2 0 00-2 2v5a2 2 0 002 2z">
-                                        </path>
-                                    </svg>
+                                    <icon class="mdi mdi-toilet mr-2"></icon>{{ property.total_bathrooms }} bathrooms +
+                                    {{ property.half_bathrooms }} (<icon class="mdi mdi-fraction-one-half mr-1">)</icon>
+                                </span>
+                                <span v-else class="flex items-center">
+                                    <!-- SVG Icon for bathrooms -->
+                                    <icon class="mdi mdi-toilet mr-2"></icon>
                                     {{ property.total_bathrooms }} bathrooms
+                                </span>
+                                <span v-if="property.rental_rate != null" class="flex items-center">
+                                    <!-- SVG Icon for bathrooms -->
+                                    <icon class="mdi mdi-star mr-2"></icon>
+                                    {{ property.rental_rate }}
+                                </span>
+                                <span v-else class="flex items-center">
+                                    <!-- SVG Icon for bathrooms -->
+                                    <icon class="mdi mdi-star mr-2"></icon>
+                                    No rated yet
                                 </span>
                             </div>
                         </div>
+
+                        <!-- Pie de tarjeta -->
                         <div class="bg-gray-100 px-4 py-3 flex justify-between items-center">
                             <span class="text-lg font-bold flex items-center">
                                 <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -140,7 +154,7 @@ import { Head, usePage } from '@inertiajs/vue3';
                                         d="M12 8c-1.657 0-3 1.343-3 3v4h6v-4c0-1.657-1.343-3-3-3zM5 20h14a2 2 0 002-2v-5a2 2 0 00-2-2H5a2 2 0 00-2 2v5a2 2 0 002 2z">
                                     </path>
                                 </svg>
-                                ${{ property.property_price }}
+                                {{ property.property_price }} $MXN
                             </span>
                             <CustomButton v-if="property.id != activePropertyId" type="primary"
                                 @click="toggleDetails(property.id)">
@@ -151,28 +165,32 @@ import { Head, usePage } from '@inertiajs/vue3';
                             </CustomButton>
                         </div>
                     </div>
+
+                    <!-- Si no hay propiedades -->
                     <div v-else class="text-center text-gray-500 col-span-3">
                         <p>No properties found with the applied filters.</p>
                     </div>
                 </div>
+
             </div>
 
             <div v-if="showDetails" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title"
                 role="dialog" aria-modal="true">
                 <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-                    <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75 backdrop-blur-sm"
+                    <div class="fixed inset-0 transition-opacity bg-black bg-opacity-50 backdrop-blur-sm"
                         aria-hidden="true" @click="showDetails = false"></div>
 
                     <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
                     <div
-                        class="inline-block w-full max-w-4xl overflow-hidden text-left align-bottom transition-all transform bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg shadow-2xl sm:my-8 sm:align-middle sm:w-full animate-modal-appear">
+                        class="inline-block w-full max-w-4xl overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-2xl sm:my-8 sm:align-middle sm:w-full animate-modal-appear">
                         <div class="px-4 pt-5 pb-4 bg-opacity-30 sm:p-6 sm:pb-4">
                             <div class="sm:flex sm:items-start">
                                 <div class="w-full mt-3 text-center sm:mt-0 sm:text-left">
                                     <div class="flex items-center justify-between mb-4">
-                                        <h3 class="text-2xl font-bold leading-6 text-white" id="modal-title">
-                                            {{ selectedProperty.street }}, {{ selectedProperty.number }}
+                                        <h3 class="text-2xl font-bold leading-6" id="modal-title">
+                                            {{ selectedProperty.colony }} {{ selectedProperty.street }}, {{
+                                                selectedProperty.number }}
                                         </h3>
                                         <button @click="showDetails = false"
                                             class="text-gray-400 transition-colors duration-200 hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
@@ -180,38 +198,77 @@ import { Head, usePage } from '@inertiajs/vue3';
                                             <i class="text-2xl mdi mdi-close" aria-hidden="true"></i>
                                         </button>
                                     </div>
-                                    <p class="mb-4 text-sm text-gray-300">
+                                    <p class="mb-4 text-sm text-gray-500">
                                         <i class="mr-2 mdi mdi-map-marker"></i>
                                         {{ selectedProperty.zone_name }}, {{ selectedProperty.city }}, {{
-                                        selectedProperty.state }} - CP {{ selectedProperty.postal_code }}
+                                            selectedProperty.state }} - CP {{ selectedProperty.postal_code }}
                                     </p>
 
-                                    <div class="grid grid-cols-1 gap-6 mb-6 md:grid-cols-2">
-                                        <div class="p-4 bg-gray-700 bg-opacity-50 rounded-lg">
-                                            <h4 class="mb-2 text-lg font-semibold text-white">Key Specifications</h4>
-                                            <ul class="space-y-2 text-gray-300">
-                                                <li><i class="mr-2 mdi mdi-currency-usd"></i><strong>Price:</strong> ${{
-                                                    selectedProperty.property_price }}</li>
-                                                <li><i class="mr-2 mdi mdi-bed"></i><strong>Rooms:</strong> {{
-                                                    selectedProperty.total_rooms }}</li>
-                                                <li><i class="mr-2 mdi mdi-shower"></i><strong>Bathrooms:</strong> {{
-                                                    selectedProperty.total_bathrooms }}</li>
-                                                <li><i class="mr-2 mdi mdi-ruler"></i><strong>Square Meters:</strong> {{
-                                                    selectedProperty.total_m2 }}</li>
-                                                <li><i class="mr-2 mdi mdi-car"></i><strong>Parking:</strong> {{
-                                                    selectedProperty.have_parking ? "Yes" : "No" }}</li>
-                                                <li><i class="mr-2 mdi mdi-paw"></i><strong>Pets Allowed:</strong> {{
-                                                    selectedProperty.accept_mascots ? "Yes" : "No" }}</li>
+                                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                        <div class="p-4 rounded-lg">
+                                            <h4 class="mb-2 text-lg font-semibold">Key Specifications</h4>
+                                            <ul class="space-y-2">
+                                                <li><i class="mr-2 mdi mdi-currency-usd"></i><strong
+                                                        class="text-gray-500">Price:</strong> {{
+                                                            selectedProperty.property_price }} MXN$ </li>
+                                                <li><i class="mr-2 mdi mdi-bed"></i><strong
+                                                        class="text-gray-500">Rooms:</strong> {{
+                                                            selectedProperty.total_rooms }}</li>
+                                                <li><i class="mr-2 mdi mdi-shower"></i><strong
+                                                        class="text-gray-500">Bathrooms:</strong> {{
+                                                            selectedProperty.total_bathrooms }}</li>
+                                                <li><i class="mr-2 mdi mdi-fraction-one-half"></i><strong
+                                                        class="text-gray-500">Half bathrooms:</strong> {{
+                                                            selectedProperty.half_bathrooms }}</li>
+                                                <li><i class="mr-2 mdi mdi-ruler"></i><strong
+                                                        class="text-gray-500">Square Meters:</strong> {{
+                                                            selectedProperty.total_m2 }}</li>
+                                                <li><i class="mr-2 mdi mdi-car"></i><strong
+                                                        class="text-gray-500">Parking:</strong> {{
+                                                            selectedProperty.have_parking ? "Yes" : "No" }}</li>
+                                                <li><i class="mr-2 mdi mdi-paw"></i><strong class="text-gray-500">Pets
+                                                        Allowed:</strong> {{
+                                                            selectedProperty.accept_mascots ? "Yes" : "No" }}</li>
                                             </ul>
                                         </div>
-                                        <div class="p-4 bg-gray-700 bg-opacity-50 rounded-lg">
-                                            <h4 class="mb-2 text-lg font-semibold text-white">Details</h4>
-                                            <p class="text-gray-300">{{ selectedProperty.property_details }}</p>
+                                        <div class="p-4 rounded-lg">
+                                            <h4 class="mb-2 text-lg font-semibold">Details</h4>
+                                            <p class="text-gray-500">{{ selectedProperty.property_details }}</p>
+                                            <div class=" mt-1 mb-4">
+                                                <h3 class="text-lg font-semibold text-gray-700 mb-2">Comments ({{
+                                                    selectedProperty.comments.length }})</h3>
+                                                <div v-if="selectedProperty.comments && selectedProperty.comments.length > 0"
+                                                    class="space-y-4 overflow-y-auto max-h-40">
+                                                    <div v-for="comment in [...selectedProperty.comments].reverse()"
+                                                        :key="comment.id"
+                                                        class="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm">
+                                                        <div class="flex items-center justify-between mb-2">
+                                                            <span class="text-sm text-gray-500">{{ new
+                                                                Date(comment.created_at).toLocaleDateString() }}</span>
+                                                            <div class="flex">
+                                                                <icon v-for="n in 5" :key="n"
+                                                                    :class="n <= comment.comment_rate ? 'mdi mdi-star' : 'mdi mdi-star-outline'"
+                                                                    class="text-yellow-500 text-lg"></icon>
+                                                            </div>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <p class="text-gray-700 font-medium">{{
+                                                                comment.user.first_name }} {{ comment.user.last_name }}
+                                                            </p>
+                                                        </div>
+                                                        <p class="text-gray-600 whitespace-normal break-words">{{
+                                                            comment.comment }}</p>
+                                                    </div>
+                                                </div>
+                                                <div v-else class="text-gray-500 text-center mt-4">
+                                                    <p>No comments found for this property.</p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div v-if="selectedProperty.property_photos_path" class="mb-6">
-                                        <h4 class="mb-2 text-lg font-semibold text-white">Photos</h4>
+                                        <h4 class="mb-2 text-lg font-semibold">Photos</h4>
                                         <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
                                             <div v-for="(url, key) in selectedProperty.property_photos_path" :key="key"
                                                 class="relative overflow-hidden rounded-lg group aspect-w-16 aspect-h-9">
@@ -230,17 +287,19 @@ import { Head, usePage } from '@inertiajs/vue3';
                                 </div>
                             </div>
                         </div>
-                        <div class="px-4 py-3 bg-gray-700 bg-opacity-50 sm:px-6 sm:flex sm:flex-row-reverse">
-                            <button type="button"
-                                class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white transition-colors duration-200 bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
-                                @click="applyToListing(selectedProperty.id)">
-                                <i class="mr-2 mdi mdi-check"></i> Apply to this Listing
-                            </button>
-                            <button type="button"
-                                class="inline-flex justify-center w-full px-4 py-2 mt-3 text-base font-medium text-gray-700 transition-colors duration-200 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+
+                        <div class="px-4 py-3 bg-gray-200 bg-opacity-50 sm:px-6 sm:flex sm:flex-row-reverse">
+                            <CustomButton v-if="!hasAppointment && !hasActiveContract" type="primary" class="py-2"
                                 @click="scheduleAppointment = true">
                                 <i class="mr-2 mdi mdi-calendar"></i> Schedule a Visit
-                            </button>
+                            </CustomButton>
+                            <p v-else-if="hasActiveContract" class="text-gray-500 text-sm mt-2">
+                                You already have an active contract. You cannot schedule a visit.
+                            </p>
+                            <p v-else class="text-gray-500 text-sm mt-2">
+                                You already have a visit request for this property. You can view it in <a
+                                    href="/appointments" class="text-green-700 underline">Appointments</a>.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -253,20 +312,32 @@ import { Head, usePage } from '@inertiajs/vue3';
                 <h2 class="text-2xl font-bold mb-2">Schedule an Appointment</h2>
                 <p class="text-gray-600 mb-2">The owner will be notified of your request.</p>
                 <form @submit.prevent="ApplyToAnAppointment(selectedProperty.id)">
+                    <!-- Campo para seleccionar la fecha -->
                     <div class="mb-4">
-                        <label for="requested_date" class="block text-sm font-medium text-gray-700">Requested
-                            Date</label>
-                        <input type="datetime-local" v-model="appointmentForm.requested_date" id="requested_date"
+                        <label for="requested_date" class="block text-sm font-medium text-gray-700">Select Date</label>
+                        <input type="date" v-model="appointmentForm.date" id="requested_date"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-700 focus:ring focus:ring-green-700 focus:ring-opacity-50"
-                            :min="minDateTime" :max="maxDateTime"
-                            @change="checkDisabledDate(appointmentForm.requested_date)">
+                            :min="minDate" :max="maxDate" @change="loadAvailableHours(appointmentForm.date)">
                         <p v-if="isDateDisabled" class="text-red-500 text-sm mt-2">
-                            This date is already booked. Please select a different date.
-                        </p>
-                        <p class="text-gray-600 text-sm mt-2">
-                            Please try to select a time with at least one hour difference from the booked times.
+                            Selected date is unavailable.
                         </p>
                     </div>
+
+                    <!-- Campo para seleccionar la hora -->
+                    <div class="mb-4" v-if="availableHours.length">
+                        <label for="requested_time" class="block text-sm font-medium text-gray-700">Select Time</label>
+                        <select v-model="appointmentForm.time" id="requested_time"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-700 focus:ring focus:ring-green-700 focus:ring-opacity-50">
+                            <option v-for="hour in availableHours" :key="hour" :value="hour">
+                                {{ hour }}
+                            </option>
+                        </select>
+                        <p v-if="!availableHours.length" class="text-red-500 text-sm mt-2">
+                            No available times for this date.
+                        </p>
+                    </div>
+
+                    <!-- Botones -->
                     <div class="flex justify-end">
                         <CustomButton type="cancel" @click="scheduleAppointment = false">Close</CustomButton>
                         <button type="submit" :class="{
@@ -282,43 +353,40 @@ import { Head, usePage } from '@inertiajs/vue3';
 </template>
 
 <script>
+import { formatInTimeZone } from 'date-fns-tz';
+import { addDays } from 'date-fns';
 export default {
+    props: ['user', 'hasActiveContract'],
     data() {
         const now = new Date();
-        const minDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+        const minDate = addDays(now, 1).toISOString().split('T')[0]; // Fecha mínima (mañana)
 
         const maxDate = new Date(now);
-        maxDate.setMonth(now.getMonth() + 6);
-        const maxDateTime = new Date(maxDate.getTime() - maxDate.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+        maxDate.setMonth(now.getMonth() + 6); // Fecha máxima (6 meses adelante)
+        const maxDateString = maxDate.toISOString().split('T')[0];
         return {
+            hasInitialFilterChanged: false,
             showDetails: false,
             scheduleAppointment: false,
             showFilters: false,
             activePropertyId: null,
             priceOptions: ["5000", "7000", "10000", "+10000"],
-            selectedPrice: 0,
+            selectedPrice: 3,
             isRefreshing: false,
             properties: [],
             appointmentForm: {
+                date: '',
+                time: '',
                 requested_date: '',
             },
             selectedProperty: {},
             isDateDisabled: false,
-            minDateTime,
-            maxDateTime,
+            availableHours: [],
+            minDate, // Fecha mínima
+            maxDate: maxDateString,
             user: null,
-            zones: [
-                { id: 1, name: 'Centro' },
-                { id: 2, name: 'Otay' },
-                { id: 3, name: 'Playas de Tijuana' },
-                { id: 4, name: 'Cerro Colorado' },
-                { id: 5, name: 'La Presa' },
-                { id: 6, name: 'La Mesa' },
-                { id: 7, name: 'San Antonio de las Buenas' },
-                { id: 8, name: 'Sanchéz Taboada' },
-                { id: 9, name: 'La Presa Rural' },
-                { id: 10, name: 'Sierra Tijuanense' },
-            ],
+            hasAppointment: false,
+            zones: [],
             propertiesSpecifications: {
                 selectedZone: '',
                 maxPrice: '',
@@ -331,6 +399,15 @@ export default {
         };
     },
     methods: {
+        handleGetZones() {
+            axios.get('/api/zones')
+                .then(response => {
+                    this.zones = response.data;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        },
         async toggleDetails(propertyId) {
             if (this.activePropertyId === propertyId) {
                 this.showDetails = false;
@@ -341,11 +418,34 @@ export default {
                     this.selectedProperty = response.data;
                     this.activePropertyId = propertyId;
                     this.showDetails = true;
+                    this.checkUserAppointment();
                 } catch (error) {
                     console.error("Error fetching property details:", error);
                     alert("Failed to fetch property details. Please try again.");
                 }
             }
+        },
+
+        // Send notification to user
+        async sendNotification(senderId, receiverId, notificationType, message) {
+            try {
+                await axios.post('/api/notifications', {
+                    sender_id: senderId,
+                    receiver_id: receiverId,
+                    notification_type: notificationType,
+                    message: message,
+                    sent_date: new Date().toISOString(), // Fecha actual en formato ISO
+                    read_status: false, // Estado inicial como no leído
+                });
+            } catch (error) {
+                console.error('Error sending notification:', error);
+            }
+        },
+
+        checkUserAppointment() {
+            this.hasAppointment = this.selectedProperty.appointments.some(appointment => {
+                return appointment.user.id === this.user.id && appointment.appointment_status !== 'Rejected' && appointment.appointment_status !== 'Cancelled';
+            });
         },
         toggleFilters() {
             this.showFilters = !this.showFilters;
@@ -354,12 +454,16 @@ export default {
             axios.get('/api/properties/getProperties')
                 .then(response => {
                     this.properties = response.data;
+                    console.log(this.user)
+                    console.log(this.hasActiveContract)
                 })
                 .catch(error => {
                     console.error(error);
                 });
         },
         filterProperties() {
+            this.hasInitialFilterChanged = true;
+
             var selectedZoneName = this.zones.find(zone => zone.id == this.propertiesSpecifications.selectedZone);
 
             var filters = {
@@ -390,52 +494,43 @@ export default {
                 allowPets: false,
                 parking: false,
             };
-            this.selectedPrice = 0;
+            this.selectedPrice = 3;
 
             this.getProperties();
 
             setTimeout(() => {
                 this.isRefreshing = false;
+                this.hasInitialFilterChanged = false;
             }, 0);
         },
-        async applyToListing(propertyId) {
-            try {
-                const requestData = {
-                    property_id: propertyId,
-                    tenant_user_id: this.user.id, // ID del usuario autenticado
-                    application_date: new Date().toISOString().split('T')[0], // Fecha actual en formato YYYY-MM-DD
-                    status: 'Pending', // Estado inicial
-                };
-
-                const response = await axios.post('/api/properties/applicate', requestData);
-                alert("Application sent successfully!"); // Mensaje para éxito
-            } catch (error) {
-                // Verifica si el error es de validación u otro tipo
-                if (error.response && error.response.status === 409) {
-                    // Mostrar el mensaje del backend para errores específicos
-                    alert(error.response.data.message || "You have already applied to this property.");
-                } else {
-                    // Mensaje genérico para otros errores
-                    console.error("Error applying to listing:", error.response?.data || error);
-                    alert("Failed to apply to the listing. Please try again.");
-                }
-            }
-        },
         ApplyToAnAppointment(propertyId) {
+            // Combinar fecha y hora en formato "YYYY-MM-DDTHH:MM"
+            const requested_date = `${this.appointmentForm.date}T${this.appointmentForm.time}`;
+            this.appointmentForm.requested_date = requested_date;
+
             const form = {
                 property_id: propertyId,
                 tenant_user_id: this.user.id,
-                requested_date: this.appointmentForm.requested_date,
+                requested_date: requested_date,
                 status: 'Pending'
             };
+
             axios.post('/api/properties/appointment', form)
                 .then(response => {
+                    this.scheduleAppointment = false;
+                    this.showDetails = false;
+                    this.clearAppointmentForm();
                     this.emmiter.emit('show_notification', {
                         title: 'Success',
                         message: `Appointment requested successfully! Check the status in <a href="/appointments" class="text-green-700 underline">Appointments</a>.`,
                         type: 'success'
                     });
-                    this.scheduleAppointment = false;
+                    this.sendNotification(
+                        this.user.id,
+                        this.selectedProperty.owner_user_id,
+                        "ApplicationApproved",
+                        `Your application for the property at ${this.selectedProperty.street} has been approved.`
+                    );
                 })
                 .catch(error => {
                     console.error("Error applying to listing:", error.response?.data || error);
@@ -446,23 +541,56 @@ export default {
                     });
                 });
         },
-        checkDisabledDate(selectedDate) {
-            const selectedDateObj = new Date(selectedDate);
-            const selectedDateTijuana = new Date(
-                selectedDateObj.toLocaleString("en-US", { timeZone: "America/Tijuana" })
-            );
+        clearAppointmentForm() {
+            this.appointmentForm = {
+                date: '',
+                time: '',
+                requested_date: '',
+            }
+        },
+        loadAvailableHours(date) {
+            const timeZone = "America/Tijuana";
 
-            this.isDateDisabled = this.selectedProperty.appointments.some((appointment) => {
-                const appointmentDateObj = new Date(
-                    new Date(appointment).toLocaleString("en-US", { timeZone: "America/Tijuana" })
-                );
+            // Agregar un día a la fecha seleccionada
+            const adjustedDate = addDays(new Date(date), 1);
 
-                const diffInMs = Math.abs(selectedDateTijuana - appointmentDateObj);
-                const diffInMinutes = diffInMs / (1000 * 60);
+            // Convertir la fecha seleccionada al formato "yyyy-MM-dd" en la zona horaria
+            const selectedDate = formatInTimeZone(adjustedDate, timeZone, "yyyy-MM-dd");
 
-                return diffInMinutes < 60;
+            // Filtrar y mapear las horas ya reservadas
+            const bookedHours = this.selectedProperty.appointments
+                .filter((appointment) => {
+                    const appointmentDate = formatInTimeZone(
+                        new Date(appointment.requested_date),
+                        timeZone,
+                        "yyyy-MM-dd"
+                    );
+                    return appointmentDate === selectedDate;
+                })
+                .map((appointment) => {
+                    return formatInTimeZone(
+                        new Date(appointment.requested_date),
+                        timeZone,
+                        "HH:mm" // Solo la hora en formato 24h
+                    );
+                });
+
+            // Generar lista de horas disponibles (9 AM - 6 PM)
+            const allHours = Array.from({ length: 10 }, (_, i) => {
+                const hour = 9 + i;
+                return `${hour.toString().padStart(2, "0")}:00`;
             });
-        }
+
+            // Filtrar horas no disponibles
+            this.availableHours = allHours.filter((hour) => !bookedHours.includes(hour));
+
+            // Si no hay horas disponibles, mostrar mensaje de error
+            if (this.availableHours.length === 0) {
+                this.isDateDisabled = true;
+            } else {
+                this.isDateDisabled = false;
+            }
+        },
     },
     watch: {
         showDetails(newVal) {
@@ -493,6 +621,7 @@ export default {
     },
     mounted() {
         this.getProperties();
+        this.handleGetZones();
         this.user = usePage().props.auth.user;
     }
 };

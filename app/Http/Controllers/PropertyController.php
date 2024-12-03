@@ -3,26 +3,29 @@
 namespace App\Http\Controllers;
 
 use App\Models\Comment;
+use App\Models\Contract;
 use Illuminate\Http\Request;
 use App\Models\Property;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-use App\Models\Appoinment;
+use App\Models\Appointment;
 use App\Models\Rental_application;
 
 class PropertyController extends Controller
 {
-    public function getProperties() {
+    public function getProperties()
+    {
         $properties = Property::join('zones', 'zones.id', '=', 'properties.zone_id')
             ->select('properties.*', 'zones.name as zone_name')
             ->where('availability', 'Available')
+            ->with('comments')
             ->get()
             ->map(function ($property) {
                 $photos = $property->property_photos_path ? json_decode($property->property_photos_path, true) : [];
-                $property->property_photos_path = is_array($photos) 
-                    ? array_map(fn($photo) => asset($photo), $photos) 
+                $property->property_photos_path = is_array($photos)
+                    ? array_map(fn($photo) => asset($photo), $photos)
                     : [];
                 return $property;
             });
@@ -30,7 +33,8 @@ class PropertyController extends Controller
         return response()->json($properties);
     }
 
-    public function featuredProperties() {
+    public function featuredProperties()
+    {
         $properties = Property::join('zones', 'zones.id', '=', 'properties.zone_id')
             ->select('properties.*', 'zones.name as zone_name')
             ->where('availability', 'Available')
@@ -39,8 +43,8 @@ class PropertyController extends Controller
             ->get()
             ->map(function ($property) {
                 $photos = $property->property_photos_path ? json_decode($property->property_photos_path, true) : [];
-                $property->property_photos_path = is_array($photos) 
-                    ? array_map(fn($photo) => asset($photo), $photos) 
+                $property->property_photos_path = is_array($photos)
+                    ? array_map(fn($photo) => asset($photo), $photos)
                     : [];
                 return $property;
             });
@@ -48,27 +52,35 @@ class PropertyController extends Controller
         return response()->json($properties);
     }
 
-    public function getComments(Request $request){
+    public function getComments($id)
+    {
+        $property_id = Contract::where('tenant_user_id', $id)->where('status', 'Active')->select('property_id')->first();
 
-        $comments = Comment::where('property_id', $request->id)
+        if(!$property_id) {
+            return response()->json("No property found");
+        }
+
+        $comments = Comment::where('property_id', $property_id->property_id)
             ->join('users', 'users.id', '=', 'comments.user_id')
             ->orderBy('comments.created_at', 'desc')
-            ->select('comments.*', 'users.name as user_name')
+            ->select('comments.*', 'users.first_name as first_name', 'users.last_name as last_name')
             ->get();
 
         return response()->json($comments);
     }
 
-    public function createComment(Request $request){
+    public function createComment(Request $request)
+    {
         $comment = new Comment();
         $comment->comment = $request->comment;
-        $comment->comment_rate = $request->comment_rate;
+        $comment->comment_rate = $request->rating;
         $comment->property_id = $request->property_id;
         $comment->user_id = $request->user_id;
         $comment->save();
-    //
+        //
         $comments = Comment::where('property_id', $request->property_id)->get();
         $total = 0;
+
         foreach ($comments as $comment) {
             $total += $comment->comment_rate;
         }
@@ -78,17 +90,14 @@ class PropertyController extends Controller
         $property->rental_rate = $total / count($comments);
 
         $property->save();
-    //
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Comment created successfully'
-        ]);
+
+        return response()->json($comments);
     }
 
     public function show($id)
     {
         $property = Property::findOrFail($id);
-        return response()->json($property);    
+        return response()->json($property);
     }
 
     public function destroy($id)
@@ -99,12 +108,13 @@ class PropertyController extends Controller
         return response()->json(['message' => 'Property deleted successfully']);
     }
 
-      public function getPropertyDetails($id)
+    public function getPropertyDetails($id)
     {
         // Validar que el ID de la propiedad sea un entero y exista en la base de datos
         $property = Property::join('zones', 'zones.id', '=', 'properties.zone_id')
             ->select('properties.*', 'zones.name as zone_name')
             ->where('properties.id', $id)
+            ->with('comments.user')
             ->firstOrFail();
 
         $photos = $property->property_photos_path ? json_decode($property->property_photos_path, true) : [];
@@ -113,11 +123,15 @@ class PropertyController extends Controller
             : [];
 
         // Obtener las citas relacionadas con la propiedad
-        $appointments = Appoinment::where('property_id', $id)
-            ->select('requested_date')
+        $appointments = Appointment::where('property_id', $id)
+            ->with('user:id,first_name,last_name,email') // Incluir solo los campos necesarios del usuario
             ->get()
             ->map(function ($appointment) {
-                return $appointment->requested_date; // Solo devolver las fechas
+                return [
+                    'requested_date' => $appointment->requested_date,
+                    'appointment_status' => $appointment->status,
+                    'user' => $appointment->user
+                ];
             });
 
         // Agregar las citas al resultado de la propiedad
@@ -157,26 +171,27 @@ class PropertyController extends Controller
         }
 
         $query->join('zones', 'zones.id', '=', 'properties.zone_id')
-            ->select('properties.*', 'zones.name as zone_name');
+            ->select('properties.*', 'zones.name as zone_name')
+            ->with('comments');
 
         if (isset($params['selectedZone'])) {
             $query->where('zones.name', 'like', '%' . $params['selectedZone'] . '%');
         }
 
         if (isset($params['allowPets'])) {
-            $query->where('allow_pets', $params['allowPets']);
+            $query->where('accept_mascots', $params['allowPets']);
         }
 
         if (isset($params['parking'])) {
             $query->where('have_parking', $params['parking']);
         }
-    
+
         if (isset($params['bedrooms'])) {
             $query->where('total_rooms', '>=', $params['bedrooms']);
         }
 
         if (isset($params['bathrooms'])) {
-            $query->where('total_bathrooms', '>=', $params['bathrooms']);
+            $query->whereRaw('total_bathrooms + half_bathrooms >= ?', [$params['bathrooms']]);
         }
 
         if (isset($params['m2'])) {
@@ -246,6 +261,7 @@ class PropertyController extends Controller
         ]);
 
         $property = new Property();
+        $property->property_code = 'PTY-' .
         $property->street = $validatedData['street'];
         $property->number = $validatedData['number'];
         $property->city = $validatedData['city'];
@@ -291,6 +307,9 @@ class PropertyController extends Controller
         }
 
         $property->save();
+        // Generar el código único de la propiedad
+        $property->property_code = 'PTY-' . random_int(1000, 9999) . $property->id;
+        $property->save();
 
         return response()->json([
             'status' => 'success',
@@ -299,40 +318,40 @@ class PropertyController extends Controller
     }
 
 
-public function update(Request $request, $id)
-{
-    $validatedData = $request->validate([
-        'street' => 'required|string|max:255',
-        'number' => 'required|string|max:10',
-        'city' => 'required|string|max:100',
-        'state' => 'required|string|max:100',
-        'postal_code' => 'required|string|max:20',
-        'availability' => 'required|string',
-        'total_bathrooms' => 'required|integer',
-        'total_rooms' => 'required|integer',
-        'total_m2' => 'required|integer',
-        'have_parking' => 'required|boolean',
-        'accept_mascots' => 'required|boolean',
-        'property_price' => 'required|numeric',
-        'property_details' => 'required|string',
+    public function update(Request $request, $id)
+    {
+        $validatedData = $request->validate([
+            'street' => 'required|string|max:255',
+            'number' => 'required|string|max:10',
+            'city' => 'required|string|max:100',
+            'state' => 'required|string|max:100',
+            'postal_code' => 'required|string|max:20',
+            'availability' => 'required|string',
+            'total_bathrooms' => 'required|integer',
+            'total_rooms' => 'required|integer',
+            'total_m2' => 'required|integer',
+            'have_parking' => 'required|boolean',
+            'accept_mascots' => 'required|boolean',
+            'property_price' => 'required|numeric',
+            'property_details' => 'required|string',
 
-        'colony' => 'nullable|string|max:100',
-        'half_bathrooms' => 'nullable|integer',
-        'surface_built' => 'nullable|integer',
-        'total_surface' => 'nullable|integer',
-        'antiquity' => 'nullable|integer',
-        'maintenance' => 'nullable|numeric',
-        'state_conservation' => 'nullable|string|max:50',
-        'wineries' => 'nullable|integer',
-        'closets' => 'nullable|integer',
-        'levels' => 'nullable|integer',
-    ]);
+            'colony' => 'nullable|string|max:100',
+            'half_bathrooms' => 'nullable|integer',
+            'surface_built' => 'nullable|integer',
+            'total_surface' => 'nullable|integer',
+            'antiquity' => 'nullable|integer',
+            'maintenance' => 'nullable|numeric',
+            'state_conservation' => 'nullable|string|max:50',
+            'wineries' => 'nullable|integer',
+            'closets' => 'nullable|integer',
+            'levels' => 'nullable|integer',
+        ]);
 
-    $property = Property::findOrFail($id);
-    $property->update($validatedData);
+        $property = Property::findOrFail($id);
+        $property->update($validatedData);
 
-    return response()->json($property);
-}
+        return response()->json($property);
+    }
 
     public function getAllApplications()
     {
@@ -393,14 +412,15 @@ public function update(Request $request, $id)
             return response()->json(['message' => 'You have already applied to this property'], 409);
         }
 
-        $application = DB::table('rental_applications')->insert([
+        // Insertar la nueva aplicación y obtener su ID
+        $applicationId = DB::table('rental_applications')->insertGetId([
             'property_id' => $request->property_id,
             'tenant_user_id' => $request->tenant_user_id,
             'application_date' => $request->application_date,
-            'status' => $request->status
+            'status' => $request->status,
         ]);
 
-        if (!$application) {
+        if (!$applicationId) {
             $data = [
                 'message' => 'Error creating the application',
                 'status' => 500
@@ -410,7 +430,8 @@ public function update(Request $request, $id)
         }
 
         $data = [
-            'application' => $application,
+            'message' => 'Application created succesfully',
+            'application' => $applicationId,
             'status' => 201
         ];
 

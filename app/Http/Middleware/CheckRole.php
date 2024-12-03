@@ -22,12 +22,9 @@ class CheckRole
         }
 
         $allowedRoutes = [
-            'Owner' => ['dashboard', 'my-properties', 'contracts', 'dashboard/settings'],
-            'Tenant' => ['dashboard','search-properties','appoinments'],
-            'Owner' => ['dashboard', 'dashboard/settings', 'my-properties', 'contracts', 'contracts-details/{employee}', 'all-contracts', 'EvaluateRequest', 'appointments', 'maintenanceOwner'],
-            'Tenant' => ['dashboard','search-properties','appointments','TrackRequest', 'maintenance/new'],
+            'Owner' => ['dashboard', 'dashboard/settings', 'my-properties', 'contracts', 'contracts-details/{employee}', 'all-contracts', 'EvaluateRequest','appointment-request', 'maintenanceOwner', 'invoices', 'payment-history'],
+            'Tenant' => ['dashboard','search-properties','appointments','TrackRequest', 'maintenance/new', 'contracts-details/{employee}', 'all-contracts/tenant', 'my-invoices','payment-history/tenant'],
         ];
-
         $currentPath = $request->path();
 
         // Verificar si la ruta actual está permitida para el rol del usuario
@@ -35,6 +32,21 @@ class CheckRole
             return $next($request);
         }
 
+        foreach ($roles as $role) {
+            if (isset($allowedRoutes[$role])) {
+                foreach ($allowedRoutes[$role] as $allowedRoute) {
+                    if (strpos($allowedRoute, '{employee}') !== false) {
+                        $pattern = str_replace('{employee}', '[0-9]+', $allowedRoute);
+
+                        if (preg_match("#^$pattern$#", $currentPath)) {
+                            return $next($request);
+                        }
+                    } elseif ($currentPath === $allowedRoute) {
+                        return $next($request);
+                    }
+                }
+            }
+        }
         // Redirigir al usuario si no tiene permiso para acceder a la ruta
         return redirect('/dashboard');
     }

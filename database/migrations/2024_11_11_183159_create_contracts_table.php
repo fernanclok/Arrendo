@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('property_id')->constrained('properties');
             $table->foreignId('tenant_user_id')->constrained('users');
+            $table->string('contract_code')->unique();
             $table->date('start_date');
             $table->date('end_date');
             $table->decimal('rental_amount', 10, 2);
