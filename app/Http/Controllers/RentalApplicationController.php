@@ -234,4 +234,15 @@ class RentalApplicationController extends Controller
             'status' => 200
         ], 200);
     }
+
+    public function showUserFile($filePath)
+    {
+        $filePath = public_path("application_files/{$filePath}"); // Ruta completa del archivo
+
+        if (!file_exists($filePath)) {
+            abort(404, 'File does not exist.');
+        }
+
+        return response()->file($filePath); // Retornar el archivo
+    }
 }
