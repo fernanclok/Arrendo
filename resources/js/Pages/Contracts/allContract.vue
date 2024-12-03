@@ -97,6 +97,7 @@ const closeRenewalModal = () => {
 const openTerminateModal = (contractId) => {
     selectedContractId.value = contractId;
     isTerminateModalOpen.value = true;
+
 };
 
 // Cerrar modal de terminación
@@ -112,6 +113,11 @@ const form = useForm({
   renewal_end_date: '',
   renewal_rental_amount: '2500',
   renewal_status: 'Active',
+});
+
+const terminated = useForm({
+  contract_id: selectedContractId.value,
+  reason: '',
 });
 // Renovar contrato
 const renewalContract = async (contractId) => {
@@ -149,7 +155,9 @@ const renewalContract = async (contractId) => {
 // Terminar contrato
 const terminateContract = async (contractId) => {
     try {
-        const response = await axios.put(`/api/contracts/terminate/${contractId}`);
+        const response = await axios.put(`/api/contracts/terminate/${contractId}`,{
+            reason: terminated.reason,
+        });
         // Actualizar la lista de contratos
         showNotification({
         title: 'Success',
@@ -161,6 +169,11 @@ const terminateContract = async (contractId) => {
 
     } catch (error) {
         console.error(error);
+        showNotification({
+        title: 'Error',
+        message: `Contract cannot be terminated!`,
+        type: 'error'
+        });
     }
 };
 
@@ -371,16 +384,31 @@ onMounted(() => {
       <!-- Modal para terminar contrato -->
         <Modal :show="isTerminateModalOpen" @close="closeTerminateModal">
           <template #default>
-            <nav class="p-8 bg-gray-100">
+            <nav class="p-4 bg-gray-100">
               <div class="flex justify-between items-center">
                 <h1 class="text-2xl font-bold text-gray-900">Terminate Contract</h1>
               </div>
-              <div class="p-6">
-                <p class="text-red-300">Are you sure you want to end this contract?</p>
-                <div class="flex justify-end items-center space-x-4 mt-6">
+              <div class=" bg-yellow-200 p-3 mt-4 rounded-lg shadow-lg">
+                <p class="text-gray-900 font-semibold">All invoices issued after the contract is terminated will be deleted.</p>
+              </div>
+              <div>
+                <form @submit.prevent="terminateContract(selectedContractId)" class="mt-2 space-y-4 p-8 rounded-lg">
+                  <InputLabel for="reason" value="What´s the reason?  " class="text-gray-900"/>
+                  <textarea
+                     id="message"
+                      class="w-full rounded-lg border-gray-300 text-black"
+                      v-model="terminated.reason"
+                      required
+                      rows="5"
+                    autofocus
+                    />
+                  <InputError class="mt-2" :message="terminated.errors.reason" />
+                  
+                  <div class="flex justify-end items-center space-x-4 mt-6">
                   <SecondaryButton @click="closeTerminateModal">Cancel</SecondaryButton>
-                  <CustomButton @click="terminateContract(selectedContractId)" class="bg-red-500 hover:bg-red-700 text-gray-900">Terminate</CustomButton>
+                  <CustomButton type="submit" class="bg-red-500 hover:bg-red-700 text-gray-900">Terminate</CustomButton>
                 </div>
+                </form>
               </div>
             </nav>
           </template>

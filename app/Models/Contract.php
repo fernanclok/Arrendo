@@ -36,7 +36,11 @@ class Contract extends Model
         return $this->belongsTo(User::class, 'owner_user_id');
     }
     public function invoices()
-{
-    return $this->hasMany(Invoice::class, 'contract_id');
-}
+    {
+        return $this->hasMany(Invoice::class, 'contract_id');
+    }
+    public function terminations()
+    {
+        return $this->hasMany(ContractTermination::class, 'contract_id');
+    }
 }
