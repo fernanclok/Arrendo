@@ -12,6 +12,7 @@ use App\Models\Invoice;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App\Models\Rental_application;
+use App\Models\ContractTermination;
 
 class ContractController extends Controller
 {
@@ -103,10 +104,21 @@ class ContractController extends Controller
         // Si no existe el id en owner_user_id buscar con tenant_user_id
         if ($contracts->isEmpty()) {
             $contracts = Contract::where('tenant_user_id', $request->user_id)
-                ->with('property', 'tenantUser')
+                ->with('property', 'tenantUser', 'terminations')
                 // Ordenar los contratos por los que esten y sigan vigentes
                 ->orderBy('end_date', 'desc')
                 ->get();
+        }
+        // Evaluar si los contratos tienen relación con algún contrato renovado y tomar las fechas nuevas
+        foreach ($contracts as $contract) {
+            $contractRenewal = Contract_renewal::where('contract_id', $contract->id)
+                ->orderBy('renewal_end_date', 'desc')
+                ->first();
+
+            if ($contractRenewal) {
+                $contract->start_date = $contractRenewal->renewal_start_date;
+                $contract->end_date = $contractRenewal->renewal_end_date;
+            }
         }
 
         // Devolver una respuesta JSON de éxito
@@ -162,7 +174,7 @@ class ContractController extends Controller
     public function getContract($id)
     {
         // Obtener un contrato por su ID con sus relaciones
-        $contract = Contract::where('id', $id)->with('property', 'tenantUser')->first();
+        $contract = Contract::where('id', $id)->with('property', 'tenantUser', 'terminations')->first();
         // Devolver una respuesta JSON de éxito
         return response()->json($contract);
     }
@@ -230,13 +242,26 @@ class ContractController extends Controller
     }
 
     // Meethod to terminate a contract
-    public function terminateContract($id)
+    public function terminateContract(Request $request, $id)
     {
         // Actualizar el estado del contrato a Terminated
         try {
+
             $contract = Contract::find($id);
             $contract->status = 'Terminated';
             $contract->save();
+
+            // Crear un nuevo registro en la tabla de terminaciones de contrato
+            $termination = new ContractTermination();
+            $termination->contract_id = $id;
+            $termination->reason = $request->reason;
+            $termination->save();
+
+            // Eliminar las facturas posteriores a la fecha de terminación del contrato
+            $terminationDate = Carbon::now();
+            Invoice::where('contract_id', $id)
+                ->where('issue_date', '>', $terminationDate)
+                ->delete();
 
             // Devolver una respuesta JSON de éxito
             return response()->json(['message' => 'Contract terminated successfully'], 200);

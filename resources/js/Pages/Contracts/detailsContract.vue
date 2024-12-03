@@ -10,7 +10,13 @@ import { ref, onMounted } from 'vue';
 // Imagenes y Documentos subidos
 const user = usePage().props.auth.user;
 const contract = ref({});
+const terminated = ref(contract.value.terminations);
 const loading = ref(true);
+
+const formatDate = (dateString) => {
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  return new Date(dateString).toLocaleDateString(undefined, options);
+};
 // Obtener el id del contrato de la URL
 const getContractIdFromUrl = () => {
     const pathSegments = window.location.pathname.split('/');
@@ -54,6 +60,7 @@ onMounted(() => {
     <DashboardLayout>
       <div class=" bg-white">
         <h1 class="text-4xl font-bold text-gray-800 text-center mb-8">Contract Details</h1>
+        
       </div>
   
       <nav v-if="loading" class="w-full h-full flex justify-center items-center text-center mt-8">
@@ -64,16 +71,9 @@ onMounted(() => {
       <nav v-else class="p-8">
         <!-- Contract Information -->
         <div class="bg-white shadow-lg rounded-lg p-6 space-y-6 border border-gray-200 ">
-            <div class="flex justify-between items-center text-center">
+            <div class=" block sm:flex justify-between items-center text-center">
                 <h2 class="text-3xl font-semibold text-gray-800">Tenant: {{ contract.tenant_user.first_name }} {{ contract.tenant_user.last_name }}</h2>
-            <p :class="{
-                                        'text-sm justify-end text-end items-end font-bold  px-4 py-1 rounded-md':true,
-                                        'bg-gradient-to-l from-green-500 to-white from-10%': contract.status == 'Active',
-                                        'bg-gradient-to-l from-yellow-500 to-white from-10%': contract.status == 'Pending Renewal',
-                                        'bg-gradient-to-l from-red-500 to-white from-10%': contract.status == 'Terminated'
-                                        }"> {{ contract.status }}</p>
-            </div>
-            <div class="flex justify-between text-gray-600 text-sm">
+                <div class="flex justify-center items-center text-center gap-8 text-gray-600 text-sm">
               <div>
                 <p class="font-medium text-gray-700">Start Date</p>
                 <p class="text-gray-500">{{ contract.start_date }}</p>
@@ -83,6 +83,20 @@ onMounted(() => {
                 <p class="text-red-600">{{ contract.end_date }}</p>
               </div>
             </div>
+            <p :class="{
+                                        'text-sm justify-end text-end items-end font-bold  px-4 py-1 rounded-md':true,
+                                        'bg-gradient-to-l from-green-500 to-white from-10%': contract.status == 'Active',
+                                        'bg-gradient-to-l from-yellow-500 to-white from-10%': contract.status == 'Pending Renewal',
+                                        'bg-gradient-to-l from-red-500 to-white from-10%': contract.status == 'Terminated'
+                                        }"> {{ contract.status }}</p>
+            </div>
+            <div v-for="termination in contract.terminations" :key="termination.id">
+                    <div>
+                      <p class="mt-4 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 "> 
+                        You only need to pay the invoice up to.  <strong>{{ formatDate(termination.created_at) }}</strong></p> 
+                    </div>
+              </div>
+            
           </div>
         <section class="py-8">
           <!-- Property Details -->

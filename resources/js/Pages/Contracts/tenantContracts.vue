@@ -7,6 +7,7 @@ import { ref, onMounted, watch } from 'vue';
 
 const user = usePage().props.auth.user;
 const contracts = ref([]);
+console.log(contracts)
 const currentPage = ref(1);
 const contractsPerPage = 6;
 const paginatedContracts = ref([]);
@@ -66,17 +67,19 @@ onMounted(() => {
           <table class="min-w-full table-auto">
             <thead class="bg-gray-100 text-left text-sm text-gray-600">
               <tr>
+                <th class="px-6 py-4 font-semibold">Property code</th>
                 <th class="px-6 py-4 font-semibold">Property</th>
                 <th class="px-6 py-4 font-semibold">Tenant</th>
                 <th class="px-6 py-4 font-semibold">State</th>
                 <th class="px-6 py-4 font-semibold">Start Date</th>
                 <th class="px-6 py-4 font-semibold">End Date</th>
                 <th class="px-6 py-4 font-semibold">Renewal Amount</th>
-                <th class="px-6 py-4 font-semibold">Accions</th>
+                <th class="px-6 py-4 font-semibold">Accions</th>             
               </tr>
             </thead>
             <tbody class="text-sm text-gray-700">
               <tr v-for="contract in paginatedContracts" :key="contract.id" class="border-b hover:bg-gray-50">
+                <td class="px-6 py-4">{{ contract.property.property_code }}</td>
                 <td class="px-6 py-4">{{ contract.property.street }} {{ contract.property.number }}, {{ contract.property.city }} {{ contract.property.state }}, {{ contract.property.postal_code }}</td>
                 <td class="px-6 py-4">{{ contract.tenant_user.first_name }} {{ contract.tenant_user.last_name }}</td>
                 <td class="px-6 py-4">
@@ -89,11 +92,11 @@ onMounted(() => {
                 <td class="px-6 py-4">{{ contract.start_date }}</td>
                 <td class="px-6 py-4">{{ contract.end_date }}</td>
                 <td class="px-6 py-4">${{ contract.rental_amount }} MXN</td>
-                <td class="px-6 py-4 space-x-2 flex justify-center items-center">
+                
+                <td class="px-6 py-4 space-x-2 flex justify-center items-center text-center">
                     <Link :href="`/contracts-details/${contract.id}`">
                       <SecondaryButton>Details</SecondaryButton>
                     </Link>
-                   
                 </td>
               </tr>
             </tbody>
