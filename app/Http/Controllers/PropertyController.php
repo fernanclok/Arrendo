@@ -232,6 +232,11 @@ class PropertyController extends Controller
     public function create(Request $request)
     {
         $validatedData = $request->validate([
+            'general_features' => 'nullable|array',
+            'services' => 'nullable|array',
+            'exteriors' => 'nullable|array',
+            'environmentals' => 'nullable|array',
+
             'street' => 'required|string|max:255',
             'number' => 'required|string|max:10',
             'city' => 'required|string|max:100',
@@ -250,14 +255,15 @@ class PropertyController extends Controller
             'colony' => 'nullable|string|max:100',
             'half_bathrooms' => 'nullable|integer',
             'surface_built' => 'nullable|integer',
-            'total_surface' => 'nullable|integer',
+            'total_surface' => 'nullable|numeric|min:0',
             'antiquity' => 'nullable|integer',
             'maintenance' => 'nullable|numeric',
             'state_conservation' => 'nullable|string|max:50',
             'wineries' => 'nullable|integer',
             'closets' => 'nullable|integer',
             'levels' => 'nullable|integer',
-            'property_photos.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+            'property_photos.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'parking' => 'nullable|integer',
         ]);
 
         $property = new Property();
@@ -281,15 +287,19 @@ class PropertyController extends Controller
         $property->colony = $validatedData['colony'];
         $property->half_bathrooms = $validatedData['half_bathrooms'];
         $property->surface_built = $validatedData['surface_built'];
-        $property->total_surface = $validatedData['total_surface'];
+        $property->total_surface = $validatedData['total_surface']?? null;
         $property->antiquity = $validatedData['antiquity'];
         $property->maintenance = $validatedData['maintenance'];
         $property->state_conservation = $validatedData['state_conservation'];
         $property->wineries = $validatedData['wineries'];
         $property->closets = $validatedData['closets'];
         $property->levels = $validatedData['levels'];
-
-
+        $property->parking = $validatedData['parking'];
+      
+        $property->general_features = json_encode($validatedData['generalFeatures'] ?? []);
+        $property->services = json_encode($validatedData['services'] ?? []);
+        $property->exteriors = json_encode($validatedData['exteriors'] ?? []);
+        $property->environmentals = json_encode($validatedData['environmentals'] ?? []);      
 
         // Guardar las fotos de la propiedad
         if ($request->hasFile('property_photos')) {
@@ -313,7 +323,8 @@ class PropertyController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Property created successfully'
+            'message' => 'Property created successfully',
+            'property' => $property,
         ]);
     }
 
@@ -345,13 +356,37 @@ class PropertyController extends Controller
             'wineries' => 'nullable|integer',
             'closets' => 'nullable|integer',
             'levels' => 'nullable|integer',
+            'parking' => 'nullable|integer',
         ]);
+
+        // Convertir valores vacíos en null
+        foreach ($validatedData as $key => $value) {
+            if ($value === '') {
+                $validatedData[$key] = null;
+            }
+        }
+
+        // Manejar campos faltantes en la solicitud
+        $allFields = [
+            'street', 'number', 'city', 'state', 'postal_code', 'availability',
+            'total_bathrooms', 'total_rooms', 'total_m2', 'have_parking',
+            'accept_mascots', 'property_price', 'property_details', 'colony',
+            'half_bathrooms', 'surface_built', 'total_surface', 'antiquity',
+            'maintenance', 'state_conservation', 'wineries', 'closets', 'levels', 'parking',
+        ];
+
+        foreach ($allFields as $field) {
+            if (!array_key_exists($field, $validatedData)) {
+                $validatedData[$field] = null;
+            }
+        }
 
         $property = Property::findOrFail($id);
         $property->update($validatedData);
 
         return response()->json($property);
     }
+
 
     public function getAllApplications()
     {
