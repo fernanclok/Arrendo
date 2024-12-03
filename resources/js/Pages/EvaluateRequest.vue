@@ -24,39 +24,26 @@
                             </button>
                         </div>
 
-                        <!-- Filtered content -->
-                        <div v-if="filteredSolicitantes.length === 0" class="text-center text-gray-500">
-                            <p>Nothing to show</p>
-                        </div>
-                        <div v-else class="space-y-4">
-                            <div v-for="solicitante in filteredSolicitantes" :key="solicitante.id"
-                                class="bg-gray-50 p-4 rounded-lg shadow flex flex-col space-y-4">
-                                <!-- Applicant Header -->
-                                <div class="flex items-center justify-between cursor-pointer"
-                                    @click="toggleInfo(solicitante.id)">
-                                    <div class="flex items-center space-x-4">
-                                        <div>
-                                            <p class="font-medium text-gray-900">
-                                                {{ solicitante.tenant_user.first_name }} {{
-                                                    solicitante.tenant_user.last_name }}
-                                            </p>
-                                            <p class="text-sm text-gray-600">
-                                                <strong>Property:</strong> {{ solicitante.property.street }}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center space-x-4">
-                                        <span class="px-2 py-1 text-xs font-semibold rounded-full" :class="{
-                                            'bg-green-100 text-green-600': solicitante.status === 'Approved',
-                                            'bg-red-100 text-red-600': solicitante.status === 'Rejected',
-                                            'bg-yellow-100 text-yellow-800': solicitante.status === 'Pending'
-                                        }">
-                                            {{ solicitante.status }}
-                                        </span>
-                                        <i
-                                            :class="solicitante.isExpanded ? 'mdi mdi-chevron-up' : 'mdi mdi-chevron-down'"></i>
-                                    </div>
-                                </div>
+                <!-- Expanded Details -->
+                <div v-if="solicitante.isExpanded" class="mt-4 text-gray-700">
+                  <p><strong>Applicant:</strong> {{ solicitante.tenant_user.first_name }} {{ solicitante.tenant_user.last_name }}</p>
+                  <p><strong>Property:</strong> {{ solicitante.property.street }}</p>
+                  <p><strong>Requested:</strong> {{ solicitante.application_date }}</p>
+                  <p v-if="solicitante.status === 'Approved'">
+                    <strong>Approved on:</strong> {{ formatDate(solicitante.updated_at) }}
+                  </p>
+                  <p v-if="solicitante.status === 'Rejected'">
+                    <strong>Rejected on:</strong> {{ formatDate(solicitante.updated_at) }}
+                  </p>
+                  <p><strong>Documents:</strong></p>
+                <ul>
+                  <li v-for="(file, index) in solicitante.documents" :key="index">
+                    <a :href="getDocumentUrl(file)" target="_blank" rel="noopener noreferrer"
+                      class="text-blue-500 underline hover:text-blue-700">
+                      Show Document {{ index + 1 }}
+                    </a>
+                  </li>
+                </ul>
 
                                 <!-- Expanded Details -->
                                 <div v-if="solicitante.isExpanded" class="mt-4 text-gray-700">
@@ -119,17 +106,44 @@ import axios from "axios";
 import { Head } from "@inertiajs/vue3";
 import DashboardLayout from "@/Layouts/DashboardLayout.vue";
 import CustomButton from "@/Components/CustomButton.vue";
+import PreviewModal from '@/Components/PreviewModal.vue';
+
 
 export default {
-    components: { DashboardLayout, CustomButton, Head },
-    data() {
-        return {
-            solicitantes: [],
-            currentTab: "Pending",
-            tabs: ["Pending", "Approved", "Rejected"],
-            showContractModal: false,
-            currentSolicitanteId: null,
-        };
+  components: { DashboardLayout, CustomButton, Head },
+  data() {
+    return {
+      solicitantes: [],
+      currentTab: "Pending",
+      tabs: ["Pending", "Approved", "Rejected"],
+      showContractModal: false,
+      currentSolicitanteId: null,
+      selectedFile: null, // Ruta del archivo seleccionado
+      selectedFileType: null, // Tipo de archivo seleccionado
+    };
+  },
+  computed: {
+    filteredSolicitantes() {
+      return this.solicitantes.filter(
+        (solicitante) => solicitante.status === this.currentTab
+      );
+    },
+  },
+  created() {
+    this.fetchSolicitantes();
+  },
+  methods: {
+    async fetchSolicitantes() {
+      try {
+        const response = await axios.get("/api/rental-applications");
+        this.solicitantes = response.data.map((solicitante) => ({
+          ...solicitante,
+          isExpanded: false,
+          documents: JSON.parse(solicitante.tenant_user.document_path || "[]"),
+        }));
+      } catch (error) {
+        console.error("Error fetching solicitantes:", error);
+      }
     },
     computed: {
         filteredSolicitantes() {
@@ -245,6 +259,35 @@ export default {
             );
         },
     },
+    getFileName(filePath) {
+        return filePath.split().pop();
+      },
+      showDocument(filePath) {
+        console.log("Mostrar documento:", filePath);
+        // Aquí llamaremos al modal en el paso siguiente
+      },
+      showDocument(filePath) {
+        // Determinar el tipo de archivo
+        const fileType = filePath.endsWith(".pdf") ? "pdf" : "image";
+        // Configurar las propiedades del modal
+        this.selectedFile = `/storage/${filePath}`; // Ajusta el path según tu servidor Laravel
+        this.selectedFileType = fileType;
+        this.showModal = true;
+      },
+      closeModal() {
+        this.showModal = false;
+        this.selectedFile = null;
+        this.selectedFileType = null;
+      },
+      getDocumentUrl(filePath) {
+        let file = filePath.replace('application_files/', '');
+        console.log("File path:", file);
+        return `api/properties/file/${file}`; // Cambia la base del path según tu configuración
+      },
+      formatDate(date) {
+        return new Date(date).toLocaleDateString();
+      },
+  },
 };
 </script>
 
