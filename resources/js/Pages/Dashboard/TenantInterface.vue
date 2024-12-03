@@ -1,5 +1,5 @@
 <template>
-    <div class=" bg-gray-100 mx-auto px-6 py-8">
+    <div class="mx-auto px-6 py-8">
         <!-- Header -->
         <div class="bg-primary text-white p-6 rounded-lg shadow-lg mb-8 relative">
             <div class="flex justify-between items-start">
@@ -186,6 +186,7 @@
                     </button>
                 </div>
             </div>
+            
             <!-- Contratos y Comentarios organizados -->
             <!-- <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-5"> -->
                 <!-- Contract Table -->
@@ -246,12 +247,12 @@
                                 <icon :class="n <= rating ? 'mdi mdi-star' : 'mdi mdi-star-outline'"></icon>
                             </button>
                         </div>
-                        <div class="mb-2">
-                            <p class="text-gray-700 font-medium">{{ comment.first_name }} {{ comment.last_name }}</p>
-                        </div>
-                        <p class="text-gray-600 whitespace-normal break-words">{{ comment.comment }}</p>
+                        <button
+                            class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50"
+                            @click="addComment" :disabled="!newComment || !rating">
+                            <i class="mdi mdi-send"></i>
+                        </button>
                     </div>
-
                 </div> -->
             <!-- </div> -->
 
@@ -311,6 +312,13 @@
                 <p class="text-gray-600 whitespace-normal break-words">{{ comment.comment }}</p>
             </div>
         </div>
+    </div>
+    <div v-else>
+        <p class="text-gray-500">You need to be tenant of a property to leave a comment</p>
+    </div>
+</div>
+
+</div>
     </div>
 </template>
 
@@ -478,7 +486,7 @@ export default {
     },
     methods: {
         getComments() {
-            axios.get(`/api/comments/2`)
+            axios.get(`/api/comments/${this.auth.user.id}`)
                 .then(response => {
                     this.comments = response.data;
                 })
@@ -494,35 +502,25 @@ export default {
                 const newComment = {
                     comment: this.newComment,
                     rating: this.rating,
-                    property_id : this.property.property_id,
+                    property_id: this.property.property_id,
                     user_id: this.auth.user.id,
                 };
 
                 axios.post('/api/comments', newComment)
-                .then(response => {
-                    this.comments = response.data.reverse();
-                    this.newComment = '';
-                    this.rating = 0;
+                    .then(response => {
+                        this.comments = response.data.reverse();
+                        this.newComment = '';
+                        this.rating = 0;
 
-                })
-                .catch(error => {
-                    console.error('Error adding comment:', error);
-                });
+                    })
+                    .catch(error => {
+                        console.error('Error adding comment:', error);
+                    });
             }
         },
         formatDate(dateString) {
-            if (!dateString) {
-                return ''; // O puedes devolver 'Fecha no válida' o algo similar
-            }
-
-            // Intentar parsear la fecha
+            // Si la fecha ya viene ajustada, solo formatea
             const date = parseISO(dateString);
-
-            // Verificar si la fecha es válida
-            if (!isValid(date)) {
-                return 'Fecha no válida'; // O puedes devolver un valor por defecto
-            }
-
             return format(date, 'dd MMM yyyy', { locale: es });
         },
         getStatusColor(status) {
