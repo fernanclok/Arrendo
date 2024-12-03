@@ -17,7 +17,7 @@ const tenants = ref([]);
 const properties = ref([]);
 const contracts = ref([]);
 const filterStatus = ref('all'); // valor por defecto
-const selectedPropertyId = ref(null);
+const selectedPropertyId = ref(null)
 
 const notification = ref({
   show: false,
@@ -243,7 +243,10 @@ onMounted(() => {
                         </select>
                         <InputError class="mt-2" :message="form.errors.property_id" />
                         </div>
-                        <div class="flex flex-col justify-start items-start text-start w-full">
+                        <div :class="{
+                          'flex flex-col justify-start items-start text-start w-full':true,
+                          'hidden': selectedPropertyId == null,
+                        }">
                         <InputLabel for="tenant_user_id" value="Select tenant" />
                         <select id="tenant_user_id" v-model="form.tenant_user_id" class="w-full rounded-lg border-gray-300 text-black">
                             <option disabled value="">Please select one</option>

@@ -37,52 +37,7 @@ class InvoiceController extends Controller
             ->get();
 
         // Log para depuración
-        Log::info('Invoices:', $invoices->toArray());
         return response()->json($invoices);
-    }
-
-
-    public function generateInvoices($contractId)
-    {
-        try {
-            // Obtener el contrato
-            $contract = Contract::findOrFail($contractId);
-
-            $startDate = Carbon::parse($contract->start_date);
-            $endDate = Carbon::parse($contract->end_date);
-            $totalAmount = $contract->rental_amount;
-
-            $invoices = [];
-            while ($startDate <= $endDate) {
-                $invoice = new Invoice([
-                    'contract_id' => $contractId,
-                    'issue_date' => $startDate->format('Y-m-d'),
-                    'total_amount' => $totalAmount,
-                    'payment_status' => 'Pending',
-                ]);
-
-                // Guardar la factura
-                $invoice->save();
-                $invoices[] = $invoice;
-
-               // iterar sobre las facturas y agregarlas a la tabla payment_histories
-                $paymentHistory = new Payment_history([
-                    'invoice_id' => $invoice->id,
-                    'payment_date' => null,
-                    'amount_paid' => 0,
-                ]);
-
-                dd($paymentHistory);
-
-                $paymentHistory->save();
-
-                $startDate->addMonth();
-            }
-
-            return response()->json($invoices, 201);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Error generating invoices', 'details' => $e->getMessage()], 500);
-        }
     }
 
     public function InvoicePaid($id)

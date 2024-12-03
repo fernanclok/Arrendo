@@ -7,6 +7,7 @@ use App\Models\Contract;
 use App\Models\Property;
 use App\Models\Contract_renewal;
 use App\Models\User;
+use App\Models\Payment_history;
 use App\Models\Invoice;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
@@ -271,7 +272,6 @@ class ContractController extends Controller
                 // Guardar la factura
                 $invoice->save();
                 $invoices[] = $invoice;
-
                 // Incrementar la fecha al siguiente mes
                 $startDate->addMonth();
             }
