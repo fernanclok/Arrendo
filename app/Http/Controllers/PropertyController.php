@@ -80,7 +80,7 @@ class PropertyController extends Controller
         //
         $comments = Comment::where('property_id', $request->property_id)->get();
         $total = 0;
-        
+
         foreach ($comments as $comment) {
             $total += $comment->comment_rate;
         }
@@ -90,7 +90,7 @@ class PropertyController extends Controller
         $property->rental_rate = $total / count($comments);
 
         $property->save();
-      
+
         return response()->json($comments);
     }
 

@@ -56,7 +56,7 @@ export default {
         const form2 = useForm({
             property_id: props.propertyId,
             tenant_user_id: user.id,
-            application_date: new Date().toISOString().split("T")[0], 
+            application_date: new Date().toISOString().split("T")[0],
             status: "Pending"
         });
 
@@ -83,11 +83,11 @@ export default {
         const removeFile = (index) => {
             form.application_files.splice(index, 1);
         };
-
         const submitForm = async () => {
             const formData2 = new FormData();
             let applicationId = 0;
             let documentPath = '';
+            let hasError = false; // Bandera para controlar errores
 
             // Preparar los datos para el primer POST
             formData2.append('property_id', form2.property_id);
@@ -102,9 +102,10 @@ export default {
                         'Content-Type': 'application/json'
                     }
                 });
-                applicationId = response.data.application // Ver qué devuelve el servidor
+                applicationId = response.data.application; // Ver qué devuelve el servidor
             } catch (error) {
-                console.error('Error al enviar la aplicación:', error.response.data);
+                console.error('Error al enviar la aplicación:', error.response?.data || error);
+                hasError = true;
                 return; // Detener la ejecución si la aplicación falla
             }
 
@@ -124,41 +125,82 @@ export default {
                 });
                 console.log('Documentos enviados exitosamente');
                 documentPath = response.data.Documents.document_path;
-                // alert('Documentos y aplicación enviados con éxito');
             } catch (error) {
-                console.error('Error al enviar los documentos:', error.response.data);
+                console.error('Error al enviar los documentos:', error.response?.data || error);
+                hasError = true;
             }
 
-            const newFormData = new FormData();
-            newFormData.append('tenant_user_id', user.id);
-            newFormData.append('document_path', documentPath);
+            if (!hasError) {
+                const newFormData = new FormData();
+                newFormData.append('tenant_user_id', user.id);
+                newFormData.append('document_path', documentPath);
 
-            try {
-                const response = await axios.post('/api/properties/pass-user-documents', newFormData, {
-                    headers: {
-                        'Content-Type': 'application/json'
+                try {
+                    const response = await axios.post('/api/properties/pass-user-documents', newFormData, {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    emit('close-modal');
+                    emit('refresh-appointments'); // Notifica al padre
+                    console.log('User document path updated');
+                } catch (error) {
+                    console.error('Error actualizando el documento del usuario:', error.response?.data || error);
+                    hasError = true;
+                }
+
+                const newFormData2 = new FormData();
+                newFormData2.append('appointment_id', props.appointmentId);
+                newFormData2.append('status', 'Applicated');
+                try {
+                    const response = await axios.put('/api/appointments/update', newFormData2, {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    console.log('Appointment status updated');
+                } catch (error) {
+                    console.error('Error actualizando el estado de la cita:', error.response?.data || error);
+                    hasError = true;
+                }
+
+                if (!hasError) {
+                    try {
+                        // Obtener el propietario de la propiedad
+                        const propertyResponse = await axios.get(`/api/properties/getPropertyDetails/${props.propertyId}`);
+                        const ownerId = propertyResponse.data.owner_id; // Suponiendo que el API devuelve el ID del propietario
+
+                        // Enviar notificación al propietario
+                        await sendNotification(
+                            form2.tenant_user_id, // ID del inquilino como remitente
+                            ownerId, // ID del propietario como receptor
+                            'NewApplication',
+                            `A tenant has applied for your property at ${propertyResponse.data.street}.`
+                        );
+                    } catch (error) {
+                        console.error('Error enviando la notificación:', error.response?.data || error);
                     }
-                });
-                emit('close-modal');
-                emit('refresh-appointments'); // Notifica al padre
-                console.log('User document path updated');
-            } catch (error) {
-                console.log(error);
-            }
-            const newFormData2 = new FormData();
-            newFormData2.append('appointment_id', props.appointmentId);
-            newFormData2.append('status', 'Applicated');
-            try {
-                const response = await axios.put('/api/appointments/update', newFormData2, {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                console.log('Appointment status updated');
-            } catch (error) {
-                console.log(error);
+                }
             }
         };
+
+
+        const sendNotification = async (receiverId, notificationType, message) => {
+            try {
+                await axios.post('/api/notifications', {
+                    sender_id: user.id, // Usuario autenticado como remitente
+                    receiver_id: receiverId, // Usuario receptor
+                    notification_type: notificationType,
+                    message: message,
+                    sent_date: new Date().toISOString(), // Fecha actual
+                    read_status: false, // Estado inicial como no leído
+                });
+                console.log('Notification sent successfully.');
+            } catch (error) {
+                console.error('Error sending notification:', error.response?.data || error.message);
+            }
+        };
+
 
         return {
             form,
@@ -166,7 +208,8 @@ export default {
             handleFileUpload,
             removeFile,
             submitForm,
-            emit
+            emit,
+            sendNotification,
         };
     }
 };

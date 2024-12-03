@@ -95,6 +95,17 @@ class DashboardController extends Controller
             ->whereNotNull('ph.amount_paid')
             ->sum('ph.amount_paid');
 
+        $pendingPayments = DB::table('invoices as i')
+            ->join('contracts as c', 'i.contract_id', '=', 'c.id')
+            ->join('properties as p', 'c.property_id', '=', 'p.id')
+            ->where('p.owner_user_id', auth()->id())
+            ->whereMonth('i.issue_date', date('m'))
+            ->whereYear('i.issue_date', date('Y'))
+            ->where('i.payment_status', 'Pending')
+            ->sum('i.total_amount');
+
+        $currentMonthIncome += $pendingPayments;
+
 
         // Datos de las tarjetas
         $cardStats = [
