@@ -1,5 +1,5 @@
 <template>
-    <div class="mx-auto px-6 py-8">
+    <div class=" bg-gray-100 mx-auto px-6 py-8">
         <!-- Header -->
         <div class="bg-primary text-white p-6 rounded-lg shadow-lg mb-8 relative">
             <div class="flex justify-between items-start">
@@ -187,140 +187,48 @@
                     </button>
                 </div>
             </div>
-            <!-- Contratos y Comentarios organizados -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-5">
-                <!-- Contract Table -->
-                <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-4 flex justify-between">Contracts</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full table-auto text-left">
-                            <thead>
-                                <tr>
-                                    <th class="px-4 py-2 text-sm font-medium text-gray-500">Contract ID</th>
-                                    <th class="px-4 py-2 text-sm font-medium text-gray-500">Property</th>
-                                    <th class="px-4 py-2 text-sm font-medium text-gray-500">Status</th>
-                                    <th class="px-4 py-2 text-sm font-medium text-gray-500">Start Date</th>
-                                    <th class="px-4 py-2 text-sm font-medium text-gray-500">End Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="contract in paginatedContracts" :key="contract.id" class="hover:bg-gray-100">
-                                    <td class="px-4 py-2 text-sm text-gray-700">{{ contract.id }}</td>
-                                    <td class="px-4 py-2 text-sm text-gray-700">{{ contract.property }}</td>
-                                    <td class="px-4 py-2 text-sm">
-                                        <span :class="getStatusClasses(contract.status)">
-                                            <i class="mdi" :class="getStatusIcon(contract.status)"></i>
-                                            {{ contract.status }}
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-2 text-sm text-gray-700">{{ formatDate(contract.startDate) }}
-                                    </td>
-                                    <td class="px-4 py-2 text-sm text-gray-700">{{ formatDate(contract.endDate) }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <!-- Pagination Controls -->
-                    <div class="mt-4 flex justify-between items-center">
-                        <button @click="previousContractPage" :disabled="currentContractPage <= 1"
-                            class="bg-primary text-white px-4 py-2 rounded disabled:opacity-50">
-                            Previous
-                        </button>
-                        <span>Page {{ currentContractPage }} of {{ totalContractPages }}</span>
-                        <button @click="nextContractPage" :disabled="currentContractPage >= totalContractPages"
-                            class="bg-primary text-white px-4 py-2 rounded disabled:opacity-50">
-                            Next
+
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Comments</h3>
+
+                <!-- Input para agregar comentario -->
+                <div class="flex items-center space-x-4 mb-6">
+                    <input type="text"
+                        class="flex-1 border border-gray-300 rounded-lg p-2 focus:ring focus:ring-green-500 focus:outline-none"
+                        placeholder="Leave a comment..." v-model="newComment">
+                    <div class="flex items-center space-x-1">
+                        <button v-for="n in 5" :key="n" @click="setRating(n)"
+                            :class="n <= rating ? 'text-yellow-500' : 'text-gray-400 hover:text-yellow-500'">
+                            <icon :class="n <= rating ? 'mdi mdi-star' : 'mdi mdi-star-outline'"></icon>
                         </button>
                     </div>
+                    <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50"
+                        @click="addComment" :disabled="!newComment || !rating">
+                        <i class="mdi mdi-send"></i>
+                    </button>
                 </div>
 
-                <!-- Comments section-->
-                <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Comments</h3>
-
-                    <!-- Input para agregar comentario -->
-                    <div class="flex items-center space-x-4 mb-6">
-                        <input type="text"
-                            class="flex-1 border border-gray-300 rounded-lg p-2 focus:ring focus:ring-green-500 focus:outline-none"
-                            placeholder="Leave a comment..." v-model="newComment">
-                        <div class="flex items-center space-x-1">
-                            <button v-for="n in 5" :key="n" @click="setRating(n)"
-                                :class="n <= rating ? 'text-yellow-500' : 'text-gray-400 hover:text-yellow-500'">
-                                <icon :class="n <= rating ? 'mdi mdi-star' : 'mdi mdi-star-outline'"></icon>
-                            </button>
+                <!-- Contenedor de comentarios -->
+                <div class="space-y-4 overflow-y-auto max-h-60">
+                    <div v-for="comment in comments" :key="comment.id"
+                        class="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm text-gray-500">{{ new Date(comment.created_at).toLocaleDateString()
+                                }}</span>
+                            <div class="flex">
+                                <icon v-for="n in 5" :key="n"
+                                    :class="n <= comment.comment_rate ? 'mdi mdi-star' : 'mdi mdi-star-outline'"
+                                    class="text-yellow-500 text-lg"></icon>
+                            </div>
                         </div>
-                        <button
-                            class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50"
-                            @click="addComment" :disabled="!newComment || !rating">
-                            <i class="mdi mdi-send"></i>
-                        </button>
+                        <div class="mb-2">
+                            <p class="text-gray-700 font-medium">{{ comment.first_name }} {{ comment.last_name }}</p>
+                        </div>
+                        <p class="text-gray-600 whitespace-normal break-words">{{ comment.comment }}</p>
                     </div>
                 </div>
             </div>
-
-    <!-- Comments section-->
-    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-    <h3 class="text-lg font-semibold text-gray-700 mb-4">Comments</h3>
-
-    <!-- Input para agregar comentario -->
-    <div v-if="property.property_id">
-        <div class="flex items-center space-x-4 mb-6">
-            <input 
-                type="text" 
-                class="flex-1 border border-gray-300 rounded-lg p-2 focus:ring focus:ring-green-500 focus:outline-none" 
-                placeholder="Leave a comment..." 
-                v-model="newComment"
-            >
-            <div class="flex items-center space-x-1">
-                <button 
-                    v-for="n in 5" 
-                    :key="n" 
-                    @click="setRating(n)" 
-                    :class="n <= rating ? 'text-yellow-500' : 'text-gray-400 hover:text-yellow-500'"
-                >
-                    <icon :class="n <= rating ? 'mdi mdi-star' : 'mdi mdi-star-outline'"></icon>
-                </button>
-            </div>
-            <button 
-                class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50" 
-                @click="addComment"
-                :disabled="!newComment || !rating"
-            >
-                <i class="mdi mdi-send"></i>
-            </button>
         </div>
-
-        <!-- Contenedor de comentarios -->
-        <div class="space-y-4 overflow-y-auto max-h-60">
-            <div 
-                v-for="comment in comments" 
-                :key="comment.id" 
-                class="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm"
-            >
-            <div class="flex items-center justify-between mb-2">
-                <span class="text-sm text-gray-500">{{ new Date(comment.created_at).toLocaleDateString() }}</span>
-                <div class="flex">
-                    <icon 
-                        v-for="n in 5" 
-                        :key="n"
-                        :class="n <= comment.comment_rate ? 'mdi mdi-star' : 'mdi mdi-star-outline'" 
-                        class="text-yellow-500 text-lg"
-                    ></icon>
-                </div>
-                </div>
-                <div class="mb-2">
-                    <p class="text-gray-700 font-medium">{{ comment.first_name }} {{ comment.last_name }}</p>
-                </div>
-                <p class="text-gray-600 whitespace-normal break-words">{{ comment.comment }}</p>
-            </div>
-        </div>
-    </div>
-    <div v-else>
-        <p class="text-gray-500">You need to be tenant of a property to leave a comment</p>
-    </div>
-</div>
-
-</div>
     </div>
 </template>
 
@@ -488,7 +396,7 @@ export default {
     },
     methods: {
         getComments() {
-            axios.get(`/api/comments/${this.auth.user.id}`)
+            axios.get(`/api/comments/2`)
                 .then(response => {
                     this.comments = response.data;
                 })
@@ -504,25 +412,35 @@ export default {
                 const newComment = {
                     comment: this.newComment,
                     rating: this.rating,
-                    property_id: this.property.property_id,
+                    property_id : this.property.property_id,
                     user_id: this.auth.user.id,
                 };
 
                 axios.post('/api/comments', newComment)
-                    .then(response => {
-                        this.comments = response.data.reverse();
-                        this.newComment = '';
-                        this.rating = 0;
+                .then(response => {
+                    this.comments = response.data.reverse();
+                    this.newComment = '';
+                    this.rating = 0;
 
-                    })
-                    .catch(error => {
-                        console.error('Error adding comment:', error);
-                    });
+                })
+                .catch(error => {
+                    console.error('Error adding comment:', error);
+                });
             }
         },
         formatDate(dateString) {
-            // Si la fecha ya viene ajustada, solo formatea
+            if (!dateString) {
+                return ''; // O puedes devolver 'Fecha no válida' o algo similar
+            }
+
+            // Intentar parsear la fecha
             const date = parseISO(dateString);
+
+            // Verificar si la fecha es válida
+            if (!isValid(date)) {
+                return 'Fecha no válida'; // O puedes devolver un valor por defecto
+            }
+
             return format(date, 'dd MMM yyyy', { locale: es });
         },
         getStatusColor(status) {
