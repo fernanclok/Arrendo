@@ -13,11 +13,19 @@ class PaymentHistoryController extends Controller
     {
         $ownerUserId = $request->user_id;
 
-        $paymentHistories = Payment_history::whereHas('invoice.contract', function ($query) use ($ownerUserId) {
-            $query->where('owner_user_id', $ownerUserId);
-        })->get();
+        $paymentHistories = Payment_history::with('invoice.contract.tenantUser')
+            ->whereHas('invoice.contract', function ($query) use ($ownerUserId) {
+                $query->where('owner_user_id', $ownerUserId);
+            })->get();
 
-        return response()->json($paymentHistories);
+        $result = $paymentHistories->map(function ($paymentHistory) {
+            return [
+                'payment_history' => $paymentHistory,
+                'tenant' => $paymentHistory->invoice->contract->tenantUser
+            ];
+        });
+
+        return response()->json($result);
     }
 
     public function getPaymentHistoriesByTenant(Request $request)
@@ -39,12 +47,11 @@ class PaymentHistoryController extends Controller
         })->where('payment_status', 'Pending')
             ->where('issue_date', '<', now())
             ->get();
-
         return response()->json($unpaidInvoices);
     }
 
     public function getTenantsforHistory(Request $request)
-    {
+    {   
         $ownerUserId = $request->user_id;
 
         $tenants = Payment_history::whereHas('invoice.contract', function ($query) use ($ownerUserId) {

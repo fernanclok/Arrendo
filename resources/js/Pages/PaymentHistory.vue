@@ -43,14 +43,14 @@ import { Head, usePage } from '@inertiajs/vue3';
                         >
                           <div class="flex justify-between items-center">
                             <h3 class="text-2xl text-green-600">✔</h3>
-                            <span class="text-sm text-gray-500">No. {{ payment.id }}</span>
+                            <span class="text-sm text-gray-500">No. {{ payment.payment_history.id }}</span>
                           </div>
-                          <p><strong>Invoice:</strong> {{ payment.invoice_id }}</p>
-                          <p><strong>Paidd Date</strong> {{ formatDate(payment.payment_date) }}</p>
-                          <p><strong>Amount:</strong> ${{ payment.amount_paid }}</p>
-                          <p><strong>Owner:</strong> {{ payment.owner }}</p>
+                          <p><strong>Invoice:</strong> {{ payment.payment_history.invoice_id }}</p>
+                          <p><strong>Paidd Date</strong> {{ formatDate(payment.payment_history.payment_date) }}</p>
+                          <p><strong>Amount:</strong> ${{ payment.payment_history.amount_paid }}</p>
+                          <p><strong>Owner:</strong> {{ payment.tenant.first_name }} {{ payment.tenant.last_name }}</p>
                           <p class="text-sm text-gray-500 mt-2">
-                            Created: {{ formatDate(payment.created_at) }}
+                            Created: {{ formatDate(payment.payment_history.created_at) }}
                           </p>
                         </div>
                       </div>  
@@ -106,11 +106,14 @@ export default {
     computed: {
       filteredPayments() {
         return this.payments.filter((payment) => {
-            const invoiceId = payment.invoice_id.toString();
-            const paymentDate = payment.payment_date;
-            return invoiceId.includes(this.searchQuery) || paymentDate.includes(this.searchQuery);
-        });
-    },
+                const invoiceId = payment.payment_history.invoice_id.toString();
+                const paymentDate = payment.payment_history.payment_date;
+                const tenantName = `${payment.tenant.first_name} ${payment.tenant.last_name}`.toLowerCase();
+                const matchesSearchQuery = invoiceId.includes(this.searchQuery) || paymentDate.includes(this.searchQuery) || tenantName.includes(this.searchQuery.toLowerCase());
+                const matchesTenant = this.selectedTenant === '' || payment.tenant.id === this.selectedTenant;
+                return matchesSearchQuery && matchesTenant;
+            });
+        },
     filteredUnpaidPayments() {
             return this.unPaidPayments.filter((payment) => {
                 const invoiceId = payment.id.toString();
@@ -128,7 +131,7 @@ export default {
                 },
             }).then((response) => {
                 this.payments = response.data;
-                console.log(this.payments);
+                console.log(this.payments); 
             });
         },
         formatDate(date) {
@@ -141,7 +144,6 @@ export default {
                 },
             }).then((response) => {
                 this.tenants = response.data;
-                console.log(this.tenants);
             });
         },
         fetchUnpaidPayments() {
@@ -151,7 +153,6 @@ export default {
                 },
             }).then((response) => {
                 this.unPaidPayments = response.data;
-                console.log(this.unPaidPayments);
             });
         },
     },

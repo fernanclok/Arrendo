@@ -272,16 +272,6 @@ class ContractController extends Controller
                 // Guardar la factura
                 $invoice->save();
                 $invoices[] = $invoice;
-                // iterar sobre las facturas y agregarlas a la tabla payment_histories
-                $paymentHistory = new Payment_history([
-                    'invoice_id' => $invoice->id,
-                    'payment_date' => null,
-                    'amount_paid' => 0,
-                ]);
-
-                dd($paymentHistory);
-
-                $paymentHistory->save();
                 // Incrementar la fecha al siguiente mes
                 $startDate->addMonth();
             }
