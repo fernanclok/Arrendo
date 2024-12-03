@@ -105,10 +105,13 @@ Route::prefix('rental-applications')->group(function () {
 //Maintenace
 Route::prefix('maintenance')->group(function () {
     Route::get('/', [MaintenanceController::class, 'index']);
-    Route::post('/store', [MaintenanceController::class, 'store']);
-    Route::patch('/{id}', [MaintenanceController::class, 'update']);
+    Route::get('/maintenancesReqOwner', [MaintenanceController::class, 'getRequestsByProperty']);
     Route::get('/getPropertyByTenant', [MaintenanceController::class, 'getPropertyByTenant']);
+    Route::post('/store', [MaintenanceController::class, 'store']);
+    Route::patch('/{id}',[MaintenanceController::class, 'update']);
+    Route::put('/maintenancesReqOwner/{id}', [MaintenanceController::class, 'updateRequest']);
 });
+
 //MaintenaceOwner
 Route::prefix('maintenanceOwner')->group(function () {
     Route::get('/properties', [MaintenanceController::class, 'getProperties']);
