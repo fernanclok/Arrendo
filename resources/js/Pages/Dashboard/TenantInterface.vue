@@ -174,7 +174,6 @@
                         </tbody>
                     </table>
                 </div>
-                <!-- Pagination Controls -->
                 <div class="mt-4 flex justify-between items-center">
                     <button @click="previousContractPage" :disabled="currentContractPage <= 1"
                         class="bg-primary text-white px-4 py-2 rounded disabled:opacity-50">
@@ -188,9 +187,9 @@
                 </div>
             </div>
             <!-- Contratos y Comentarios organizados -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-5">
+            <!-- <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-5"> -->
                 <!-- Contract Table -->
-                <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <!-- <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
                     <h3 class="text-lg font-semibold text-gray-700 mb-4 flex justify-between">Contracts</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full table-auto text-left">
@@ -220,7 +219,6 @@
                             </tbody>
                         </table>
                     </div>
-                    <!-- Pagination Controls -->
                     <div class="mt-4 flex justify-between items-center">
                         <button @click="previousContractPage" :disabled="currentContractPage <= 1"
                             class="bg-primary text-white px-4 py-2 rounded disabled:opacity-50">
@@ -232,13 +230,12 @@
                             Next
                         </button>
                     </div>
-                </div>
+                </div> -->
 
                 <!-- Comments section-->
-                <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <!-- <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
                     <h3 class="text-lg font-semibold text-gray-700 mb-4">Comments</h3>
 
-                    <!-- Input para agregar comentario -->
                     <div class="flex items-center space-x-4 mb-6">
                         <input type="text"
                             class="flex-1 border border-gray-300 rounded-lg p-2 focus:ring focus:ring-green-500 focus:outline-none"
@@ -255,8 +252,8 @@
                             <i class="mdi mdi-send"></i>
                         </button>
                     </div>
-                </div>
-            </div>
+                </div> -->
+            <!-- </div> -->
 
     <!-- Comments section-->
     <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
