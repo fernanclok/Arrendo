@@ -1,4 +1,7 @@
 <template>
+    <div class="p-2">
+        <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
+    </div>
     <div class="mx-auto px-6 py-8">
         <!-- Header -->
         <div class="bg-primary text-white p-6 rounded-lg shadow-lg mb-8 relative">
@@ -186,11 +189,11 @@
                     </button>
                 </div>
             </div>
-            
+
             <!-- Contratos y Comentarios organizados -->
             <!-- <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-5"> -->
-                <!-- Contract Table -->
-                <!-- <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <!-- Contract Table -->
+            <!-- <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
                     <h3 class="text-lg font-semibold text-gray-700 mb-4 flex justify-between">Contracts</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full table-auto text-left">
@@ -233,8 +236,8 @@
                     </div>
                 </div> -->
 
-                <!-- Comments section-->
-                <!-- <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <!-- Comments section-->
+            <!-- <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
                     <h3 class="text-lg font-semibold text-gray-700 mb-4">Comments</h3>
 
                     <div class="flex items-center space-x-4 mb-6">
@@ -256,69 +259,56 @@
                 </div> -->
             <!-- </div> -->
 
-    <!-- Comments section-->
-    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-    <h3 class="text-lg font-semibold text-gray-700 mb-4">Comments</h3>
+            <!-- Comments section-->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Comments</h3>
 
-    <!-- Input para agregar comentario -->
-    <div v-if="property.property_id">
-        <div class="flex items-center space-x-4 mb-6">
-            <input 
-                type="text" 
-                class="flex-1 border border-gray-300 rounded-lg p-2 focus:ring focus:ring-green-500 focus:outline-none" 
-                placeholder="Leave a comment..." 
-                v-model="newComment"
-            >
-            <div class="flex items-center space-x-1">
-                <button 
-                    v-for="n in 5" 
-                    :key="n" 
-                    @click="setRating(n)" 
-                    :class="n <= rating ? 'text-yellow-500' : 'text-gray-400 hover:text-yellow-500'"
-                >
-                    <icon :class="n <= rating ? 'mdi mdi-star' : 'mdi mdi-star-outline'"></icon>
-                </button>
+                <!-- Input para agregar comentario -->
+                <div v-if="property.property_id">
+                    <div class="flex items-center space-x-4 mb-6">
+                        <input type="text"
+                            class="flex-1 border border-gray-300 rounded-lg p-2 focus:ring focus:ring-green-500 focus:outline-none"
+                            placeholder="Leave a comment..." v-model="newComment">
+                        <div class="flex items-center space-x-1">
+                            <button v-for="n in 5" :key="n" @click="setRating(n)"
+                                :class="n <= rating ? 'text-yellow-500' : 'text-gray-400 hover:text-yellow-500'">
+                                <icon :class="n <= rating ? 'mdi mdi-star' : 'mdi mdi-star-outline'"></icon>
+                            </button>
+                        </div>
+                        <button
+                            class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50"
+                            @click="addComment" :disabled="!newComment || !rating">
+                            <i class="mdi mdi-send"></i>
+                        </button>
+                    </div>
+
+                    <!-- Contenedor de comentarios -->
+                    <div class="space-y-4 overflow-y-auto max-h-60">
+                        <div v-for="comment in comments" :key="comment.id"
+                            class="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm text-gray-500">{{ new Date(comment.created_at).toLocaleDateString()
+                                    }}</span>
+                                <div class="flex">
+                                    <icon v-for="n in 5" :key="n"
+                                        :class="n <= comment.comment_rate ? 'mdi mdi-star' : 'mdi mdi-star-outline'"
+                                        class="text-yellow-500 text-lg"></icon>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <p class="text-gray-700 font-medium">{{ comment.first_name }} {{ comment.last_name }}
+                                </p>
+                            </div>
+                            <p class="text-gray-600 whitespace-normal break-words">{{ comment.comment }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div v-else>
+                    <p class="text-gray-500">You need to be tenant of a property to leave a comment</p>
+                </div>
             </div>
-            <button 
-                class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50" 
-                @click="addComment"
-                :disabled="!newComment || !rating"
-            >
-                <i class="mdi mdi-send"></i>
-            </button>
-        </div>
 
-        <!-- Contenedor de comentarios -->
-        <div class="space-y-4 overflow-y-auto max-h-60">
-            <div 
-                v-for="comment in comments" 
-                :key="comment.id" 
-                class="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm"
-            >
-            <div class="flex items-center justify-between mb-2">
-                <span class="text-sm text-gray-500">{{ new Date(comment.created_at).toLocaleDateString() }}</span>
-                <div class="flex">
-                    <icon 
-                        v-for="n in 5" 
-                        :key="n"
-                        :class="n <= comment.comment_rate ? 'mdi mdi-star' : 'mdi mdi-star-outline'" 
-                        class="text-yellow-500 text-lg"
-                    ></icon>
-                </div>
-                </div>
-                <div class="mb-2">
-                    <p class="text-gray-700 font-medium">{{ comment.first_name }} {{ comment.last_name }}</p>
-                </div>
-                <p class="text-gray-600 whitespace-normal break-words">{{ comment.comment }}</p>
-            </div>
         </div>
-    </div>
-    <div v-else>
-        <p class="text-gray-500">You need to be tenant of a property to leave a comment</p>
-    </div>
-</div>
-
-</div>
     </div>
 </template>
 

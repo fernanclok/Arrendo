@@ -3,15 +3,12 @@
   <Head title="Application Evaluation" />
 
   <DashboardLayout>
+    <div class="p-2">
+            <h1 class="text-3xl font-bold text-gray-800">Application Evaluation</h1>
+          </div>
     <div class="py-2">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="rounded-lg">
-          <div class="p-2">
-            <h1 class="text-3xl font-bold text-gray-800">Application Evaluation</h1>
-            <p class="text-gray-600 mt-2">
-              Review and manage applications efficiently.
-            </p>
-          </div>
           <div class="p-6 justify-center items-center">
             <!-- Tabs for filtering -->
             <div class="flex justify-center space-x-4 mb-6">

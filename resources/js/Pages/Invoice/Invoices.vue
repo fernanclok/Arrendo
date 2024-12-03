@@ -56,6 +56,10 @@ const generatePDF = async (invoiceId) => {
     }
 };
 
+const openEvidence = (evidence) => {
+  window.open(`/${evidence}`, '_blank');
+};
+
 // Abrir modal de terminación
 const openPaymentmodal = (invoiceID) => {
     selectedInvoice.value = invoiceID;
@@ -116,6 +120,7 @@ watch([selectedMonth, selectedYear], fetchInvoices);
             <th class="w-1/4 py-4 px-6 text-center text-gray-600 font-bold uppercase">Issue Date</th>
             <th class="w-1/4 py-4 px-6 text-center text-gray-600 font-bold uppercase">Total Amount</th>
             <th class="w-1/4 py-4 px-6 text-center text-gray-600 font-bold uppercase">Payment Status</th>
+            <th class="w-1/4 py-4 px-6 text-center text-gray-600 font-bold uppercase">Evidences</th>
             <th class="w-1/4 py-4 px-6 text-center text-gray-600 font-bold uppercase">Actions</th>
           </tr>
         </thead>
@@ -125,6 +130,18 @@ watch([selectedMonth, selectedYear], fetchInvoices);
             <td class="py-4 px-6 text-gray-600 text-center">{{ invoice.issue_date }}</td>
             <td class="py-4 px-6 text-gray-600 text-center">{{ invoice.total_amount }}</td>
             <td class="py-4 px-6 text-gray-900 text-center"><span class="bg-yellow-400 p-2 rounded-lg shadow-lg ">{{ invoice.payment_status }}</span></td>
+            <td class="py-4 px-6 text-gray-600 text-center">
+              <div v-if="invoice.evidence_path">
+                <div v-for="(evidence, index) in JSON.parse(invoice.evidence_path)" :key="index" class="mb-2">
+                  <CustomButton
+                    @click="openEvidence(evidence)"
+                  >
+                    <i class="mdi mdi-link-variant text-xs"> Ver evidencia {{ index + 1 }}</i>
+                  </CustomButton>
+                </div>
+              </div>
+              <span v-else class="text-gray-500">No hay evidencias</span>
+            </td>
             <td class="py-4 px-6 space-x-3 text-center">
               <SecondaryButton
                 @click="openPaymentmodal(invoice.id)"

@@ -1,12 +1,12 @@
 <template>
-    <div class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-blueGray-700">
+    <div class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white">
         <div class="rounded-t mb-0 px-4 py-3 bg-transparent">
             <div class="flex flex-wrap items-center">
                 <div class="relative w-full max-w-full flex-grow flex-1">
-                    <h6 class="uppercase text-blueGray-100 mb-1 text-xs font-semibold">
+                    <h6 class="uppercase text-blueGray-400 mb-1 text-xs font-semibold">
                         Overview
                     </h6>
-                    <h2 class="text-white text-xl font-semibold">
+                    <h2 class="text-xl font-semibold">
                         Total Rental Income by Month
                     </h2>
                 </div>
@@ -62,8 +62,8 @@ export default {
                     datasets: [
                         {
                             label: previousYear,
-                            backgroundColor: "#fff",
-                            borderColor: "#fff",
+                            backgroundColor: "#94a3b8",
+                            borderColor: "#94a3b8",
                             data: previousYearData,
                             fill: false,
                         },
@@ -82,7 +82,7 @@ export default {
                     plugins: {
                         legend: {
                             labels: {
-                                color: "white",
+                                color: "black",
                             },
                             align: "end",
                             position: "bottom",

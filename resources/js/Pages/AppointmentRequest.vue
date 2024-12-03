@@ -9,12 +9,13 @@ import CustomButton from '@/Components/CustomButton.vue';
     <Head title="Appointments" />
 
     <DashboardLayout>
+        <div class="p-2">
+        <h1 class="text-3xl font-bold text-gray-800">Appointments Request</h1>
+    </div>
         <div class="py-2">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="overflow-hidden">
                     <div class="p-6">
-                        <h1 class="text-2xl font-semibold text-gray-900 mb-6">Appointments Request</h1>
-
                         <div v-if="appointments.length === 0"
                             class="flex items-center justify-center h-64 text-gray-600 text-lg">
                             You have no appointments scheduled.

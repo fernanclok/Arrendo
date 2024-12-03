@@ -1,14 +1,12 @@
 <template>
   <DashboardLayout>
+    <div class="p-2">
+      <h1 class="text-3xl font-bold text-gray-800">My applications</h1>
+    </div>
     <div class="py-2">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="rounded-lg">
-          <div class="p-2">
-            <h1 class="text-3xl font-bold text-gray-800">My applications</h1>
-            <p class="text-gray-600 mt-2">
-              Review and manage applications efficiently.
-            </p>
-          </div>
+
           <div class="p-6 justify-center items-center">
             <div class="flex justify-center space-x-4 mb-6">
               <button v-for="tab in tabs" :key="tab" @click="currentTab = tab" :class="{
@@ -19,21 +17,15 @@
               </button>
             </div>
 
-                     <!-- Filtered content -->
-                     <div v-if="filteredSolicitantes.length === 0" class="text-center text-gray-500">
+            <!-- Filtered content -->
+            <div v-if="filteredSolicitantes.length === 0" class="text-center text-gray-500">
               <p>Nothing to show</p>
             </div>
             <div v-else class="space-y-4">
-              <div
-                v-for="solicitante in filteredSolicitantes"
-                :key="solicitante.id"
-                class="bg-gray-50 p-4 rounded-lg shadow flex flex-col space-y-4"
-              >
+              <div v-for="solicitante in filteredSolicitantes" :key="solicitante.id"
+                class="bg-gray-50 p-4 rounded-lg shadow flex flex-col space-y-4">
                 <!-- Applicant Header -->
-                <div
-                  class="flex items-center justify-between cursor-pointer"
-                  @click="toggleInfo(solicitante.id)"
-                >
+                <div class="flex items-center justify-between cursor-pointer" @click="toggleInfo(solicitante.id)">
                   <div class="flex items-center space-x-4">
                     <div>
                       <p class="font-medium text-gray-900">
@@ -45,14 +37,11 @@
                     </div>
                   </div>
                   <div class="flex items-center space-x-4">
-                    <span
-                      class="px-2 py-1 text-xs font-semibold rounded-full"
-                      :class="{
-                        'bg-green-100 text-green-600': solicitante.status === 'Approved',
-                        'bg-red-100 text-red-600': solicitante.status === 'Rejected',
-                        'bg-yellow-100 text-yellow-800': solicitante.status === 'Pending'
-                      }"
-                    >
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full" :class="{
+                      'bg-green-100 text-green-600': solicitante.status === 'Approved',
+                      'bg-red-100 text-red-600': solicitante.status === 'Rejected',
+                      'bg-yellow-100 text-yellow-800': solicitante.status === 'Pending'
+                    }">
                       {{ solicitante.status }}
                     </span>
                     <i :class="solicitante.isExpanded ? 'mdi mdi-chevron-up' : 'mdi mdi-chevron-down'"></i>
@@ -61,7 +50,8 @@
 
                 <!-- Expanded Details -->
                 <div v-if="solicitante.isExpanded" class="mt-4 text-gray-700">
-                  <p><strong>Applicant:</strong> {{ solicitante.tenant_user.first_name }} {{ solicitante.tenant_user.last_name }}</p>
+                  <p><strong>Applicant:</strong> {{ solicitante.tenant_user.first_name }} {{
+                    solicitante.tenant_user.last_name }}</p>
                   <p><strong>Property:</strong> {{ solicitante.property.street }}</p>
                   <p><strong>Requested:</strong> {{ solicitante.application_date }}</p>
                   <p v-if="solicitante.status === 'Approved'">
@@ -71,7 +61,7 @@
                     <strong>Rejected on:</strong> {{ formatDate(solicitante.updated_at) }}
                   </p>
 
-                
+
                 </div>
               </div>
             </div>

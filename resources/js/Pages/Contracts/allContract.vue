@@ -198,10 +198,12 @@ onMounted(() => {
 <template>
     <Head title="Contracts" />
     <DashboardLayout>
+      <div class="p-2">
+        <h1 class="text-3xl font-bold text-gray-800"> {{ user.first_name }} {{ user.last_name }} Contracts</h1>
+    </div>
       <div class="p-6">
        <!-- Filtros -->
        <div  class="block justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-800 mb-4"> {{ user.first_name }} {{ user.last_name }} Contracts</h1>  
           <div class="block sm:flex justify-center items-center text-center gap-8 w-full">
             <h1 class="text-lg text-gray-400  font-bold">Filter</h1>
               <select id="property_id" v-model="filterProperty" @change="filter(filterProperty)" class="w-full rounded-lg  border-gray-300 text-black">

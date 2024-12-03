@@ -12,9 +12,11 @@ import { Head, usePage } from '@inertiajs/vue3';
     <Head title="Search Properties" />
 
     <DashboardLayout>
+        <div class="p-2">
+            <h1 class="text-3xl font-bold text-gray-800">Properties in rent</h1>
+        </div>
         <main :class="{ 'flex': showDetails, 'block': !showDetails }" class="flex-grow relative overflow-hidden p-6">
             <div :class="{ 'w-full': !showDetails, 'w-full md:w-3/4': showDetails }" class="p-4 h-full overflow-y-auto">
-                <h1 class="text-3xl font-bold mb-6">Properties in Rent</h1>
                 <div class="mb-6">
                     <div class="flex gap-2 mt-1">
                         <select id="zoneSelect" v-model="propertiesSpecifications.selectedZone"
