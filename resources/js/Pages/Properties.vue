@@ -22,6 +22,7 @@ import { ref } from 'vue';
                             class="text-sm font-medium hover:underline">
                         {{ item.label }}
                         </Link>
+                        <a class="text-sm font-medium hover:underline">Contact Us</a>
                     </nav>
 
                     <div class="flex items-center space-x-2">
@@ -253,7 +254,7 @@ import { ref } from 'vue';
                                                 <h3 class="text-lg font-semibold text-gray-700 mb-2">Comments ({{ selectedProperty.comments.length }})</h3>
                                                 <div v-if="selectedProperty.comments && selectedProperty.comments.length > 0" class="space-y-4 overflow-y-auto max-h-40">
                                                     <div 
-                                                        v-for="comment in selectedProperty.comments" 
+                                                        v-for="comment in [...selectedProperty.comments].reverse()" 
                                                         :key="comment.id" 
                                                         class="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm"
                                                     >
@@ -353,9 +354,7 @@ import { ref } from 'vue';
 <script>
 const navItems = [
     { href: '/', label: 'Home' },
-    { href: '/properties', label: 'Properties' },
-    // { href: '/propietarios', label: 'For Owners' },
-    { href: '/contact', label: 'Contact Us' },
+    { href: '/properties', label: 'Properties' }
 ]
 
 export default {

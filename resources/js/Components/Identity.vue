@@ -11,6 +11,14 @@ export default {
         propertyId: {
             type: Number, // Define el tipo de la prop según tu necesidad
             required: true
+        },
+        appointmentId: {
+            type: Number,
+            required: true
+        },
+        appointments: {
+            type: Array,
+            required: true
         }
     },
     // mounted() {
@@ -21,13 +29,34 @@ export default {
         InputLabel,
         CustomButton,
     },
-    setup(props) {
+    methods: {
+    },
+    setup(props, { emit }) {
         const user = usePage().props.auth.user;
+        const localAppointments = ref([...props.appointments]); // Copia inmutable
+
+        function handleGetAppointments() {
+            axios
+                .get('/api/appointments', {
+                    params: {
+                        user_id: user.id,
+                    },
+                })
+                .then((response) => {
+                    props.appointments = response.data.map((appt) => ({
+                        ...appt,
+                        isOpen: false, // Inicializa 'isOpen' como false para cada cita
+                    }));
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        }
 
         const form2 = useForm({
             property_id: props.propertyId,
             tenant_user_id: user.id,
-            application_date: new Date().toISOString().split("T")[0], 
+            application_date: new Date().toISOString().split("T")[0],
             status: "Pending"
         });
 
@@ -54,10 +83,11 @@ export default {
         const removeFile = (index) => {
             form.application_files.splice(index, 1);
         };
-
         const submitForm = async () => {
             const formData2 = new FormData();
             let applicationId = 0;
+            let documentPath = '';
+            let hasError = false; // Bandera para controlar errores
 
             // Preparar los datos para el primer POST
             formData2.append('property_id', form2.property_id);
@@ -72,9 +102,10 @@ export default {
                         'Content-Type': 'application/json'
                     }
                 });
-                applicationId = response.data.application // Ver qué devuelve el servidor
+                applicationId = response.data.application; // Ver qué devuelve el servidor
             } catch (error) {
-                console.error('Error al enviar la aplicación:', error.response.data);
+                console.error('Error al enviar la aplicación:', error.response?.data || error);
+                hasError = true;
                 return; // Detener la ejecución si la aplicación falla
             }
 
@@ -93,11 +124,83 @@ export default {
                     }
                 });
                 console.log('Documentos enviados exitosamente');
-                alert('Documentos y aplicación enviados con éxito');
+                documentPath = response.data.Documents.document_path;
             } catch (error) {
-                console.error('Error al enviar los documentos:', error.response.data);
+                console.error('Error al enviar los documentos:', error.response?.data || error);
+                hasError = true;
+            }
+
+            if (!hasError) {
+                const newFormData = new FormData();
+                newFormData.append('tenant_user_id', user.id);
+                newFormData.append('document_path', documentPath);
+
+                try {
+                    const response = await axios.post('/api/properties/pass-user-documents', newFormData, {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    emit('close-modal');
+                    emit('refresh-appointments'); // Notifica al padre
+                    console.log('User document path updated');
+                } catch (error) {
+                    console.error('Error actualizando el documento del usuario:', error.response?.data || error);
+                    hasError = true;
+                }
+
+                const newFormData2 = new FormData();
+                newFormData2.append('appointment_id', props.appointmentId);
+                newFormData2.append('status', 'Applicated');
+                try {
+                    const response = await axios.put('/api/appointments/update', newFormData2, {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    console.log('Appointment status updated');
+                } catch (error) {
+                    console.error('Error actualizando el estado de la cita:', error.response?.data || error);
+                    hasError = true;
+                }
+
+                if (!hasError) {
+                    try {
+                        // Obtener el propietario de la propiedad
+                        const propertyResponse = await axios.get(`/api/properties/getPropertyDetails/${props.propertyId}`);
+                        const ownerId = propertyResponse.data.owner_id; // Suponiendo que el API devuelve el ID del propietario
+
+                        // Enviar notificación al propietario
+                        await sendNotification(
+                            form2.tenant_user_id, // ID del inquilino como remitente
+                            ownerId, // ID del propietario como receptor
+                            'NewApplication',
+                            `A tenant has applied for your property at ${propertyResponse.data.street}.`
+                        );
+                    } catch (error) {
+                        console.error('Error enviando la notificación:', error.response?.data || error);
+                    }
+                }
             }
         };
+
+
+        const sendNotification = async (receiverId, notificationType, message) => {
+            try {
+                await axios.post('/api/notifications', {
+                    sender_id: user.id, // Usuario autenticado como remitente
+                    receiver_id: receiverId, // Usuario receptor
+                    notification_type: notificationType,
+                    message: message,
+                    sent_date: new Date().toISOString(), // Fecha actual
+                    read_status: false, // Estado inicial como no leído
+                });
+                console.log('Notification sent successfully.');
+            } catch (error) {
+                console.error('Error sending notification:', error.response?.data || error.message);
+            }
+        };
+
 
         return {
             form,
@@ -105,8 +208,10 @@ export default {
             handleFileUpload,
             removeFile,
             submitForm,
+            emit,
+            sendNotification,
         };
-    },
+    }
 };
 </script>
 
@@ -118,6 +223,7 @@ export default {
                 'grid-cols-1': form.application_files.length == 0,
                 'grid-cols-1 sm:grid-cols-2': form.application_files.length > 0,
             }">
+                <p class="text-sm text-gray-500 font-semibold">Here you can add a form of ID and other documents</p>
                 <div class="w-full">
                     <InputLabel for="contract_file"
                         class="flex flex-col items-center justify-center w-full h-[200px] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 ">
@@ -159,11 +265,11 @@ export default {
             </nav>
         </form>
         <div class="px-4 py-4  bg-opacity-50 sm:px-6 sm:flex sm:flex-row-reverse">
-            <button type="button"
+            <CustomButton type="primary"
                 class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white transition-colors duration-200 bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
                 @click="submitForm()">
                 <i class="mr-2 mdi mdi-check"></i> Apply to this Listing
-            </button>
+            </CustomButton>
         </div>
     </div>
 </template>

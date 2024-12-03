@@ -9,12 +9,13 @@ import CustomButton from '@/Components/CustomButton.vue';
     <Head title="Appointments" />
 
     <DashboardLayout>
+        <div class="p-2">
+        <h1 class="text-3xl font-bold text-gray-800">Appointments Request</h1>
+    </div>
         <div class="py-2">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="overflow-hidden">
                     <div class="p-6">
-                        <h1 class="text-2xl font-semibold text-gray-900 mb-6">Appointments Request</h1>
-
                         <div v-if="appointments.length === 0"
                             class="flex items-center justify-center h-64 text-gray-600 text-lg">
                             You have no appointments scheduled.
@@ -38,9 +39,12 @@ import CustomButton from '@/Components/CustomButton.vue';
                                     <div class="flex items-center space-x-4">
                                         <span :class="{
                                             'px-2 py-1 text-xs font-semibold rounded-full': true,
-                                            'bg-green-100 text-green-800': appointment.status === 'Approved',
                                             'bg-yellow-100 text-yellow-800': appointment.status === 'Pending',
+                                            'bg-blue-100 text-blue-800': appointment.status === 'Confirmed',
                                             'bg-red-100 text-red-800': appointment.status === 'Rejected',
+                                            'bg-green-100 text-green-800': appointment.status === 'Approved',
+                                            'bg-gray-100 text-gray-800': appointment.status === 'Cancelled',
+                                            'bg-green-500 text-green-800': appointment.status === 'Applicated',
                                         }">
                                             {{ appointment.status }}
                                         </span>
@@ -108,59 +112,17 @@ import CustomButton from '@/Components/CustomButton.vue';
                                             </ul>
                                         </div>
                                     </div>
-                                    <div class="mt-4" v-if="appointment.status !== 'Rejected'">
+                                    <div class="mt-4"
+                                        v-if="appointment.status !== 'Rejected' && appointment.status !== 'Cancelled' && appointment.status !== 'Approved' && appointment.status !== 'Applicated'">
                                         <CustomButton type="primary" @click="openChangeStatusModal(appointment)"
                                             class="py-2">
                                             change status</CustomButton>
                                     </div>
                                 </div>
-
-                                <div v-if="selectedAppointment"
-                            class="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center overflow-hidden">
-                            <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-                                <h2 class="text-2xl font-bold mb-4 text-center">Update Appointment Status</h2>
-                                <p class="text-gray-600 mb-4 text-center">The tenant will be notified of the updated
-                                    status.</p>
-                                <form @submit.prevent="updateStatus(appointment.id)">
-                                    <div class="space-y-4">
-                                        <div>
-                                            <label for="status" class="block text-sm font-medium text-gray-700">New
-                                                Status:</label>
-                                            <select id="status" name="status" v-model="appointmentForm.status"
-                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-700 focus:ring focus:ring-green-700 focus:ring-opacity-50">
-                                                <option value="Pending">Pending</option>
-                                                <option value="Approved">Approved</option>
-                                                <option value="Rejected">Rejected</option>
-                                            </select>
-                                        </div>
-                                        <div v-if="appointmentForm.status === 'Rejected'" class="mt-4">
-                                            <label for="rejected_reason"
-                                                class="block text-sm font-medium text-gray-700">Rejection
-                                                Reason:</label>
-                                            <textarea id="rejected_reason" v-model="appointmentForm.rejected_reason"
-                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-700 focus:ring focus:ring-green-700 focus:ring-opacity-50"
-                                                rows="3" placeholder="Provide a reason for rejection"></textarea>
-                                            <p class="text-sm text-gray-600 mt-2">If you reject the appointment, the
-                                                tenant will be notified and will be able to request a new appointment.
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div class="flex justify-end pt-2">
-                                        <CustomButton type="cancel" @click="resetForm()">Close
-                                        </CustomButton>
-                                        <button type="submit"
-                                            class="ml-2 inline-flex items-center px-3 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-offset-2 transition ease-in-out duration-150 bg-primary text-white hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:ring-green-500">
-                                            Submit
-                                        </button>
-                                    </div>
-                                </form>
                             </div>
                         </div>
 
-                            </div>
-                        </div>
-
-                        <!-- <div v-if="selectedAppointment"
+                        <div v-if="selectedAppointment"
                             class="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center overflow-hidden">
                             <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
                                 <h2 class="text-2xl font-bold mb-4 text-center">Update Appointment Status</h2>
@@ -174,6 +136,7 @@ import CustomButton from '@/Components/CustomButton.vue';
                                             <select id="status" name="status" v-model="appointmentForm.status"
                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-700 focus:ring focus:ring-green-700 focus:ring-opacity-50">
                                                 <option value="Pending">Pending</option>
+                                                <option value="Confirmed">Confirmed</option>
                                                 <option value="Approved">Approved</option>
                                                 <option value="Rejected">Rejected</option>
                                             </select>
@@ -200,7 +163,7 @@ import CustomButton from '@/Components/CustomButton.vue';
                                     </div>
                                 </form>
                             </div>
-                        </div> -->
+                        </div>
 
                     </div>
                 </div>
@@ -218,6 +181,7 @@ export default {
         return {
             appointments: [],
             appointmentForm: {
+                appointment_id: '',
                 status: '',
                 rejected_reason: '',
             },
@@ -225,6 +189,24 @@ export default {
         };
     },
     methods: {
+
+        sendNotification(senderId, receiverId, notificationType, message) {
+            axios.post('/api/notifications', {
+                sender_id: senderId,
+                receiver_id: receiverId,
+                notification_type: notificationType,
+                message: message,
+                sent_date: new Date().toISOString(),
+                read_status: false,
+            })
+                .then(() => {
+                    console.log('Notification sent successfully');
+                })
+                .catch((error) => {
+                    console.error('Error sending notification:', error);
+                });
+        },
+
         toggleAccordion(appointment) {
             this.appointments.forEach((appt) => {
                 if (appt.id === appointment.id) {
@@ -248,12 +230,13 @@ export default {
                 });
         },
         openChangeStatusModal(appointment) {
+            this.appointmentForm.appointment_id = appointment.id;
             this.appointmentForm.status = appointment.status;
             this.selectedAppointment = true;
         },
         updateStatus(id) {
             const data = {
-                appointment_id: id,
+                appointment_id: this.appointmentForm.appointment_id,
                 status: this.appointmentForm.status,
             };
 
@@ -272,6 +255,15 @@ export default {
                         message: 'Appointment status updated successfully.',
                         type: 'success',
                     });
+
+                    // Enviar notificación sobre el cambio de estado
+                    const notificationMessage = `The status of your appointment has been changed to ${this.appointmentForm.status}.`;
+                    this.sendNotification(
+                        this.user.id,
+                        this.appointmentForm.user_id, // ID del usuario al que se le envía la notificación
+                        'Status Update',
+                        notificationMessage
+                    );
                 })
                 .catch(() => {
                     this.emmiter.emit('show_notification', {

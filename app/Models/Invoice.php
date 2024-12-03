@@ -15,12 +15,18 @@ class Invoice extends Model
         'contract_id',
         'issue_date',
         'total_amount',
+        'evidence_path',
         'payment_status', //Paid, Pending
     ];
 
     public function contract()
     {
-        return $this->belongsTo(Contract::class, 'id');
+        return $this->belongsTo(Contract::class, 'contract_id');
+    }
+
+    public function paymentHistory()
+    {
+        return $this->hasOne(Payment_history::class, 'invoice_id');
     }
 
     public function validatePaymentStatus(array $attributes)

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('properties', function (Blueprint $table) {
             $table->id();
+            $table->string('property_code', 20)->unique();
             $table->string('street', 100);
             $table->string('number', 10);
             $table->string('city', 100);
@@ -42,6 +43,13 @@ return new class extends Migration
             $table->integer('wineries')->nullable();
             $table->integer('closets')->nullable();
             $table->integer('levels')->nullable();
+            $table->integer('parking')->nullable();
+
+            $table->json('general_features')->nullable();
+            $table->json('services')->nullable();
+            $table->json('exteriors')->nullable();
+            $table->json('environmentals')->nullable();
+
         });
     }
 

@@ -12,9 +12,11 @@ import { Head, usePage } from '@inertiajs/vue3';
     <Head title="Search Properties" />
 
     <DashboardLayout>
+        <div class="p-2">
+            <h1 class="text-3xl font-bold text-gray-800">Properties in rent</h1>
+        </div>
         <main :class="{ 'flex': showDetails, 'block': !showDetails }" class="flex-grow relative overflow-hidden p-6">
             <div :class="{ 'w-full': !showDetails, 'w-full md:w-3/4': showDetails }" class="p-4 h-full overflow-y-auto">
-                <h1 class="text-3xl font-bold mb-6">Properties in Rent</h1>
                 <div class="mb-6">
                     <div class="flex gap-2 mt-1">
                         <select id="zoneSelect" v-model="propertiesSpecifications.selectedZone"
@@ -31,7 +33,7 @@ import { Head, usePage } from '@inertiajs/vue3';
                                 class="w-full focus:ring-green-500" />
                             <div class="flex justify-between text-sm text-gray-500">
                                 <span v-for="(price, index) in priceOptions" :key="index">
-                                    {{ price }} 
+                                    {{ price }}
                                 </span>
                             </div>
                         </div>
@@ -43,7 +45,7 @@ import { Head, usePage } from '@inertiajs/vue3';
                             Hide Filters
                         </CustomButton>
                         <CustomButton @click="refreshFilters" type="primary" class="py-2 w-32">
-                            <i class="mdi mdi-refresh mr-2"></i> REFRESH FILTERS 
+                            <i class="mdi mdi-refresh mr-2"></i> REFRESH FILTERS
                         </CustomButton>
                     </div>
 
@@ -95,37 +97,34 @@ import { Head, usePage } from '@inertiajs/vue3';
                     </transition>
                 </div>
 
-                <div
-                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
-                    <div 
-                        v-if="properties && properties.length > 0" 
-                        v-for="property in properties" 
-                        :key="property.id"
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
+                    <div v-if="properties && properties.length > 0" v-for="property in properties" :key="property.id"
                         class="bg-white shadow-md rounded-lg flex flex-col justify-between h-full transform transition duration-300"
                         :class="{ 'scale-105 shadow-xl': activePropertyId === property.id }">
-                        
+
                         <!-- Imagen de la propiedad -->
-                        <img 
-                        :src="property.property_photos_path[0]" 
-                        alt="Property Photo"
-                        class="w-full h-48 object-cover"
-                        v-if="property.property_photos_path.length" />
-                        
+                        <img :src="property.property_photos_path[0]" alt="Property Photo"
+                            class="w-full h-48 object-cover" v-if="property.property_photos_path.length" />
+
                         <!-- Contenido -->
                         <div class="p-4 flex-grow">
-                        <h2 class="text-xl font-bold mb-2">{{ property.zone_name }}</h2>
-                        <p class="text-gray-600 mb-2">
-                            {{ property.city }}, {{ property.state }}, {{ property.colony }} {{ property.street }} {{ property.number }}
-                        </p>
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="flex items-center">
-                            <!-- Icono de habitaciones -->
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16h6M4 6h16M4 6a2 2 0 012-2h12a2 2 0 012 2M4 6v12a2 2 0 002 2h12a2 2 0 002-2V6"></path>
-                            </svg>
-                            {{ property.total_rooms }} rooms
-                            </span>
-                            <span v-if="property.half_bathrooms > 0" class="flex items-center">
+                            <h2 class="text-xl font-bold mb-2">{{ property.zone_name }}</h2>
+                            <p class="text-gray-600 mb-2">
+                                {{ property.city }}, {{ property.state }}, {{ property.colony }} {{ property.street }}
+                                {{ property.number }}
+                            </p>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="flex items-center">
+                                    <!-- Icono de habitaciones -->
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 10h.01M12 10h.01M16 10h.01M9 16h6M4 6h16M4 6a2 2 0 012-2h12a2 2 0 012 2M4 6v12a2 2 0 002 2h12a2 2 0 002-2V6">
+                                        </path>
+                                    </svg>
+                                    {{ property.total_rooms }} rooms
+                                </span>
+                                <span v-if="property.half_bathrooms > 0" class="flex items-center">
                                     <!-- SVG Icon for bathrooms -->
                                     <icon class="mdi mdi-toilet mr-2"></icon>{{ property.total_bathrooms }} bathrooms +
                                     {{ property.half_bathrooms }} (<icon class="mdi mdi-fraction-one-half mr-1">)</icon>
@@ -138,38 +137,43 @@ import { Head, usePage } from '@inertiajs/vue3';
                                 <span v-if="property.rental_rate != null" class="flex items-center">
                                     <!-- SVG Icon for bathrooms -->
                                     <icon class="mdi mdi-star mr-2"></icon>
-                                    {{ property.rental_rate }} 
+                                    {{ property.rental_rate }}
                                 </span>
                                 <span v-else class="flex items-center">
                                     <!-- SVG Icon for bathrooms -->
                                     <icon class="mdi mdi-star mr-2"></icon>
                                     No rated yet
                                 </span>
+                            </div>
                         </div>
-                        </div>
-                        
+
                         <!-- Pie de tarjeta -->
                         <div class="bg-gray-100 px-4 py-3 flex justify-between items-center">
-                        <span class="text-lg font-bold flex items-center">
-                            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 1.343-3 3v4h6v-4c0-1.657-1.343-3-3-3zM5 20h14a2 2 0 002-2v-5a2 2 0 00-2-2H5a2 2 0 00-2 2v5a2 2 0 002 2z"></path>
-                            </svg>
-                            {{ property.property_price }} $MXN
-                        </span>
-                        <CustomButton v-if="property.id != activePropertyId" type="primary" @click="toggleDetails(property.id)">
-                            View Details
-                        </CustomButton>
-                        <CustomButton v-else type="primary" @click="showDetails = false">
-                            Hide Details
-                        </CustomButton>
+                            <span class="text-lg font-bold flex items-center">
+                                <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8c-1.657 0-3 1.343-3 3v4h6v-4c0-1.657-1.343-3-3-3zM5 20h14a2 2 0 002-2v-5a2 2 0 00-2-2H5a2 2 0 00-2 2v5a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                                {{ property.property_price }} $MXN
+                            </span>
+                            <CustomButton v-if="property.id != activePropertyId" type="primary"
+                                @click="toggleDetails(property.id)">
+                                View Details
+                            </CustomButton>
+                            <CustomButton v-else type="primary" @click="showDetails = false">
+                                Hide Details
+                            </CustomButton>
                         </div>
                     </div>
-                    
+
                     <!-- Si no hay propiedades -->
                     <div v-else class="text-center text-gray-500 col-span-3">
                         <p>No properties found with the applied filters.</p>
                     </div>
                 </div>
+
             </div>
 
             <div v-if="showDetails" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title"
@@ -187,7 +191,8 @@ import { Head, usePage } from '@inertiajs/vue3';
                                 <div class="w-full mt-3 text-center sm:mt-0 sm:text-left">
                                     <div class="flex items-center justify-between mb-4">
                                         <h3 class="text-2xl font-bold leading-6" id="modal-title">
-                                            {{ selectedProperty.colony }} {{ selectedProperty.street }}, {{ selectedProperty.number }}
+                                            {{ selectedProperty.colony }} {{ selectedProperty.street }}, {{
+                                                selectedProperty.number }}
                                         </h3>
                                         <button @click="showDetails = false"
                                             class="text-gray-400 transition-colors duration-200 hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
@@ -232,28 +237,29 @@ import { Head, usePage } from '@inertiajs/vue3';
                                             <h4 class="mb-2 text-lg font-semibold">Details</h4>
                                             <p class="text-gray-500">{{ selectedProperty.property_details }}</p>
                                             <div class=" mt-1 mb-4">
-                                                <h3 class="text-lg font-semibold text-gray-700 mb-2">Comments ({{ selectedProperty.comments.length }})</h3>
-                                                <div v-if="selectedProperty.comments && selectedProperty.comments.length > 0" class="space-y-4 overflow-y-auto max-h-40">
-                                                    <div 
-                                                        v-for="comment in selectedProperty.comments" 
-                                                        :key="comment.id" 
-                                                        class="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm"
-                                                    >
+                                                <h3 class="text-lg font-semibold text-gray-700 mb-2">Comments ({{
+                                                    selectedProperty.comments.length }})</h3>
+                                                <div v-if="selectedProperty.comments && selectedProperty.comments.length > 0"
+                                                    class="space-y-4 overflow-y-auto max-h-40">
+                                                    <div v-for="comment in [...selectedProperty.comments].reverse()"
+                                                        :key="comment.id"
+                                                        class="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm">
                                                         <div class="flex items-center justify-between mb-2">
-                                                            <span class="text-sm text-gray-500">{{ new Date(comment.created_at).toLocaleDateString() }}</span>
+                                                            <span class="text-sm text-gray-500">{{ new
+                                                                Date(comment.created_at).toLocaleDateString() }}</span>
                                                             <div class="flex">
-                                                                <icon 
-                                                                    v-for="n in 5" 
-                                                                    :key="n"
-                                                                    :class="n <= comment.comment_rate ? 'mdi mdi-star' : 'mdi mdi-star-outline'" 
-                                                                    class="text-yellow-500 text-lg"
-                                                                ></icon>
+                                                                <icon v-for="n in 5" :key="n"
+                                                                    :class="n <= comment.comment_rate ? 'mdi mdi-star' : 'mdi mdi-star-outline'"
+                                                                    class="text-yellow-500 text-lg"></icon>
                                                             </div>
                                                         </div>
                                                         <div class="mb-2">
-                                                            <p class="text-gray-700 font-medium">{{ comment.user.first_name }} {{ comment.user.last_name }}</p>
+                                                            <p class="text-gray-700 font-medium">{{
+                                                                comment.user.first_name }} {{ comment.user.last_name }}
+                                                            </p>
                                                         </div>
-                                                        <p class="text-gray-600 whitespace-normal break-words">{{ comment.comment }}</p>
+                                                        <p class="text-gray-600 whitespace-normal break-words">{{
+                                                            comment.comment }}</p>
                                                     </div>
                                                 </div>
                                                 <div v-else class="text-gray-500 text-center mt-4">
@@ -285,10 +291,13 @@ import { Head, usePage } from '@inertiajs/vue3';
                         </div>
 
                         <div class="px-4 py-3 bg-gray-200 bg-opacity-50 sm:px-6 sm:flex sm:flex-row-reverse">
-                            <CustomButton v-if="!hasAppointment" type="primary" class="py-2"
+                            <CustomButton v-if="!hasAppointment && !hasActiveContract" type="primary" class="py-2"
                                 @click="scheduleAppointment = true">
                                 <i class="mr-2 mdi mdi-calendar"></i> Schedule a Visit
                             </CustomButton>
+                            <p v-else-if="hasActiveContract" class="text-gray-500 text-sm mt-2">
+                                You already have an active contract. You cannot schedule a visit.
+                            </p>
                             <p v-else class="text-gray-500 text-sm mt-2">
                                 You already have a visit request for this property. You can view it in <a
                                     href="/appointments" class="text-green-700 underline">Appointments</a>.
@@ -349,6 +358,7 @@ import { Head, usePage } from '@inertiajs/vue3';
 import { formatInTimeZone } from 'date-fns-tz';
 import { addDays } from 'date-fns';
 export default {
+    props: ['user', 'hasActiveContract'],
     data() {
         const now = new Date();
         const minDate = addDays(now, 1).toISOString().split('T')[0]; // Fecha mínima (mañana)
@@ -417,8 +427,27 @@ export default {
                 }
             }
         },
+
+        // Send notification to user
+        async sendNotification(senderId, receiverId, notificationType, message) {
+            try {
+                await axios.post('/api/notifications', {
+                    sender_id: senderId,
+                    receiver_id: receiverId,
+                    notification_type: notificationType,
+                    message: message,
+                    sent_date: new Date().toISOString(), // Fecha actual en formato ISO
+                    read_status: false, // Estado inicial como no leído
+                });
+            } catch (error) {
+                console.error('Error sending notification:', error);
+            }
+        },
+
         checkUserAppointment() {
-            this.hasAppointment = this.selectedProperty.appointments.some(appointment => appointment.user.id === this.user.id);
+            this.hasAppointment = this.selectedProperty.appointments.some(appointment => {
+                return appointment.user.id === this.user.id && appointment.appointment_status !== 'Rejected' && appointment.appointment_status !== 'Cancelled';
+            });
         },
         toggleFilters() {
             this.showFilters = !this.showFilters;
@@ -427,6 +456,8 @@ export default {
             axios.get('/api/properties/getProperties')
                 .then(response => {
                     this.properties = response.data;
+                    console.log(this.user)
+                    console.log(this.hasActiveContract)
                 })
                 .catch(error => {
                     console.error(error);
@@ -434,7 +465,7 @@ export default {
         },
         filterProperties() {
             this.hasInitialFilterChanged = true;
-            
+
             var selectedZoneName = this.zones.find(zone => zone.id == this.propertiesSpecifications.selectedZone);
 
             var filters = {
@@ -455,7 +486,7 @@ export default {
                 });
         },
         refreshFilters() {
-            this.isRefreshing = true; 
+            this.isRefreshing = true;
             this.propertiesSpecifications = {
                 selectedZone: '',
                 maxPrice: '',
@@ -472,7 +503,7 @@ export default {
             setTimeout(() => {
                 this.isRefreshing = false;
                 this.hasInitialFilterChanged = false;
-            }, 0); 
+            }, 0);
         },
         ApplyToAnAppointment(propertyId) {
             // Combinar fecha y hora en formato "YYYY-MM-DDTHH:MM"
@@ -496,6 +527,12 @@ export default {
                         message: `Appointment requested successfully! Check the status in <a href="/appointments" class="text-green-700 underline">Appointments</a>.`,
                         type: 'success'
                     });
+                    this.sendNotification(
+                        this.user.id,
+                        this.selectedProperty.owner_user_id,
+                        "ApplicationApproved",
+                        `Your application for the property at ${this.selectedProperty.street} has been approved.`
+                    );
                 })
                 .catch(error => {
                     console.error("Error applying to listing:", error.response?.data || error);

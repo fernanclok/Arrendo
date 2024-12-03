@@ -22,6 +22,7 @@ import TextInput from '@/Components/TextInput.vue';
               class="text-sm font-medium hover:underline">
             {{ item.label }}
             </Link>
+            <a class="text-sm font-medium hover:underline">Contact Us</a>
           </nav>
 
           <div class="flex items-center space-x-2">
@@ -160,10 +161,10 @@ import TextInput from '@/Components/TextInput.vue';
         <div class="container mx-auto px-4 text-center">
           <h2 class="text-3xl font-bold mb-4">Do You Have a Property to Rent?</h2>
           <p class="text-xl mb-8">Join Thousands of Owners Who Trust in Us</p>
-          <a href="" class="hover:underline">
+          <Link href="/login" class="hover:underline">
             Share my Property
             <ArrowRight class="ml-2 h-5 w-5" />
-          </a>
+        </Link>
         </div>
       </section>
     </main>
@@ -225,10 +226,8 @@ export default {
   }
 }
 const navItems = [
-  { href: '/', label: 'Welcome' },
+  { href: '/', label: 'Home' },
   { href: '/properties', label: 'Properties' },
-  // { href: '/propietarios', label: 'For Owners' },
-  { href: '/contact', label: 'Contact Us' },
 ]
 
 // const propertyTypes = [
