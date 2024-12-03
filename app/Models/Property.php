@@ -17,7 +17,7 @@ class Property extends Model
         'city',
         'state',
         'postal_code',
-        'rental_rate',
+        //'rental_rate',
         'availability', //Available, Not Available
         'total_bathrooms',
         'total_rooms',
@@ -39,7 +39,13 @@ class Property extends Model
         'state_conservation', 
         'wineries', 
         'closets', 
-        'levels', 
+        'levels',
+        'parking', 
+
+        'general_features',
+        'services',
+        'exteriors',
+        'environmentals',
     ];
 
     public function ownerUser()

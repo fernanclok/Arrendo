@@ -42,6 +42,13 @@ return new class extends Migration
             $table->integer('wineries')->nullable();
             $table->integer('closets')->nullable();
             $table->integer('levels')->nullable();
+            $table->integer('parking')->nullable();
+
+            $table->json('general_features')->nullable();
+            $table->json('services')->nullable();
+            $table->json('exteriors')->nullable();
+            $table->json('environmentals')->nullable();
+
         });
     }
 

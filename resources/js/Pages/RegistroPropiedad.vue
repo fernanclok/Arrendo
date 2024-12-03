@@ -288,32 +288,100 @@ import { ref } from 'vue';
 
       <form @submit.prevent="validateForm" class="space-y-6">
           <!-- Accordion para Categorías -->
-          <div v-for="(categoria, index) in categorias" :key="index" class="accordion border-b border-gray-300">
-            <button
-              type="button"
-              class="accordion-header w-full text-left py-3 flex justify-between items-center text-gray-800 font-medium focus:outline-none"
-              @click="toggleAccordion(index)"
-            >
-              {{ categoria.nombre }}
-              <span :class="accordionStates[index] ? 'rotate-180' : ''" class="transform transition-transform">
-                ▼
-              </span>
-            </button>
-            <div v-if="accordionStates[index]" class="accordion-body transition-all ease-in-out">
-              <div class="grid grid-cols-2 gap-2 mt-2">
-                <div v-for="opcion in categoria.opciones" :key="opcion" class="flex items-center">
-                  <input
-                    type="checkbox"
-                    :id="opcion"
-                    :value="opcion"
-                    v-model="form[categoria.nombre]"
-                    class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                  />
-                  <label :for="opcion" class="ml-2 text-sm text-gray-700">{{ opcion }}</label>
-                </div>
-              </div>
-            </div>
+    <!-- Nueva sección: Extras con Accordions -->
+    <div class="space-y-4">
+      <!-- Características generales -->
+      <div>
+        <button
+          class="w-full flex justify-between items-center bg-gray-100 p-3 rounded-lg text-left font-semibold text-gray-700"
+          @click="toggleAccordion('generalFeatures')"
+        >
+          Características generales
+          <span>{{ accordions.generalFeatures ? '-' : '+' }}</span>
+        </button>
+        <div v-show="accordions.generalFeatures" class="p-4">
+          <div v-for="option in generalFeatures" :key="option.value" class="flex items-center space-x-2 mb-2">
+            <input
+              type="checkbox"
+              :id="option.value"
+              v-model="newProperty.generalFeatures"
+              :value="option.value"
+              class="h-4 w-4 rounded border-gray-300 focus:ring-blue-500"
+            />
+            <label :for="option.value" class="text-gray-600">{{ option.label }}</label>
           </div>
+        </div>
+      </div>
+
+      <!-- Servicios -->
+      <div>
+        <button
+          class="w-full flex justify-between items-center bg-gray-100 p-3 rounded-lg text-left font-semibold text-gray-700"
+          @click="toggleAccordion('services')"
+        >
+          Servicios
+          <span>{{ accordions.services ? '-' : '+' }}</span>
+        </button>
+        <div v-show="accordions.services" class="p-4">
+          <div v-for="option in services" :key="option.value" class="flex items-center space-x-2 mb-2">
+            <input
+              type="checkbox"
+              :id="option.value"
+              v-model="newProperty.services"
+              :value="option.value"
+              class="h-4 w-4 rounded border-gray-300 focus:ring-blue-500"
+            />
+            <label :for="option.value" class="text-gray-600">{{ option.label }}</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Exteriores -->
+      <div>
+        <button
+          class="w-full flex justify-between items-center bg-gray-100 p-3 rounded-lg text-left font-semibold text-gray-700"
+          @click="toggleAccordion('exteriors')"
+        >
+          Exteriores
+          <span>{{ accordions.exteriors ? '-' : '+' }}</span>
+        </button>
+        <div v-show="accordions.exteriors" class="p-4">
+          <div v-for="option in exteriors" :key="option.value" class="flex items-center space-x-2 mb-2">
+            <input
+              type="checkbox"
+              :id="option.value"
+              v-model="newProperty.exteriors"
+              :value="option.value"
+              class="h-4 w-4 rounded border-gray-300 focus:ring-blue-500"
+            />
+            <label :for="option.value" class="text-gray-600">{{ option.label }}</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ambientales -->
+      <div>
+        <button
+          class="w-full flex justify-between items-center bg-gray-100 p-3 rounded-lg text-left font-semibold text-gray-700"
+          @click="toggleAccordion('environmentals')"
+        >
+          Ambientales
+          <span>{{ accordions.environmentals ? '-' : '+' }}</span>
+        </button>
+        <div v-show="accordions.environmentals" class="p-4">
+          <div v-for="option in environmentals" :key="option.value" class="flex items-center space-x-2 mb-2">
+            <input
+              type="checkbox"
+              :id="option.value"
+              v-model="newProperty.environmentals"
+              :value="option.value"
+              class="h-4 w-4 rounded border-gray-300 focus:ring-blue-500"
+            />
+            <label :for="option.value" class="text-gray-600">{{ option.label }}</label>
+          </div>
+        </div>
+      </div>
+    </div>
   
           <!-- Campos adicionales -->
           <h3 class="text-xl font-semibold text-gray-800 mt-4">Adicionales</h3>
