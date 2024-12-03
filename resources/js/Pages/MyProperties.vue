@@ -6,7 +6,6 @@ import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import InputError from '@/Components/InputError.vue';
 import { ref } from 'vue';
-import '@fortawesome/fontawesome-free/css/all.css';
 
 </script>
 
