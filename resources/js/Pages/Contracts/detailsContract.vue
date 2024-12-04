@@ -127,7 +127,7 @@ onMounted(() => {
           </div>
         </section>
   
-        <!-- Tenant Details -->
+        <!-- Tenant Details "SQLSTATE[22001]: String data, right truncated: 7 ERROR:  value too long for type character varying(20) (Connection: pgsql, SQL: insert into "properties" ("street", "property_code", "number", "city", "state", "postal_code", "availability", "total_bathrooms", "total_rooms", "total_m2", "have_parking", "accept_mascots", "property_price", "property_details", "zone_id", "owner_user_id", "colony", "half_bathrooms", "surface_built", "total_surface", "antiquity", "maintenance", "state_conservation", "wineries", "closets", "levels", "parking", "general_features", "services", "exteriors", "environmentals", "property_photos_path", "updated_at", "created_at") values (Circuito los tamarindos, PTY-Circuito los tamarindos, 50, Tijuana, Baja California, 22253, Available, 2, 5, 400, 0, 1, 4500, Contains garden, 10, 1, El Refugio, 2, 350, ?, 5, 2500, Good, 1, 2, 2, 2, [], [], [], [], ["properties_photos\/9_20241203160905.jpg","properties_photos\/10_20241203160905.jpeg"], 2024-12-03 16:09:05, 2024-12-03 16:09:05) returning "id")"-->
         <section class="bg-white shadow-lg rounded-lg p-6 space-y-6 mb-8 border border-gray-200">
           <h2 class="text-3xl font-semibold text-gray-800">Tenant Details</h2>
           <p class="text-xl font-medium text-gray-800">{{ contract.tenant_user.first_name }} {{ contract.tenant_user.last_name }}</p>

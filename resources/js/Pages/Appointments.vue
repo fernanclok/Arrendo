@@ -16,139 +16,191 @@ import { usePage, useForm } from '@inertiajs/vue3';
     <Head title="Appointments" />
 
     <DashboardLayout>
-        <div class="p-2">
-            <h1 class="text-3xl font-bold text-gray-800">Your Appointments</h1>
-        </div>
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="overflow-hidden">
-                    <div class="p-6">
-                        <div v-if="appointments.length === 0"
-                            class="flex items-center justify-center h-64 text-gray-600 text-lg">
-                            You have no appointments scheduled.
-                        </div>
+                    <div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+                        <div class="max-w-4xl mx-auto">
+                            <h1 class="text-4xl font-extrabold mb-8 text-center">Your Appointments</h1>
 
-                        <div v-else class="space-y-4">
-                            <div v-for="appointment in appointments" :key="appointment.id"
-                                class="bg-gray-50 p-4 rounded-lg shadow flex flex-col space-y-4">
-                                <!-- Header -->
-                                <div class="flex items-center justify-between cursor-pointer"
-                                    @click="toggleAccordion(appointment)">
-                                    <div class="flex items-center space-x-4">
-                                        <div>
-                                            <p class="font-medium text-gray-900">
-                                                {{ formatDateTime(appointment.requested_date) }}
-                                            </p>
-                                            <p class="text-sm text-gray-600">Property: {{ appointment.property.street
-                                                }}, {{ appointment.property.city }}, {{ appointment.property.state }}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center space-x-4">
-                                        <span :class="{
-                                            'px-2 py-1 text-xs font-semibold rounded-full': true,
-                                            'bg-yellow-100 text-yellow-800': appointment.status === 'Pending',
-                                            'bg-blue-100 text-blue-800': appointment.status === 'Confirmed',
-                                            'bg-red-100 text-red-800': appointment.status === 'Rejected',
-                                            'bg-green-100 text-green-800': appointment.status === 'Approved',
-                                            'bg-gray-100 text-gray-800': appointment.status === 'Cancelled',
-                                            'bg-green-500 text-green-800': appointment.status === 'Applicated',
-                                        }">
-                                            {{ appointment.status }}
-                                        </span>
-                                        <button @click.stop="editAppointment(appointment.id)"
-                                            class="text-blue-600 hover:text-blue-800"
-                                            :disabled="appointment.status === 'Cancelled'">
-                                        </button>
-                                        <button @click.stop="cancelAppointment(appointment.id)"
-                                            class="text-red-600 hover:text-red-800"
-                                            :disabled="appointment.status === 'Cancelled'">
-                                        </button>
-                                        <i
-                                            :class="appointment.isOpen ? 'mdi mdi-chevron-up' : 'mdi mdi-chevron-down'"></i>
-                                    </div>
-                                </div>
+                            <div v-if="appointments.length === 0" class="bg-white rounded-xl shadow-lg p-8 text-center">
+                                <CalendarIcon class="h-16 w-16 mx-auto mb-4" />
+                                <p class="text-xl text-gray-600">You have no appointments scheduled.</p>
+                            </div>
 
-                                <!-- Additional Information (Accordion Content) -->
-                                <div v-if="appointment.isOpen" class="mt-4 text-gray-700">
-                                    <p><strong>Requested Date:</strong> {{ formatDateTime(appointment.requested_date) }}
-                                    </p>
-                                    <p v-if="appointment.confirmation_date"><strong>Owner approved your appointment
-                                            at:</strong> {{
-                                                formatDateTime(appointment.confirmation_date)
-                                            }}</p>
-                                    <p><strong>Status:</strong> {{ appointment.status }}</p>
-                                    <p class="text-lg font-medium mt-4">Property Details</p>
-                                    <ul class="list-disc ml-6 space-y-1">
-                                        <li><strong>Availability:</strong> {{ appointment.property.availability }}</li>
-                                        <li><i class="mr-2 mdi mdi-shower"></i><strong
-                                                class="text-gray-500">Bathrooms:</strong> {{
-                                                    appointment.property.total_bathrooms }}</li>
-                                        <li><i class="mr-2 mdi mdi-bed"></i><strong
-                                                class="text-gray-500">Rooms:</strong> {{
-                                                    appointment.property.total_rooms }}</li>
-                                        <li><i class="mr-2 mdi mdi-ruler"></i><strong class="text-gray-500">Size
-                                                (m²):</strong> {{
-                                                    appointment.property.total_m2 }}</li>
-                                        <li><i class="mr-2 mdi mdi-car"></i><strong
-                                                class="text-gray-500">Parking:</strong> {{
-                                                    appointment.property.have_parking ? "Yes" : "No" }}</li>
-                                        <li><i class="mr-2 mdi mdi-currency-usd"></i><strong
-                                                class="text-gray-500">Price:</strong> {{
-                                                    appointment.property.property_price }}</li>
-                                    </ul>
-
-                                    <!-- Mostrar solo si el estado es Approved -->
-                                    <div v-if="appointment.status === 'Approved'">
-                                        <h1 class="text-xl font-semibold text-gray-900 mt-2">you are been approved!</h1>
-                                        <p class='text-sm mb-2'>Continue with the application?</p>
-                                        <CustomButton type="cancel" class='mr-2'
-                                            @click="cancelAppointment(appointment)">
-                                            <i class="mr-2 mdi mdi-cancel"></i> No
-                                        </CustomButton>
-                                        <CustomButton type="primary" class='mr-2'
-                                            @click.stop="handleApplication(appointment)">
-                                            <i class="mr-2 mdi mdi-check"></i> Yes
-                                        </CustomButton>
-                                    </div>
-                                </div>
-
-                                <!-- Modal -->
-                                <div v-if="showDetails" class="fixed inset-0 z-50 overflow-y-auto"
-                                    aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                                    <div
-                                        class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-                                        <div class="fixed inset-0 transition-opacity bg-black bg-opacity-50 backdrop-blur-sm"
-                                            aria-hidden="true" @click="showDetails = false"></div>
-
-                                        <span class="hidden sm:inline-block sm:align-middle sm:h-screen"
-                                            aria-hidden="true">&#8203;</span>
-
-                                        <div
-                                            class="inline-block w-full max-w-4xl overflow-hidden text-left align-bottom transition-all transform bg-gradient-to-br bg-white rounded-lg shadow-2xl sm:my-8 sm:align-middle sm:w-full animate-modal-appear">
-                                            <div class="px-4 pt-5 pb-4 bg-opacity-30 sm:p-6 sm:pb-4">
-                                                <div class="sm:flex sm:items-start">
-                                                    <div class="w-full mt-3 text-center sm:mt-0 sm:text-left">
-                                                        <div class="flex items-center justify-between mb-4">
-                                                            <h3 class="text-2xl font-bold leading-6" id="modal-title">
-                                                                Upload the necesary documents
-                                                            </h3>
-                                                            <button @click="showDetails = false"
-                                                                class="text-gray-400 transition-colors duration-200 hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
-                                                                <span class="sr-only">Close</span>
-                                                                <i class="text-2xl mdi mdi-close"
-                                                                    aria-hidden="true"></i>
-                                                            </button>
-                                                        </div>
+                            <div v-else class="space-y-6">
+                                <div v-for="appointment in appointments" :key="appointment.id"
+                                    class="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl transform hover:-translate-y-1">
+                                    <div class="p-6">
+                                        <!-- Header -->
+                                        <div class="flex items-center justify-between cursor-pointer"
+                                            @click="toggleAccordion(appointment)">
+                                            <div class="flex items-center space-x-4">
+                                                <div class="flex-shrink-0">
+                                                    <div class="rounded-full p-3">
+                                                        <CalendarIcon class="h-8 w-8" />
                                                     </div>
                                                 </div>
-                                                <Identity :appointments="appointments"
-                                                    :propertyId="selectedAppointment.property.id"
-                                                    :appointmentId="selectedAppointment.id" @close-modal="closeModal"
-                                                    @close-appointment="toggleAccordion(appointment)"
-                                                    @refresh-appointments="handleGetAppointments" />
+                                                <div>
+                                                    <p class="text-xl font-semibold">
+                                                        {{ formatDateTime(appointment.requested_date) }}
+                                                    </p>
+                                                    <p class="text-sm">
+                                                        {{ appointment.property.street }}, {{ appointment.property.city
+                                                        }}, {{ appointment.property.state }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center space-x-4">
+                                                <span :class="{
+                                                    'px-4 py-2 text-sm font-semibold rounded-full shadow-sm': true,
+                                                    'bg-green-100 text-green-800': appointment.status === 'Confirmed',
+                                                    'bg-yellow-100 text-yellow-800': appointment.status === 'Pending',
+                                                    'bg-red-100 text-red-800': appointment.status === 'Cancelled',
+                                                    'bg-green-100 text-green-800': appointment.status === 'Approved',
+                                                }">
+                                                    {{ appointment.status }}
+                                                </span>
+                                                <ChevronDownIcon v-if="!appointment.isOpen"
+                                                    class="h-6 w-6 text-green-700 text-green-700 transition-transform duration-300" />
+                                                <ChevronUpIcon v-else
+                                                    class="h-6 w-6 text-green-700 text-green-700 transition-transform duration-300" />
                                             </div>
                                         </div>
+
+                                        <!-- Additional Information (Accordion Content) -->
+                                        <div v-if="appointment.isOpen"
+                                            class="mt-6 text-gray-700 space-y-6 transition-all duration-500 ease-in-out">
+                                            <div
+                                                class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-green-50 rounded-lg p-4">
+                                                <div>
+                                                    <p class="font-medium text-green-900">Requested Date:</p>
+                                                    <p class="text-green-700">{{
+                                                        formatDateTime(appointment.requested_date) }}</p>
+                                                </div>
+                                                <div v-if="appointment.confirmation_date">
+                                                    <p class="font-medium text-green-900">Owner Approved At:</p>
+                                                    <p class="text-green-700">{{
+                                                        formatDateTime(appointment.confirmation_date) }}</p>
+                                                </div>
+                                                <div>
+                                                    <p class="font-medium text-green-900">Status:</p>
+                                                    <p class="text-green-700">{{ appointment.status }}</p>
+                                                </div>
+                                            </div>
+
+                                            <div class="bg-white rounded-lg shadow-inner p-6">
+                                                <h3 class="text-2xl font-semibold text-green-900 mb-4">Property Details
+                                                </h3>
+                                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                                                    <div
+                                                        class="flex items-center space-x-3 bg-green-200 rounded-lg p-3 transition-all duration-300 hover:bg-green-100">
+                                                        <HomeIcon class="h-6 w-6 text-green-700 text-green-700" />
+                                                        <span class="text-green-900">{{
+                                                            appointment.property.availability }}</span>
+                                                    </div>
+                                                    <div
+                                                        class="flex items-center space-x-3 bg-green-200 rounded-lg p-3 transition-all duration-300 hover:bg-green-100">
+                                                        <ShowerHeadIcon class="h-6 w-6 text-green-700 text-green-700" />
+                                                        <span class="text-green-900">{{
+                                                            appointment.property.total_bathrooms }} Bathrooms</span>
+                                                    </div>
+                                                    <div
+                                                        class="flex items-center space-x-3 bg-green-200 rounded-lg p-3 transition-all duration-300 hover:bg-green-100">
+                                                        <BedDoubleIcon class="h-6 w-6 text-green-700 text-green-700" />
+                                                        <span class="text-green-900">{{ appointment.property.total_rooms
+                                                            }} Rooms</span>
+                                                    </div>
+                                                    <div
+                                                        class="flex items-center space-x-3 bg-green-200 rounded-lg p-3 transition-all duration-300 hover:bg-green-100">
+                                                        <RulerIcon class="h-6 w-6 text-green-700 text-green-700" />
+                                                        <span class="text-green-900">{{ appointment.property.total_m2 }}
+                                                            m²</span>
+                                                    </div>
+                                                    <div
+                                                        class="flex items-center space-x-3 bg-green-200 rounded-lg p-3 transition-all duration-300 hover:bg-green-100">
+                                                        <CarIcon class="h-6 w-6 text-green-700 text-green-700" />
+                                                        <span class="text-green-900">Parking: {{
+                                                            appointment.property.have_parking ? "Yes" : "No" }}</span>
+                                                    </div>
+                                                    <div
+                                                        class="flex items-center space-x-3 bg-green-200 rounded-lg p-3 transition-all duration-300 hover:bg-green-100">
+                                                        <DollarSignIcon class="h-6 w-6 text-green-700 text-green-700" />
+                                                        <span class="text-green-900">{{
+                                                            appointment.property.property_price }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Mostrar solo si el estado es Approved -->
+                                            <div v-if="appointment.status === 'Approved'"
+                                                class="mt-6 bg-green-50 rounded-lg p-6">
+                                                <h3 class="text-2xl font-semibold text-green-900 mb-4">Ready to Proceed?
+                                                </h3>
+                                                <p class="text-green-700 mb-4">Your appointment has been approved. Would
+                                                    you like to move forward with the application?</p>
+                                                <div class="flex space-x-4">
+                                                    <button type="button"
+                                                        class="flex-1 inline-flex justify-center items-center px-6 py-3 border border-gray-300 rounded-md shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                                                        @click="cancelAppointment(appointment)">
+                                                        <XIcon class="mr-2 h-5 w-5 text-gray-500 text-green-700" />
+                                                        Decline
+                                                    </button>
+                                                    <button type="button"
+                                                        class="flex-1 inline-flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                                                        @click.stop="handleApplication(appointment)">
+                                                        <CheckIcon class="mr-2 h-5 w-5 text-green-700" />
+                                                        Proceed
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Modal -->
+                            <div v-if="showDetails" class="fixed inset-0 z-50 overflow-y-auto"
+                                aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                                <div
+                                    class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+                                    <div class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75 backdrop-blur-sm"
+                                        aria-hidden="true" @click="showDetails = false"></div>
+
+                                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen"
+                                        aria-hidden="true">&#8203;</span>
+
+                                    <div
+                                        class="inline-block w-full max-w-4xl overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-2xl sm:my-8 sm:align-middle sm:w-full animate-modal-appear">
+                                        <div class="px-4 pt-5 pb-4 bg-opacity-30 sm:p-6 sm:pb-4">
+                                            <div class="sm:flex sm:items-start">
+                                                <div class="w-full mt-3 text-center sm:mt-0 sm:text-left">
+                                                    <div class="flex items-center justify-between mb-4">
+                                                        <h3 class="text-2xl font-bold leading-6 text-black"
+                                                            id="modal-title">
+                                                            Upload the necesary documents
+                                                        </h3>
+                                                        <button @click="showDetails = false"
+                                                            class="text-gray-400 transition-colors duration-200 hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                                                            <span class="sr-only">Close</span>
+                                                            <i class="text-2xl mdi mdi-close" aria-hidden="true"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <Identity :appointments="appointments"
+                                                :propertyId="selectedAppointment.property.id"
+                                                :appointmentId="selectedAppointment.id" @close-modal="closeModal"
+                                                @close-appointment="toggleAccordion(appointment)"
+                                                @refresh-appointments="handleGetAppointments" />
+                                        </div>
+                                    </div>
+                                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                                        <Identity :appointments="appointments"
+                                            :propertyId="selectedAppointment.property.id"
+                                            :appointmentId="selectedAppointment.id" @close-modal="closeModal"
+                                            @close-appointment="toggleAccordion(appointment)"
+                                            @refresh-appointments="handleGetAppointments" />
                                     </div>
                                 </div>
                             </div>
@@ -178,23 +230,6 @@ export default {
         };
     },
     methods: {
-
-        // Send notification to user
-        async sendNotification(senderId, receiverId, notificationType, message) {
-            try {
-                await axios.post('/api/notifications', {
-                    sender_id: senderId,
-                    receiver_id: receiverId,
-                    notification_type: notificationType,
-                    message: message,
-                    sent_date: new Date().toISOString(), // Fecha actual en formato ISO
-                    read_status: false, // Estado inicial como no leído
-                });
-            } catch (error) {
-                console.error('Error sending notification:', error);
-            }
-        },
-
         async submitFormWithExistingDocument(appointment) {
             try {
                 // Verifica el valor de document_path antes del primer POST
@@ -244,37 +279,9 @@ export default {
                 console.log('Appointment status updated:', statusResponse.data);
 
                 this.closeModal();
-                this.emmiter.emit('show_notification', {
-                    title: 'Success',
-                    message: 'Application submitted successfully!',
-                    type: 'success',
-                });
                 this.handleGetAppointments();
-
-                try {
-                    // Obtener el propietario de la propiedad
-                    const propertyResponse = await axios.get(`/api/properties/getPropertyDetails/${props.propertyId}`);
-                    const ownerId = propertyResponse.data.owner_id; // Suponiendo que el API devuelve el ID del propietario
-
-                    // Enviar notificación al propietario
-                    await sendNotification(
-                        this.user.id, // ID del inquilino como remitente
-                        ownerId, // ID del propietario como receptor
-                        'NewApplication',
-                        `A tenant has applied for your property at ${propertyResponse.data.street}.`
-                    );
-                } catch (error) {
-                    console.error('Error enviando la notificación:', error.response?.data || error);
-                }
-
             } catch (error) {
                 console.error('Error:', error.response ? error.response.data : error.message);
-                this.closeModal();
-                this.emmiter.emit('show_notification', {
-                    title: 'Error',
-                    message: 'An error occurred while submitting the application.',
-                    type: 'error',
-                });
             }
         },
         handleApplication(appointment) {
@@ -309,21 +316,6 @@ export default {
                     appointment_id: appointment.id,
                     status: 'Cancelled',
                 });
-                try {
-                    // Obtener el propietario de la propiedad
-                    const propertyResponse = await axios.get(`/api/properties/getPropertyDetails/${props.propertyId}`);
-                    const ownerId = propertyResponse.data.owner_id; // Suponiendo que el API devuelve el ID del propietario
-
-                    // Enviar notificación al propietario
-                    await sendNotification(
-                        this.user.id, // ID del inquilino como remitente
-                        ownerId, // ID del propietario como receptor
-                        'NewApplication',
-                        `A tenant has canceled appointment ${propertyResponse.data.street}.`
-                    );
-                } catch (error) {
-                    console.error('Error enviando la notificación:', error.response?.data || error);
-                }
                 console.log('Appointment cancelled:', response.data);
                 this.handleGetAppointments();
             } catch (error) {
@@ -343,7 +335,7 @@ export default {
         closeModal() {
             this.showDetails = false;
             this.selectedAppointment = null;
-
+            this.$emit('close');
             // Opcional: Cierra también el acordeón relacionado
             this.appointments.forEach((appt) => {
                 appt.isOpen = false;

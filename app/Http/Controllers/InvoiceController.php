@@ -30,12 +30,14 @@ class InvoiceController extends Controller
         $invoices = Invoice::whereYear('issue_date', $year)
             ->whereMonth('issue_date', $month)
             ->where('payment_status', 'Pending')
+            ->where('invoice_status', 'Active')
             ->with([
                 'contract' => function ($query) {
                     $query->select('id', 'contract_code');
                 }
             ])
             ->select('id', 'issue_date', 'total_amount', 'payment_status', 'contract_id', 'evidence_path')
+            ->orderBy('issue_date', 'asc')
             ->get();
 
         return response()->json($invoices);
@@ -85,7 +87,9 @@ class InvoiceController extends Controller
                     'i.payment_status'
                 )
                 ->where('c.tenant_user_id', $request->user_id)
-                ->orderBy('i.issue_date', 'DESC')
+                ->where('i.invoice_status', 'Active')
+                ->where('i.payment_status', 'Paid')
+                ->orderBy('i.issue_date', 'asc')
                 ->get();
 
             return response()->json($history);

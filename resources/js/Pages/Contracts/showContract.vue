@@ -235,7 +235,7 @@ onMounted(() => {
                     <nav class="flex justify-center space-x-2 w-full">
                         <div class="flex flex-col justify-start items-start text-start w-full">
                         <InputLabel for="property_id" value="Select property" />
-                        <select id="property_id" v-model="selectedPropertyId" class="w-full rounded-lg border-gray-300 text-black">
+                        <select id="property_id" v-model="selectedPropertyId" class="w-full rounded-lg focus:border-green-700 focus:ring focus:ring-green-700 text-black">
                             <option disabled value="">Please select one</option>
                             <option v-for="property in properties" :key="property.id" :value="property.id" class="text-black">
                             {{ property.street }}, {{ property.city }}, {{ property.state }}
@@ -248,7 +248,7 @@ onMounted(() => {
                           'hidden': selectedPropertyId == null,
                         }">
                         <InputLabel for="tenant_user_id" value="Select tenant" />
-                        <select id="tenant_user_id" v-model="form.tenant_user_id" class="w-full rounded-lg border-gray-300 text-black">
+                        <select id="tenant_user_id" v-model="form.tenant_user_id" class="w-full rounded-lg focus:border-green-700 focus:ring focus:ring-green-700 text-black">
                             <option disabled value="">Please select one</option>
                             <option v-for="tenant in tenants" :key="tenant.id" :value="tenant.id" class="text-black">
                             {{ tenant.first_name }} {{ tenant.last_name }}

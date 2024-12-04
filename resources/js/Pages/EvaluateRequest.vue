@@ -79,6 +79,7 @@
                     <li><strong>Phone:</strong> {{ solicitante.tenant_user.phone }}</li>
                   </ul>
                   <div class="mt-4 flex space-x-3">
+                    
                     <CustomButton type="primary" v-if="currentTab === 'Pending'"
                       @click="approveRequest(solicitante.id)">
                       Approve
@@ -100,10 +101,12 @@
         <div class="bg-white p-6 rounded-lg shadow-lg">
           <h2 class="text-lg font-bold mb-4">¿Do you want to create a contract?</h2>
           <div class="flex space-x-4">
+            <Link href="/contracts">
             <button @click="handleContractDecision(true)"
               class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">
               Yes
             </button>
+          </Link>
             <button @click="handleContractDecision(false)"
               class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">
               No
@@ -117,14 +120,14 @@
 
 <script>
 import axios from "axios";
-import { Head } from "@inertiajs/vue3";
+import { Head, Link } from "@inertiajs/vue3";
 import DashboardLayout from "@/Layouts/DashboardLayout.vue";
 import CustomButton from "@/Components/CustomButton.vue";
 import PreviewModal from '@/Components/PreviewModal.vue';
 
 
 export default {
-  components: { DashboardLayout, CustomButton, Head },
+  components: { DashboardLayout, CustomButton, Head, Link },
   data() {
     return {
       solicitantes: [],
@@ -193,7 +196,7 @@ export default {
             "Approved",
             response.data.approved_at
           );
-
+          
           // Solo enviar la notificación si la operación es exitosa
           const solicitante = this.solicitantes.find(
             (solicitante) => solicitante.id === this.currentSolicitanteId
@@ -205,7 +208,6 @@ export default {
             `Your application for the property at ${solicitante.property.street} has been approved.`
           );
 
-          this.$router.push(`/contracts/create/${this.currentSolicitanteId}`);
         } catch (error) {
           console.error("Error creating contract:", error);
         }

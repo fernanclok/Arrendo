@@ -438,14 +438,14 @@ class PropertyController extends Controller
         // ]);
 
         // Verificar si ya existe una aplicación con los mismos datos
-        $exists = DB::table('rental_applications')
-            ->where('property_id', $request->property_id)
-            ->where('tenant_user_id', $request->tenant_user_id)
-            ->exists();
+        // $exists = DB::table('rental_applications')
+        //     ->where('property_id', $request->property_id)
+        //     ->where('tenant_user_id', $request->tenant_user_id)
+        //     ->exists();
 
-        if ($exists) {
-            return response()->json(['message' => 'You have already applied to this property'], 409);
-        }
+        // if ($exists) {
+        //     return response()->json(['message' => 'You have already applied to this property'], 409);
+        // }
 
         // Insertar la nueva aplicación y obtener su ID
         $applicationId = DB::table('rental_applications')->insertGetId([

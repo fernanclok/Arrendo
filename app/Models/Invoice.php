@@ -17,6 +17,7 @@ class Invoice extends Model
         'total_amount',
         'evidence_path',
         'payment_status', //Paid, Pending
+        'invoice_status', // Active, Inactive
     ];
 
     public function contract()
@@ -35,6 +36,20 @@ class Invoice extends Model
             'payment_status' => [
                 'required',
                 Rule::in(['Paid', 'Pending']),
+            ],
+        ]);
+
+        if ($validator->fails()) {
+            throw new \Illuminate\Validation\ValidationException($validator);
+        }
+    }
+
+    public function validateInvoiceStatus(array $attributes)
+    {
+        $validator = Validator::make($attributes, [
+            'invoice_status' => [
+                'required',
+                Rule::in(['Active', 'Inactive']),
             ],
         ]);
 

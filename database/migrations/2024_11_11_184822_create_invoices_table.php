@@ -18,6 +18,7 @@ return new class extends Migration
             $table->decimal('total_amount', 10, 2);
             $table->JSON('evidence_path')->nullable();
             $table->enum('payment_status', ['Pending', 'Paid']);
+            $table->enum('invoice_status', ['Active', 'Inactive']);
             $table->timestamps();
         });
     }

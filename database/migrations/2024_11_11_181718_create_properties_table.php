@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('properties', function (Blueprint $table) {
             $table->id();
-            $table->string('property_code', 20)->unique();
-            $table->string('street', 100);
+            $table->string('property_code', 50)->unique();
+            $table->string('street', 180);
             $table->string('number', 10);
-            $table->string('city', 100);
-            $table->string('state', 100);
-            $table->string('postal_code', 20);
+            $table->string('city', 180);
+            $table->string('state', 180);
+            $table->string('postal_code', 50);
             $table->decimal('rental_rate', 8, 2)->nullable();
             $table->enum('availability', ['Available', 'Not Available']);
             $table->integer('total_bathrooms');
@@ -33,7 +33,7 @@ return new class extends Migration
             $table->foreignId('zone_id')->constrained('zones');
             $table->timestamps();
 
-            $table->string('colony', 100)->nullable();
+            $table->string('colony', 180)->nullable();
             $table->integer('half_bathrooms')->nullable();
             $table->integer('surface_built')->nullable();
             $table->integer('total_surface')->nullable();
@@ -49,7 +49,6 @@ return new class extends Migration
             $table->json('services')->nullable();
             $table->json('exteriors')->nullable();
             $table->json('environmentals')->nullable();
-
         });
     }
 

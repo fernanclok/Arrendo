@@ -152,6 +152,10 @@ const nextPage = () => {
 const totalPages = computed(() => {
     return Math.ceil(invoices.value.length / invoicesperPage);
 });
+const formatDate = (dateString) => {
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  return new Date(dateString).toLocaleDateString(undefined, options);
+};
 
 // Actualizar la lista de contratos paginados cuando cambie la página actual, los contratos o el criterio de búsqueda
 watch([invoices, currentPage], () => {
@@ -188,10 +192,10 @@ onMounted(fetchInvoices);
         <tbody class="bg-white overflow-auto-scroll">
           <tr v-for="(invoice, index) in paginatedInvoices" :key="invoice.invoice_id">
             <td class="py-4 px-6">{{ index + 1 }}</td>
-            <td class="py-4 px-6">{{ invoice.invoice_date }}</td>
+            <td class="py-4 px-6">{{ formatDate(invoice.invoice_date) }}</td>
             <td class="py-4 px-6">{{ invoice.contract_code }}</td>
             <td class="py-4 px-6">{{ invoice.tenant_name }}</td>
-            <td class="py-4 px-6 text-red-500">{{ invoice.issue_date }}</td>
+            <td class="py-4 px-6 text-red-500">{{ formatDate(invoice.issue_date) }}</td>
             <td class="py-4 px-6">{{ invoice.invoice_total }}</td>
             <td class="py-4 px-6 text-gray-900 text-center"><span :class="{
               'bg-yellow-400 p-2 rounded-lg shadow-lg ': invoice.payment_status === 'Pending',

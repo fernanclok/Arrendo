@@ -174,7 +174,7 @@ class ContractController extends Controller
     public function getContract($id)
     {
         // Obtener un contrato por su ID con sus relaciones
-        $contract = Contract::where('id', $id)->with('property', 'tenantUser', 'terminations')->first();
+        $contract = Contract::where('id', $id)->with('property', 'tenantUser', 'terminations ')->first();
         // Devolver una respuesta JSON de éxito
         return response()->json($contract);
     }
@@ -257,11 +257,11 @@ class ContractController extends Controller
             $termination->reason = $request->reason;
             $termination->save();
 
-            // Eliminar las facturas posteriores a la fecha de terminación del contrato
-            $terminationDate = Carbon::now();
+            $termination = Carbon::now();
             Invoice::where('contract_id', $id)
-                ->where('issue_date', '>', $terminationDate)
-                ->delete();
+                ->where('issue_date', '>', $termination)
+                ->where('payment_status', 'Pending')
+                ->update(['invoice_status' => 'Inactive']);
 
             // Devolver una respuesta JSON de éxito
             return response()->json(['message' => 'Contract terminated successfully'], 200);
@@ -292,6 +292,7 @@ class ContractController extends Controller
                     'total_amount' => $totalAmount,
                     'evidence_path' => null,
                     'payment_status' => 'Pending', // Estado inicial de la factura
+                    'invoice_status' => 'Active', // Estado inicial de la factura
                 ]);
 
                 // Guardar la factura

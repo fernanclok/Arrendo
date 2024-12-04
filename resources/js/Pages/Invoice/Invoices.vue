@@ -71,6 +71,10 @@ const closePaymentmodal = () => {
     selectedInvoice.value = null;
 };
 
+const formatDate = (date) => {
+  return new Date(date).toLocaleDateString('en-GB');
+};
+
 // Mostrar los recibos
 onMounted(() => {
   fetchInvoices();
@@ -83,27 +87,27 @@ watch([selectedMonth, selectedYear], fetchInvoices);
 <template>
   <Head title="Invoices" />
   <DashboardLayout>
-    <nav class="p-8  bg-gray-100 rounded-lg shadow-lg">
+    <nav class="p-8">
       <h1 class="text-2xl font-semibold text-gray-900">Invoices Owner</h1>
         <div class="mb-4 flex gap-4 items-center">
             <div class="w-full">
-            <label for="month" class="block text-sm font-medium text-gray-700">Mes</label>
+            <label for="month" class="block text-sm font-medium text-gray-700">Month</label>
             <select 
               id="month" 
               v-model="selectedMonth" 
-              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-green-700  focus:ring-green-700"
             >
               <option v-for="month in 12" :key="month" :value="month">
-                {{ new Date(0, month - 1).toLocaleString('es', { month: 'long' }) }}
+                {{ new Date(0, month - 1).toLocaleString('eng', { month: 'long' }) }}
               </option>
             </select>
           </div>
           <div class="w-full">
-            <label for="year" class="block text-sm font-medium text-gray-700">Año</label>
+            <label for="year" class="block text-sm font-medium text-gray-700">Year</label>
             <select 
               id="year" 
               v-model="selectedYear" 
-              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-green-700  focus:ring-green-700"
             >
               <option v-for="year in 10" :key="year" :value="new Date().getFullYear() - (5 - year)">
                 {{ new Date().getFullYear() - (5 - year) }}
@@ -127,7 +131,7 @@ watch([selectedMonth, selectedYear], fetchInvoices);
         <tbody>
           <tr v-for="invoice in invoices" :key="invoice.id">
             <td class="py-4 px-6 text-gray-600 text-center">{{ invoice.contract.contract_code }}</td>
-            <td class="py-4 px-6 text-gray-600 text-center">{{ invoice.issue_date }}</td>
+            <td class="py-4 px-6 text-gray-600 text-center">{{ formatDate(invoice.issue_date) }}</td>
             <td class="py-4 px-6 text-gray-600 text-center">{{ invoice.total_amount }}</td>
             <td class="py-4 px-6 text-gray-900 text-center"><span class="bg-yellow-400 p-2 rounded-lg shadow-lg ">{{ invoice.payment_status }}</span></td>
             <td class="py-4 px-6 text-gray-600 text-center">

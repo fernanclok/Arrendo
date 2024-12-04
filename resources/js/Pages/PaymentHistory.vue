@@ -14,11 +14,11 @@ import { Head, usePage } from '@inertiajs/vue3';
             <div class="max-w-6xl mx-auto mb-6 space-y-4">
               <div class="block">
                 <label for="search-query">Search by ID or Date:</label>
-                <input type="text" v-model="searchQuery" placeholder="Buscar por ID, fecha de pago o factura"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none" />
+                <input type="text" v-model="searchQuery"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:border-green-700 focus:ring-green-700 outline-none" />
             </div>
                     <select v-model="selectedTenant"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:border-green-700 focus:ring focus:ring-green-700 outline-none">
                     <option value="">All tenats</option>
                     <option v-for="tenant in tenants" :key="tenant.id" :value="tenant.id">
                         {{ tenant.first_name }} {{ tenant.last_name }}

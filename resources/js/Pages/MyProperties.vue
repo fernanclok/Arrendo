@@ -95,7 +95,7 @@ import { ref } from 'vue';
                                     <div>
                                         <InputLabel for="zone" value="Zone" />
                                         <select id="zone" v-model="newProperty.zone_id" required
-                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-700 focus:ring focus:ring-green-700 focus:ring-opacity-50">
                                             <option v-for="zone in zones" :key="zone.id" :value="zone.id">{{ zone.name
                                                 }}
                                             </option>
@@ -109,14 +109,14 @@ import { ref } from 'vue';
                                             <InputLabel for="total_rooms" value="Total Rooms" />
                                             <TextInput type="number" id="total_rooms" v-model="newProperty.total_rooms"
                                                 required
-                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-700 focus:ring focus:ring-green-700 focus:ring-opacity-50" />
                                             <InputError class="mt-2" :message="newProperty.errors.total_rooms" />
                                         </div>
                                         <div>
                                             <InputLabel for="total_bathrooms" value="Total Bathrooms" />
                                             <TextInput type="number" id="total_bathrooms"
                                                 v-model="newProperty.total_bathrooms" required
-                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-700 focus:ring focus:ring-green-700 focus:ring-opacity-50" />
                                             <InputError class="mt-2" :message="newProperty.errors.total_bathrooms" />
                                         </div>
                                         <div>
@@ -129,7 +129,7 @@ import { ref } from 'vue';
                                         <!--<div>
                                         <InputLabel for="have_parking" value="Parking Available" />
                                         <select id="have_parking" v-model="newProperty.have_parking" required
-                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-700 focus:ring focus:ring-green-700 focus:ring-opacity-50">
                                             <option value="1">Yes</option>
                                             <option value="0">No</option>
                                         </select>
@@ -161,7 +161,7 @@ import { ref } from 'vue';
                                             <InputLabel for="total_m2" value="Total Area (m²)" />
                                             <TextInput type="number" id="total_m2" v-model="newProperty.total_m2"
                                                 required
-                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-700 focus:ring focus:ring-green-700 focus:ring-opacity-50" />
                                             <InputError class="mt-2" :message="newProperty.errors.total_m2" />
                                         </div>
                                         <!--<div>
@@ -177,7 +177,7 @@ import { ref } from 'vue';
                                             <InputLabel for="property_price" value="Property Price" />
                                             <TextInput type="number" id="property_price"
                                                 v-model="newProperty.property_price" required
-                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" />
+                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-700 focus:ring focus:ring-green-700 focus:ring-opacity-50" />
                                             <InputError class="mt-2" :message="newProperty.errors.property_price" />
                                         </div>
                                         <div>
@@ -192,7 +192,7 @@ import { ref } from 'vue';
                                         </h3>
                                         <InputLabel for="availability" value="Availability" />
                                         <select id="availability" v-model="newProperty.availability" required
-                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-700 focus:ring focus:ring-green-700 focus:ring-opacity-50">
                                             <option value="Available">Available</option>
                                             <option value="Not Available">Not Available</option>
                                         </select>
@@ -201,7 +201,7 @@ import { ref } from 'vue';
                                     <div>
                                         <InputLabel for="property_details" value="Property Details" />
                                         <textarea id="property_details" v-model="newProperty.property_details" required
-                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"></textarea>
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-700 focus:ring focus:ring-green-700 focus:ring-opacity-50"></textarea>
                                         <InputError class="mt-2" :message="newProperty.errors.property_details" />
                                     </div>
 
@@ -282,7 +282,7 @@ import { ref } from 'vue';
                                         <div>
                                             <InputLabel for="accept_mascots" value="Accept Mascots" />
                                             <select id="accept_mascots" v-model="newProperty.accept_mascots" required
-                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-700 focus:ring focus:ring-green-700 focus:ring-opacity-50">
                                                 <option value="1">Yes</option>
                                                 <option value="0">No</option>
                                             </select>
