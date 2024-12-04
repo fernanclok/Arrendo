@@ -180,7 +180,6 @@ export default {
                 'grid-cols-1': form.application_files.length == 0,
                 'grid-cols-1 sm:grid-cols-2': form.application_files.length > 0,
             }">
-                <p class="text-sm text-gray-500 font-semibold">Here you can add a form of ID and other documents</p>
                 <div class="w-full">
                     <InputLabel for="contract_file"
                         class="flex flex-col items-center justify-center w-full h-[200px] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 ">

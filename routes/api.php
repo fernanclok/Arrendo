@@ -61,6 +61,7 @@ Route::prefix('properties')->group(function () {
     Route::post('/pass-documents', [RentalApplicationController::class, 'passDocuments']);
     Route::post('/pass-user-documents', [RentalApplicationController::class, 'updateUserDocuments']);
     Route::post('/user-applications', [RentalApplicationController::class, 'applicationsMadeByUser']);
+    Route::get('/file/{filePath}', [RentalApplicationController::class, 'showUserFile']);
 });
 
 Route::get('/properties/{id}', [PropertyController::class, 'show']);

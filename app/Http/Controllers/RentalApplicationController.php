@@ -6,6 +6,7 @@ use App\Models\Rental_application;
 use App\Models\Rental_document;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class RentalApplicationController extends Controller
@@ -202,4 +203,16 @@ class RentalApplicationController extends Controller
             'status' => 200
         ], 200);
     }
+
+    public function showUserFile($filePath)
+    {
+        $filePath = public_path("application_files/{$filePath}"); // Ruta completa del archivo
+
+        if (!file_exists($filePath)) {
+            abort(404, 'File does not exist.');
+        }
+
+        return response()->file($filePath); // Retornar el archivo
+    }
+
 }

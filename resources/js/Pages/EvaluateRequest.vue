@@ -1,87 +1,80 @@
 <template>
-    <DashboardLayout>
-      <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-          <div class="bg-white shadow-md rounded-lg">
-            <div class="p-6 border-b border-gray-200">
-              <h1 class="text-3xl font-bold text-gray-800">Application Evaluation</h1>
-              <p class="text-gray-600 mt-2">
-                Review and manage applications efficiently.
-              </p>
+  <DashboardLayout>
+    <div class="py-12">
+      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="bg-white shadow-md rounded-lg">
+          <div class="p-6 border-b border-gray-200">
+            <h1 class="text-3xl font-bold text-gray-800">Application Evaluation</h1>
+            <p class="text-gray-600 mt-2">
+              Review and manage applications efficiently.
+            </p>
+          </div>
+          <div class="p-6">
+            <!-- Tabs for filtering -->
+            <div class="flex justify-start space-x-4 mb-6">
+              <button v-for="tab in tabs" :key="tab" @click="currentTab = tab" :class="{
+                  'bg-blue-500 text-white': currentTab === tab,
+                  'bg-gray-100 text-gray-800': currentTab !== tab
+                }" class="px-4 py-2 rounded-lg">
+                {{ tab }}
+              </button>
             </div>
-            <div class="p-6">
-              <!-- Tabs for filtering -->
-              <div class="flex justify-start space-x-4 mb-6">
-                <button
-                  v-for="tab in tabs"
-                  :key="tab"
-                  @click="currentTab = tab"
-                  :class="{
-                    'bg-blue-500 text-white': currentTab === tab,
-                    'bg-gray-100 text-gray-800': currentTab !== tab
-                  }"
-                  class="px-4 py-2 rounded-lg"
-                >
-                  {{ tab }}
-                </button>
-              </div>
-  
-              <!-- Filtered content -->
-              <div v-for="solicitante in filteredSolicitantes" :key="solicitante.id" class="mb-6">
-                <div class="bg-gray-100 p-4 rounded-lg shadow-sm">
-                  <div class="flex justify-between items-center">
-                    <div>
-                      <p class="text-lg font-semibold text-gray-800">
-                        {{ solicitante.tenant_user.first_name }} {{ solicitante.tenant_user.last_name }}
-                      </p>
-                      <p class="text-sm text-gray-600">
-                        <strong>Property:</strong> {{ solicitante.property.street }}
-                      </p>
-                    </div>
-                    <button
-                      @click="toggleInfo(solicitante.id)"
-                      class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
-                    >
-                      {{ solicitante.isExpanded ? 'Less' : 'More' }}
-                    </button>
+
+            <!-- Filtered content -->
+            <div v-for="solicitante in filteredSolicitantes" :key="solicitante.id" class="mb-6">
+              <div class="bg-gray-100 p-4 rounded-lg shadow-sm">
+                <div class="flex justify-between items-center">
+                  <div>
+                    <p class="text-lg font-semibold text-gray-800">
+                      {{ solicitante.tenant_user.first_name }} {{ solicitante.tenant_user.last_name }}
+                    </p>
+                    <p class="text-sm text-gray-600">
+                      <strong>Property:</strong> {{ solicitante.property.street }}
+                    </p>
                   </div>
+                  <button @click="toggleInfo(solicitante.id)"
+                    class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">
+                    {{ solicitante.isExpanded ? 'Less' : 'More' }}
+                  </button>
                 </div>
-                <div
-                  v-if="solicitante.isExpanded"
-                  class="mt-4 p-4 bg-white border border-gray-200 rounded-lg"
-                >
-                  <p><strong>Applicant:</strong> {{ solicitante.tenant_user.first_name }} {{ solicitante.tenant_user.last_name }}</p>
-                  <p><strong>Property:</strong> {{ solicitante.property.street }}</p>
-                  <p><strong>Requested:</strong> {{ solicitante.application_date }}</p>
-                  <p class="mt-2"><strong>Applicant Information:</strong></p>
-                  <ul class="list-disc list-inside text-gray-700">
-                    <li><strong>Email:</strong> {{ solicitante.tenant_user.email }}</li>
-                    <li><strong>Phone:</strong> {{ solicitante.tenant_user.phone }}</li>
-                  </ul>
-                  <div class="mt-4 flex space-x-3">
-                    <button
-                      v-if="currentTab === 'Pending'"
-                      @click="approveRequest(solicitante.id)"
-                      class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
-                    >
-                      Approve
-                    </button>
-                    <button
-                      v-if="currentTab === 'Pending'"
-                      @click="rejectRequest(solicitante.id)"
-                      class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition"
-                    >
-                      Reject
-                    </button>
-                  </div>
+              </div>
+              <div v-if="solicitante.isExpanded" class="mt-4 p-4 bg-white border border-gray-200 rounded-lg">
+                <p><strong>Applicant:</strong> {{ solicitante.tenant_user.first_name }} {{
+                  solicitante.tenant_user.last_name }}</p>
+                <p><strong>Property:</strong> {{ solicitante.property.street }}</p>
+                <p><strong>Requested:</strong> {{ solicitante.application_date }}</p>
+                <p><strong>Documentos:</strong></p>
+                <ul>
+                  <li v-for="(file, index) in solicitante.documents" :key="index">
+                    <a :href="getDocumentUrl(file)" target="_blank" rel="noopener noreferrer"
+                      class="text-blue-500 underline hover:text-blue-700">
+                      Ver documento {{ index + 1 }}
+                    </a>
+                  </li>
+                </ul>
+                <p class="mt-2"><strong>Applicant Information:</strong></p>
+                <ul class="list-disc list-inside text-gray-700">
+                  <li><strong>Email:</strong> {{ solicitante.tenant_user.email }}</li>
+                  <li><strong>Phone:</strong> {{ solicitante.tenant_user.phone }}</li>
+                </ul>
+                <div class="mt-4 flex space-x-3">
+                  <button v-if="currentTab === 'Pending'" @click="approveRequest(solicitante.id)"
+                    class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition">
+                    Approve
+                  </button>
+                  <button v-if="currentTab === 'Pending'" @click="rejectRequest(solicitante.id)"
+                    class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition">
+                    Reject
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </DashboardLayout>
-  </template>
+    </div>
+  </DashboardLayout>
+</template>
   
   <script>
   import axios from "axios";
@@ -94,6 +87,9 @@
         solicitantes: [], // Data fetched from API
         currentTab: "Pending", // Default selected tab
         tabs: ["Pending", "Approved", "Rejected"], // Tab options
+        showModal: false, // Control del modal
+        selectedFile: null, // Ruta del archivo seleccionado
+        selectedFileType: null, // Tipo de archivo seleccionado
       };
     },
     computed: {
@@ -113,6 +109,7 @@
           this.solicitantes = response.data.map((solicitante) => ({
             ...solicitante,
             isExpanded: false, // Add `isExpanded` property to toggle
+            documents: JSON.parse(solicitante.tenant_user.document_path || "[]"), // Extraer documentos
           }));
         } catch (error) {
           console.error("Error fetching solicitantes:", error);
@@ -146,14 +143,34 @@
           solicitante.id === id ? { ...solicitante, status: newStatus } : solicitante
         );
       },
+      getFileName(filePath) {
+        return filePath.split().pop();
+      },
+      showDocument(filePath) {
+        console.log("Mostrar documento:", filePath);
+        // Aquí llamaremos al modal en el paso siguiente
+      },
+      showDocument(filePath) {
+        // Determinar el tipo de archivo
+        const fileType = filePath.endsWith(".pdf") ? "pdf" : "image";
+        // Configurar las propiedades del modal
+        this.selectedFile = `/storage/${filePath}`; // Ajusta el path según tu servidor Laravel
+        this.selectedFileType = fileType;
+        this.showModal = true;
+      },
+      closeModal() {
+        this.showModal = false;
+        this.selectedFile = null;
+        this.selectedFileType = null;
+      },
+      getDocumentUrl(filePath) {
+        let file = filePath.replace('application_files/', '');
+        console.log("File path:", file);
+        return `api/properties/file/${file}`; // Cambia la base del path según tu configuración
+      },
     },
   };
   </script>
-  
-  
-
-  
-  
   <style scoped>
   .card {
     border: 1px solid #e0e0e0;
