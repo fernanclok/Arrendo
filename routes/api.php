@@ -70,6 +70,7 @@ Route::prefix('properties')->group(function () {
     Route::post('/user-applications', [RentalApplicationController::class, 'applicationsMadeByUser']);
 
     Route::get('/file/{filePath}', [RentalApplicationController::class, 'showUserFile']);
+    Route::post('/profile-documents', [RentalApplicationController::class, 'updateUserDocumentsPath']);
 });
 
 Route::get('/properties/{id}', [PropertyController::class, 'show']);
@@ -108,7 +109,7 @@ Route::prefix('maintenance')->group(function () {
     Route::get('/maintenancesReqOwner', [MaintenanceController::class, 'getRequestsByProperty']);
     Route::get('/getPropertyByTenant', [MaintenanceController::class, 'getPropertyByTenant']);
     Route::post('/store', [MaintenanceController::class, 'store']);
-    Route::patch('/{id}',[MaintenanceController::class, 'update']);
+    Route::patch('/{id}', [MaintenanceController::class, 'update']);
     Route::put('/maintenancesReqOwner/{id}', [MaintenanceController::class, 'updateRequest']);
 });
 

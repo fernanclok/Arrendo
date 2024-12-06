@@ -60,6 +60,15 @@
                   <p v-if="solicitante.status === 'Rejected'">
                     <strong>Rejected on:</strong> {{ formatDate(solicitante.updated_at) }}
                   </p>
+                  <p><strong>Documents:</strong></p>
+                  <ul>
+                    <li v-for="(file, index) in solicitante.documents" :key="index">
+                      <a :href="getDocumentUrl(file)" target="_blank" rel="noopener noreferrer"
+                        class="text-blue-500 underline hover:text-blue-700">
+                        Show Document {{ index + 1 }}
+                      </a>
+                    </li>
+                  </ul>
 
 
                 </div>
@@ -84,6 +93,8 @@ export default {
       solicitantes: [], // Solicitudes del tenant logueado
       currentTab: "Pending", // Tab inicial
       tabs: ["Pending", "Approved", "Rejected"], // Tabs disponibles
+      selectedFile: null, // Ruta del archivo seleccionado
+      selectedFileType: null, // Tipo de archivo seleccionado
     };
   },
   computed: {
@@ -108,7 +119,9 @@ export default {
         this.solicitantes = response.data.map((solicitante) => ({
           ...solicitante,
           isExpanded: false, // Estado inicial de expansión
+          documents: JSON.parse(solicitante.tenant_user.document_path || "[]"),
         }));
+        console.log("Solicitantes:", this.solicitantes);
       } catch (error) {
         console.error("Error fetching solicitantes:", error);
       }
@@ -122,6 +135,22 @@ export default {
     },
     formatDate(date) {
       return new Date(date).toLocaleDateString();
+    },
+    getFileName(filePath) {
+      return filePath.split().pop();
+    },
+    showDocument(filePath) {
+      // Determinar el tipo de archivo
+      const fileType = filePath.endsWith(".pdf") ? "pdf" : "image";
+      // Configurar las propiedades del modal
+      this.selectedFile = `/storage/${filePath}`; // Ajusta el path según tu servidor Laravel
+      this.selectedFileType = fileType;
+      this.showModal = true;
+    },
+    getDocumentUrl(filePath) {
+      let file = filePath.replace('application_files/', '');
+      console.log("File path:", file);
+      return `/api/properties/file/${file}`; // Cambia la base del path según tu configuración
     },
   },
 };

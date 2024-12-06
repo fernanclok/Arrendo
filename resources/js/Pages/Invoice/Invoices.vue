@@ -19,6 +19,7 @@ const fetchInvoices = async () => {
     const response = await fetch(`/api/Invoices/invoices?month=${selectedMonth.value}&year=${selectedYear.value}`);
     if (response.ok) {
       const data = await response.json();
+      console.log('Recibos:', data);
       invoices.value = data;
     } else {
       console.error('Hubo un error al obtener los recibos:', await response.json());
@@ -121,6 +122,7 @@ watch([selectedMonth, selectedYear], fetchInvoices);
         <thead>
           <tr class="bg-gray-100">
             <th class="w-1/4 py-4 px-6 text-center text-gray-600 font-bold uppercase ">Contract</th>
+            <th class="w-1/4 py-4 px-6 text-center text-gray-600 font-bold uppercase ">Tenant</th>
             <th class="w-1/4 py-4 px-6 text-center text-gray-600 font-bold uppercase">Issue Date</th>
             <th class="w-1/4 py-4 px-6 text-center text-gray-600 font-bold uppercase">Total Amount</th>
             <th class="w-1/4 py-4 px-6 text-center text-gray-600 font-bold uppercase">Payment Status</th>
@@ -131,6 +133,7 @@ watch([selectedMonth, selectedYear], fetchInvoices);
         <tbody>
           <tr v-for="invoice in invoices" :key="invoice.id">
             <td class="py-4 px-6 text-gray-600 text-center">{{ invoice.contract.contract_code }}</td>
+            <td class="py-4 px-6 text-gray-600 text-center">{{ invoice.contract.tenant_user.first_name }} {{ invoice.contract.tenant_user.last_name }}</td>
             <td class="py-4 px-6 text-gray-600 text-center">{{ formatDate(invoice.issue_date) }}</td>
             <td class="py-4 px-6 text-gray-600 text-center">{{ invoice.total_amount }}</td>
             <td class="py-4 px-6 text-gray-900 text-center"><span class="bg-yellow-400 p-2 rounded-lg shadow-lg ">{{ invoice.payment_status }}</span></td>

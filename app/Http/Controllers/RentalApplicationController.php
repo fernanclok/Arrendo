@@ -245,4 +245,72 @@ class RentalApplicationController extends Controller
 
         return response()->file($filePath); // Retornar el archivo
     }
+
+
+    public function nullPath($id)
+    {
+        $user = User::find($id);
+        $user->document_path = null;
+        $user->save();
+    }
+
+    public function updateUserDocumentsPath(Request $request)
+    {
+        try {
+            // Validar los datos del formulario
+            $validator = Validator::make($request->all(), [
+                'tenant_user_id' => 'required|integer|exists:users,id',
+                'application_files.*' => 'required|file|mimes:pdf,png,jpg,jpeg'
+            ]);
+
+            if ($validator->fails()) {
+                $data = [
+                    'message' => 'Error en la validacion de los datos',
+                    'error' => $validator->errors(),
+                    'status' => 200
+                ];
+
+                return response()->json($data, 400);
+            }
+
+            $validatedData = $validator->validated();
+
+            $id = $request->tenant_user_id;
+
+            $this->nullPath($id);
+
+            $user = User::find($request->tenant_user_id);
+
+            if ($request->hasFile('application_files')) {
+                $files = [];
+                foreach ($request->file('application_files') as $file) {
+                    $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                    $extension = $file->getClientOriginalExtension();
+                    $timestamp = now()->format('YmdHis');
+
+                    // Reemplazar espacios por guiones bajos o quitarlos
+                    $sanitizedOriginalName = preg_replace('/\s+/', '_', $originalName);
+                    $newName = "{$sanitizedOriginalName}_{$timestamp}.{$extension}";
+                    $destinationPath = public_path('application_files');
+
+                    // Crear la carpeta si no existe
+                    if (!file_exists($destinationPath)) {
+                        mkdir($destinationPath, 0777, true);
+                    }
+
+                    $file->move($destinationPath, $newName);
+                    $files[] = "application_files/{$newName}";
+                }
+                $user->document_path = json_encode($files);
+            }
+
+            $user->save();
+
+            // Devolver una respuesta JSON de éxito
+            return response()->json(['message' => 'Documents uploaded succesfully', 'User' => $user], 201);
+        } catch (\Exception $e) {
+            // Devolver una respuesta JSON de error
+            return response()->json(['success' => false, 'message' => $e,], 500);
+        }
+    }
 }

@@ -173,8 +173,18 @@ class ContractController extends Controller
 
     public function getContract($id)
     {
-        // Obtener un contrato por su ID con sus relaciones
-        $contract = Contract::where('id', $id)->with('property', 'tenantUser', 'terminations ')->first();
+        // obtener el contrato con el id proporcionado y sus relaciones
+        $contract = Contract::with('property', 'tenantUser', 'ownerUser', 'terminations')
+            ->find($id);
+        // verificar si el contrato tiene una renovación
+        $contractRenewal = Contract_renewal::where('contract_id', $id)
+            ->orderBy('renewal_end_date', 'desc')
+            ->first();
+        // verificar si el contrato tiene una terminación
+        $contractTermination = ContractTermination::where('contract_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
         // Devolver una respuesta JSON de éxito
         return response()->json($contract);
     }

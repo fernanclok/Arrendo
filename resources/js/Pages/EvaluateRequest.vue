@@ -245,10 +245,6 @@ export default {
       return filePath.split().pop();
     },
     showDocument(filePath) {
-      console.log("Mostrar documento:", filePath);
-      // Aquí llamaremos al modal en el paso siguiente
-    },
-    showDocument(filePath) {
       // Determinar el tipo de archivo
       const fileType = filePath.endsWith(".pdf") ? "pdf" : "image";
       // Configurar las propiedades del modal

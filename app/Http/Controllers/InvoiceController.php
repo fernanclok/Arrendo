@@ -33,7 +33,10 @@ class InvoiceController extends Controller
             ->where('invoice_status', 'Active')
             ->with([
                 'contract' => function ($query) {
-                    $query->select('id', 'contract_code');
+                    $query->select('id', 'contract_code', 'tenant_user_id')
+                        ->with(['tenantUser' => function ($query) {
+                            $query->select('id', 'first_name', 'last_name');
+                        }]);
                 }
             ])
             ->select('id', 'issue_date', 'total_amount', 'payment_status', 'contract_id', 'evidence_path')
@@ -88,9 +91,14 @@ class InvoiceController extends Controller
                 )
                 ->where('c.tenant_user_id', $request->user_id)
                 ->where('i.invoice_status', 'Active')
-                ->where('i.payment_status', 'Paid')
                 ->orderBy('i.issue_date', 'asc')
                 ->get();
+
+            // evaluar si el usuario tiene recibos pagados
+            foreach ($history as $invoice) {
+                $invoice->payment_history = Payment_history::where('invoice_id', $invoice->invoice_id)->get();
+            }
+
 
             return response()->json($history);
         } catch (\Exception $e) {

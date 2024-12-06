@@ -5,8 +5,6 @@ import { Head, Link, usePage } from '@inertiajs/vue3';
 import { ref, onMounted } from 'vue';
 // Detalles de contrato
 
-// Fecha de inicio y fin de contrato y nombre del tenant de contrato
-// Informacion de la propiedad     ||    Informacion del Tenant
 // Imagenes y Documentos subidos
 const user = usePage().props.auth.user;
 const contract = ref({});
